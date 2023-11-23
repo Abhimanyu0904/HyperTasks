@@ -1,1 +1,1 @@
-# Blockchain_project
+# Blockchain Feedback Platform created using Hyperledger Fabric
