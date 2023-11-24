@@ -221,7 +221,7 @@ class feedback extends Contract {
                 try {
                     feedback = JSON.parse(res.value.value.toString('utf8'));
                     console.log(feedback);
-                    if (feedback.userID === userID) {
+                    if (feedback.userID === userID && feedback.role === 'student') {
                         queriedFeedbacksByStudent.push({Key, feedback});
                     }
                 } catch (err) {
@@ -234,6 +234,44 @@ class feedback extends Contract {
                 console.info(queriedFeedbacksByStudent);
                 console.info('============= END : queryFeedbacksByStudent ===========');
                 return JSON.stringify(queriedFeedbacksByStudent);
+            }
+        }
+    }
+
+    async queryFeedbacksByFaculty(ctx) {
+        console.info('============= START : queryFeedbacksByFaculty ===========');
+
+        const startKey = 'F0';
+        const endKey = 'F99999';
+
+        const iterator = await ctx.stub.getStateByRange(startKey, endKey);
+
+        let cid = new ClientIdentity(ctx.stub);
+        let userID = cid.getID();
+
+        const queriedFeedbacksByFaculty = [];
+        while (true) {
+            const res = await iterator.next();
+
+            if (res.value && res.value.value.toString()) {
+                const Key = res.value.key;
+                let feedback;
+                try {
+                    feedback = JSON.parse(res.value.value.toString('utf8'));
+                    console.log(feedback);
+                    if (feedback.userID === userID && feedback.role === 'faculty') {
+                        queriedFeedbacksByFaculty.push({Key, feedback});
+                    }
+                } catch (err) {
+                    console.log(err);
+                    feedback = res.value.value.toString('utf8');
+                }
+            }
+            if (res.done) {
+                await iterator.close();
+                console.info(queriedFeedbacksByFaculty);
+                console.info('============= END : queryFeedbacksByFaculty ===========');
+                return JSON.stringify(queriedFeedbacksByFaculty);
             }
         }
     }
@@ -349,6 +387,8 @@ class feedback extends Contract {
         feedbackCounter += 1;
         feedbackID = 'F' + feedbackCounter;
 
+        const confirmedBy = [];
+
         // Create a new feedback object and store it on the blockchain
         const feedback = {
             feedbackID,
@@ -356,12 +396,68 @@ class feedback extends Contract {
             content,
             //student or faculty
             role,
-            confirmations
+            confirmations,
+            confirmedBy
         };
 
         await ctx.stub.putState(feedbackID.toString(), Buffer.from(JSON.stringify(feedback)));
         console.info('============= END : addFeedback ===========');
+    }
 
+    async confirmStudentFeedback(ctx, feedbackID) {
+
+        let cid = new ClientIdentity(ctx.stub);
+        let userID = cid.getID();
+
+        // Retrieve the feedback from the ledger
+        const feedbackAsBytes = await ctx.stub.getState(feedbackID);
+        if (!feedbackAsBytes || feedbackAsBytes.length === 0) {
+            throw new Error(`Feedback with ID ${feedbackID} does not exist.`);
+        }
+        let feedback = JSON.parse(feedbackAsBytes.toString());
+
+        // Check if the user has already confirmed this feedback
+        if (feedback.confirmedBy.includes(userID)) {
+            throw new Error(`User ${userID} has already confirmed this feedback.`);
+        }
+
+        if (feedback.role === 'student'){
+            // Add the user's confirmation
+            feedback.confirmedBy.push(userID);
+            feedback.confirmations++;
+        }
+        // Update the feedback in the ledger
+        await ctx.stub.putState(feedbackID, Buffer.from(JSON.stringify(feedback)));
+
+        return JSON.stringify(feedback);
+    }
+
+    async confirmFacultyFeedback(ctx, feedbackID) {
+
+        let cid = new ClientIdentity(ctx.stub);
+        let userID = cid.getID();
+
+        // Retrieve the feedback from the ledger
+        const feedbackAsBytes = await ctx.stub.getState(feedbackID);
+        if (!feedbackAsBytes || feedbackAsBytes.length === 0) {
+            throw new Error(`Feedback with ID ${feedbackID} does not exist.`);
+        }
+        let feedback = JSON.parse(feedbackAsBytes.toString());
+
+        // Check if the user has already confirmed this feedback
+        if (feedback.confirmedBy.includes(userID)) {
+            throw new Error(`User ${userID} has already confirmed this feedback.`);
+        }
+
+        if (feedback.role === 'faculty'){
+            // Add the user's confirmation
+            feedback.confirmedBy.push(userID);
+            feedback.confirmations++;
+        }
+        // Update the feedback in the ledger
+        await ctx.stub.putState(feedbackID, Buffer.from(JSON.stringify(feedback)));
+
+        return JSON.stringify(feedback);
     }
 
     async queryStudentFeedbacks(ctx) {
