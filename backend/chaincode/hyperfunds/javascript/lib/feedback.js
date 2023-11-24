@@ -8,12 +8,13 @@ const { Contract } = require('fabric-contract-api');
 const ClientIdentity = require('fabric-shim').ClientIdentity;
 
 let outlets = [];
+let students = [];
 
-let rewardCounter = -1;
-let rewardID;
+let studentCounter = -1;
+let studentID;
 
-let purchaseCounter = -1;
-let purchaseID;
+let feedbackCounter = -1;
+let feedbackID;
 
 
 class bphr extends Contract {
@@ -52,18 +53,19 @@ class bphr extends Contract {
         console.info('============= END : Initialize Ledger ===========');
     }
 
-    async registerStudent(ctx, studentID, location) {
-        console.info('============= START : registerOutlet ===========');
+    async registerStudent(ctx, studentName, email) {
+        console.info('============= START : registerStudent ===========');
+
+        studentCounter = Number(studentCounter);
+        studentCounter += 1;
+        studentID = 'S' + studentCounter;
+
         // Create the outlet object
         const student = {
-            studentId,
-            ashokaId,
+            studentID,
+            ashokaID,
             studentName,
             email,
-            department,
-            enrollmentYear,
-            program,
-            docType: 'student',
             feedbackIDs: [] // This array will store feedback related to the student
         };
         if (!(students.includes(student))) {
@@ -71,34 +73,15 @@ class bphr extends Contract {
         }
 
         // Store outlet on the ledger
-        await ctx.stub.putState(outletID.toString(), Buffer.from(JSON.stringify(outlet)));
-        return `Successfully registered Outlet ${outletID}`;
-        console.info('============= START : registerOutlet ===========');
+        await ctx.stub.putState(studentID.toString(), Buffer.from(JSON.stringify(student)));
+        console.info('============= START : registerStudent ===========');
+        return `Successfully registered Student ${studentID}`;
     }
 
-    async registerOutlet(ctx, outletID, location) {
-        console.info('============= START : registerOutlet ===========');
-        // Create the outlet object
-        const outlet = {
-            outletID,
-            location,
-        };
-        if (!(outlets.includes(outlet))) {
-            outlets.push(outlet);
-        }
-
-        // Store outlet on the ledger
-        await ctx.stub.putState(outletID.toString(), Buffer.from(JSON.stringify(outlet)));
-        return `Successfully registered Outlet ${outletID}`;
-        console.info('============= START : registerOutlet ===========');
-    }
-
-    async queryAllOutlets(ctx) {
-        console.info('============= START : queryAllOutlets ===========');
-
-        return JSON.stringify(outlets);
-        console.info('============= END : queryAllOutlets ===========');
-
+    async queryAllStudents(ctx) {
+        console.info('============= START : queryAllStudents ===========');
+        console.info('============= END : queryAllStudents ===========');
+        return JSON.stringify(students);
     }
 
     // Register a purchase
@@ -272,58 +255,98 @@ class bphr extends Contract {
         }
     }
 
-    async addReward(ctx, description) {
+    async addFeedback(ctx, content, role) {
 
-        console.info('============= START : addReward ===========');
+        console.info('============= START : addFeedback ===========');
         console.log(rewardCounter);
 
-        rewardCounter = Number(rewardCounter);
-        rewardCounter += 1;
-        rewardID = 'R' + rewardCounter;
-        let owner = 'university';
+        let confirmations = 0;
+        confirmations = Number(confirmations);
 
-        // Create a new reward object and store it on the blockchain
-        const reward = {
-            rewardID,
-            description,
-            owner,
+        feedbackCounter = Number(feedbackCounter);
+        feedbackCounter += 1;
+        feedbackID = 'F' + feedbackCounter;
+
+        // Create a new feedback object and store it on the blockchain
+        const feedback = {
+            feedbackID,
+            content,
+            //student or faculty
+            role,
+            confirmations
         };
 
-        await ctx.stub.putState(rewardID.toString(), Buffer.from(JSON.stringify(reward)));
-        console.info('============= END : addReward ===========');
+        await ctx.stub.putState(feedbackID.toString(), Buffer.from(JSON.stringify(feedback)));
+        console.info('============= END : addFeedback ===========');
 
     }
 
+    async queryStudentFeedbacks(ctx) {
+        console.info('============= START : queryStudentFeedbacks ===========');
 
-    async queryAllRewards(ctx) {
-        console.info('============= START : queryAllRewards ===========');
-
-        const startKey = 'R0';
-        const endKey = 'R99999';
+        const startKey = 'F0';
+        const endKey = 'F99999';
 
         const iterator = await ctx.stub.getStateByRange(startKey, endKey);
 
-        const allRewards = [];
+        const studentFeedbacks = [];
         while (true) {
             const res = await iterator.next();
 
             if (res.value && res.value.value.toString()) {
                 const Key = res.value.key;
-                let reward;
+                let feedback;
                 try {
-                    reward = JSON.parse(res.value.value.toString('utf8'));
+                    feedback = JSON.parse(res.value.value.toString('utf8'));
 
                 } catch (err) {
                     console.log(err);
-                    reward = res.value.value.toString('utf8');
+                    feedback = res.value.value.toString('utf8');
                 }
-                allRewards.push({Key, reward});
+                if (feedback.role === 'student'){
+                    studentFeedbacks.push({Key, feedback});
+                }
             }
             if (res.done) {
                 await iterator.close();
-                console.info(allRewards);
-                console.info('============= END : queryAllRewards ===========');
-                return JSON.stringify(allRewards);
+                console.info(studentFeedbacks);
+                console.info('============= END : queryStudentFeedbacks ===========');
+                return JSON.stringify(studentFeedbacks);
+            }
+        }
+    }
+
+    async queryFacultyFeedbacks(ctx) {
+        console.info('============= START : queryFacultyFeedbacks ===========');
+
+        const startKey = 'F0';
+        const endKey = 'F99999';
+
+        const iterator = await ctx.stub.getStateByRange(startKey, endKey);
+
+        const facultyFeedbacks = [];
+        while (true) {
+            const res = await iterator.next();
+
+            if (res.value && res.value.value.toString()) {
+                const Key = res.value.key;
+                let feedback;
+                try {
+                    feedback = JSON.parse(res.value.value.toString('utf8'));
+
+                } catch (err) {
+                    console.log(err);
+                    feedback = res.value.value.toString('utf8');
+                }
+                if (feedback.role === 'faculty'){
+                    facultyFeedbacks.push({Key, feedback});
+                }
+            }
+            if (res.done) {
+                await iterator.close();
+                console.info(facultyFeedbacks);
+                console.info('============= END : queryFacultyFeedbacks ===========');
+                return JSON.stringify(facultyFeedbacks);
             }
         }
     }
