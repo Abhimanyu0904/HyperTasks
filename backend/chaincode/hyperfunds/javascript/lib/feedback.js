@@ -61,19 +61,21 @@ class feedback extends Contract {
 
         let cid = new ClientIdentity(ctx.stub);
         let userID = cid.getID();
+        let hash_pass;
 
         studentCounter = Number(studentCounter);
         studentCounter += 1;
         studentID = 'S' + studentCounter;
 
-        // Create the outlet object
+        // Create the student object
         const student = {
             userID,
             studentID,
             ashokaID,
             studentName,
             email,
-            feedbackIDs: [] // This array will store feedback related to the student
+            hash_pass
+            // feedbackIDs: [] // This array will store feedback related to the student
         };
         if (!(students.includes(student))) {
             students.push(student);
@@ -90,6 +92,7 @@ class feedback extends Contract {
 
         let cid = new ClientIdentity(ctx.stub);
         let userID = cid.getID();
+        let hash_pass;
 
         facultyCounter = Number(facultyCounter);
         facultyCounter += 1;
@@ -101,7 +104,8 @@ class feedback extends Contract {
             facultyID,
             facultyName,
             email,
-            feedbackIDs: [] // This array will store feedback related to the faculty
+            hash_pass
+            // feedbackIDs: [] // This array will store feedback related to the faculty
         };
         if (!(faculties.includes(faculty))) {
             faculties.push(faculty);
@@ -125,80 +129,76 @@ class feedback extends Contract {
         return JSON.stringify(faculties);
     }
 
-    // Register a purchase
-    //IMPORTANT NOTE: I know the date parameter shouldn't be here since the user can enter any date they want in order to win the reward
-    //When deploying this in production, i would just use the current date instead of a user passing in a date.
-    //Doing this here so as to check if the redeemreward function works
-    async registerPurchase(ctx, outletID, item, date) {
+    // async registerPurchase(ctx, outletID, item, date) {
 
-        let cid = new ClientIdentity(ctx.stub);
-        let userID = cid.getID();
+    //     let cid = new ClientIdentity(ctx.stub);
+    //     let userID = cid.getID();
 
-        //"yyyy-mm-dd"
-        const status = 'pending';
-        let dateOfPurchase;
-        if (date === "x"){
-            dateOfPurchase = new Date().toISOString().split('T')[0];
-        }
-        else{
-            dateOfPurchase = date;
-        }
-        // const dateOfPurchase = date ? date : new Date().toISOString().split('T')[0];
-        const used = false;
+    //     //"yyyy-mm-dd"
+    //     const status = 'pending';
+    //     let dateOfPurchase;
+    //     if (date === "x"){
+    //         dateOfPurchase = new Date().toISOString().split('T')[0];
+    //     }
+    //     else{
+    //         dateOfPurchase = date;
+    //     }
+    //     // const dateOfPurchase = date ? date : new Date().toISOString().split('T')[0];
+    //     const used = false;
 
-        purchaseCounter = Number(purchaseCounter);
-        purchaseCounter += 1;
-        purchaseID = 'P' + purchaseCounter;
-        const purchase = {
-            purchaseID,
-            userID,
-            outletID,
-            item,
-            status,
-            dateOfPurchase,
-            used,
-        };
+    //     purchaseCounter = Number(purchaseCounter);
+    //     purchaseCounter += 1;
+    //     purchaseID = 'P' + purchaseCounter;
+    //     const purchase = {
+    //         purchaseID,
+    //         userID,
+    //         outletID,
+    //         item,
+    //         status,
+    //         dateOfPurchase,
+    //         used,
+    //     };
 
-        await ctx.stub.putState(purchaseID.toString(), Buffer.from(JSON.stringify(purchase)));
-        console.log(`Item ${item} purchased successfully from outlet ${outletID} on ${date}! Your Purchase ID is ${purchaseID}. Please save it`);
-    }
+    //     await ctx.stub.putState(purchaseID.toString(), Buffer.from(JSON.stringify(purchase)));
+    //     console.log(`Item ${item} purchased successfully from outlet ${outletID} on ${date}! Your Purchase ID is ${purchaseID}. Please save it`);
+    // }
 
-    async queryPurchasesByOutlet(ctx, outletID) {
-        console.info('============= START : queryPurchasesByOutlet ===========');
+    // async queryPurchasesByOutlet(ctx, outletID) {
+    //     console.info('============= START : queryPurchasesByOutlet ===========');
 
-        const startKey = 'P0';
-        const endKey = 'P99999';
+    //     const startKey = 'P0';
+    //     const endKey = 'P99999';
 
-        const iterator = await ctx.stub.getStateByRange(startKey, endKey);
+    //     const iterator = await ctx.stub.getStateByRange(startKey, endKey);
 
-        const queriedPurchasesByOutlet = [];
-        while (true) {
-            const res = await iterator.next();
+    //     const queriedPurchasesByOutlet = [];
+    //     while (true) {
+    //         const res = await iterator.next();
 
-            if (res.value && res.value.value.toString()) {
-                const Key = res.value.key;
-                let purchase;
-                try {
-                    purchase = JSON.parse(res.value.value.toString('utf8'));
-                    console.log(purchase);
-                    if (purchase.outletID === outletID) {
-                        queriedPurchasesByOutlet.push({Key, purchase});
-                    }
+    //         if (res.value && res.value.value.toString()) {
+    //             const Key = res.value.key;
+    //             let purchase;
+    //             try {
+    //                 purchase = JSON.parse(res.value.value.toString('utf8'));
+    //                 console.log(purchase);
+    //                 if (purchase.outletID === outletID) {
+    //                     queriedPurchasesByOutlet.push({Key, purchase});
+    //                 }
 
-                } catch (err) {
-                    console.log(err);
-                    purchase = res.value.value.toString('utf8');
-                }
+    //             } catch (err) {
+    //                 console.log(err);
+    //                 purchase = res.value.value.toString('utf8');
+    //             }
 
-            }
-            if (res.done) {
-                await iterator.close();
-                console.info(queriedPurchasesByOutlet);
-                console.info('============= END : queryPurchasesByOutlet ===========');
-                return JSON.stringify(queriedPurchasesByOutlet);
-            }
-        }
-    }
+    //         }
+    //         if (res.done) {
+    //             await iterator.close();
+    //             console.info(queriedPurchasesByOutlet);
+    //             console.info('============= END : queryPurchasesByOutlet ===========');
+    //             return JSON.stringify(queriedPurchasesByOutlet);
+    //         }
+    //     }
+    // }
 
     async queryFeedbacksByStudent(ctx) {
         console.info('============= START : queryFeedbacksByStudent ===========');
@@ -276,43 +276,43 @@ class feedback extends Contract {
         }
     }
 
-    async queryPurchasesByUser(ctx) {
-        console.info('============= START : queryPurchasesByUser ===========');
+    // async queryPurchasesByUser(ctx) {
+    //     console.info('============= START : queryPurchasesByUser ===========');
 
-        const startKey = 'P0';
-        const endKey = 'P99999';
+    //     const startKey = 'P0';
+    //     const endKey = 'P99999';
 
-        const iterator = await ctx.stub.getStateByRange(startKey, endKey);
+    //     const iterator = await ctx.stub.getStateByRange(startKey, endKey);
 
-        let cid = new ClientIdentity(ctx.stub);
-        let userID = cid.getID();
+    //     let cid = new ClientIdentity(ctx.stub);
+    //     let userID = cid.getID();
 
-        const queriedPurchasesByUser = [];
-        while (true) {
-            const res = await iterator.next();
+    //     const queriedPurchasesByUser = [];
+    //     while (true) {
+    //         const res = await iterator.next();
 
-            if (res.value && res.value.value.toString()) {
-                const Key = res.value.key;
-                let purchase;
-                try {
-                    purchase = JSON.parse(res.value.value.toString('utf8'));
-                    console.log(purchase);
-                    if (purchase.userID === userID) {
-                        queriedPurchasesByUser.push({Key, purchase});
-                    }
-                } catch (err) {
-                    console.log(err);
-                    purchase = res.value.value.toString('utf8');
-                }
-            }
-            if (res.done) {
-                await iterator.close();
-                console.info(queriedPurchasesByUser);
-                console.info('============= END : queryPurchasesByUser ===========');
-                return JSON.stringify(queriedPurchasesByUser);
-            }
-        }
-    }
+    //         if (res.value && res.value.value.toString()) {
+    //             const Key = res.value.key;
+    //             let purchase;
+    //             try {
+    //                 purchase = JSON.parse(res.value.value.toString('utf8'));
+    //                 console.log(purchase);
+    //                 if (purchase.userID === userID) {
+    //                     queriedPurchasesByUser.push({Key, purchase});
+    //                 }
+    //             } catch (err) {
+    //                 console.log(err);
+    //                 purchase = res.value.value.toString('utf8');
+    //             }
+    //         }
+    //         if (res.done) {
+    //             await iterator.close();
+    //             console.info(queriedPurchasesByUser);
+    //             console.info('============= END : queryPurchasesByUser ===========');
+    //             return JSON.stringify(queriedPurchasesByUser);
+    //         }
+    //     }
+    // }
 
     // Validate a purchase by an outlet
     async validatePurchase(ctx, purchaseID, outletID) {
@@ -334,43 +334,43 @@ class feedback extends Contract {
         await ctx.stub.putState(purchaseID, Buffer.from(JSON.stringify(purchase)));
     }
 
-    async validateAllPurchases(ctx, outletID) {
-        console.info('============= START : validateAllUserPurchases ===========');
+    // async validateAllPurchases(ctx, outletID) {
+    //     console.info('============= START : validateAllUserPurchases ===========');
 
-        const startKey = 'P0';
-        const endKey = 'P99999';
+    //     const startKey = 'P0';
+    //     const endKey = 'P99999';
 
-        const iterator = await ctx.stub.getStateByRange(startKey, endKey);
+    //     const iterator = await ctx.stub.getStateByRange(startKey, endKey);
 
-        while (true) {
-            const res = await iterator.next();
+    //     while (true) {
+    //         const res = await iterator.next();
 
-            if (res.value && res.value.value.toString()) {
-                const Key = res.value.key;
-                let purchase;
-                try {
-                    purchase = JSON.parse(res.value.value.toString('utf8'));
-                    if ((purchase.outletID).toString() === outletID) {
-                        if (purchase.item === "juice" && purchase.status !== 'validated'){
-                            purchase.status = 'validated';
-                            let temp_purchaseID = purchase.purchaseID;
-                            await ctx.stub.putState(temp_purchaseID.toString(), Buffer.from(JSON.stringify(purchase)));
-                        }
-                    }
+    //         if (res.value && res.value.value.toString()) {
+    //             const Key = res.value.key;
+    //             let purchase;
+    //             try {
+    //                 purchase = JSON.parse(res.value.value.toString('utf8'));
+    //                 if ((purchase.outletID).toString() === outletID) {
+    //                     if (purchase.item === "juice" && purchase.status !== 'validated'){
+    //                         purchase.status = 'validated';
+    //                         let temp_purchaseID = purchase.purchaseID;
+    //                         await ctx.stub.putState(temp_purchaseID.toString(), Buffer.from(JSON.stringify(purchase)));
+    //                     }
+    //                 }
 
-                } catch (err) {
-                    console.log(err);
-                    purchase = res.value.value.toString('utf8');
-                }
+    //             } catch (err) {
+    //                 console.log(err);
+    //                 purchase = res.value.value.toString('utf8');
+    //             }
 
-            }
-            if (res.done) {
-                await iterator.close();
-                return "Ran successfully. Validated all purchases with juice as an item."
-                console.info('============= END : validateAllUserPurchases ===========');
-            }
-        }
-    }
+    //         }
+    //         if (res.done) {
+    //             await iterator.close();
+    //             return "Ran successfully. Validated all purchases with juice as an item."
+    //             console.info('============= END : validateAllUserPurchases ===========');
+    //         }
+    //     }
+    // }
 
     async addFeedback(ctx, content, role) {
 
@@ -530,91 +530,91 @@ class feedback extends Contract {
         }
     }
 
-    async redeemReward(ctx, rewardID) {
+    // async redeemReward(ctx, rewardID) {
 
-        console.info('============= START : redeemReward ===========');
+    //     console.info('============= START : redeemReward ===========');
 
-        function areDatesConsecutive(date1, date2) {
+    //     function areDatesConsecutive(date1, date2) {
 
-            let d1 = new Date(date1);
-            let d2 = new Date(date2);
+    //         let d1 = new Date(date1);
+    //         let d2 = new Date(date2);
         
-            // Calculate the difference in milliseconds
-            let difference = d2 - d1;
+    //         // Calculate the difference in milliseconds
+    //         let difference = d2 - d1;
         
-            // Convert the difference to days
-            let differenceInDays = difference / (1000 * 60 * 60 * 24);
+    //         // Convert the difference to days
+    //         let differenceInDays = difference / (1000 * 60 * 60 * 24);
         
-            return differenceInDays === 1;
-        }
+    //         return differenceInDays === 1;
+    //     }
 
 
-        const rewardAsBytes = await ctx.stub.getState(rewardID.toString());
-        const reward = JSON.parse(rewardAsBytes.toString());        
+    //     const rewardAsBytes = await ctx.stub.getState(rewardID.toString());
+    //     const reward = JSON.parse(rewardAsBytes.toString());        
 
-        const startKey = 'P0';
-        const endKey = 'P99999';
+    //     const startKey = 'P0';
+    //     const endKey = 'P99999';
 
-        const iterator = await ctx.stub.getStateByRange(startKey, endKey);
+    //     const iterator = await ctx.stub.getStateByRange(startKey, endKey);
 
-        let cid = new ClientIdentity(ctx.stub);
-        let userID = cid.getID();
+    //     let cid = new ClientIdentity(ctx.stub);
+    //     let userID = cid.getID();
 
-        let purchaseIDs = [];
-        let dates = [];
-        while (true) {
-            const res = await iterator.next();
+    //     let purchaseIDs = [];
+    //     let dates = [];
+    //     while (true) {
+    //         const res = await iterator.next();
 
-            if (res.value && res.value.value.toString()) {
-                let purchase;
-                try {
-                    purchase = JSON.parse(res.value.value.toString('utf8'));
-                    console.log(purchase);
-                    if (purchase.userID === userID && purchase.status === 'validated' && purchase.used === false) {
-                        if (dates.length === 0){
-                            purchaseIDs.push(purchase.purchaseID);
-                            dates.push(purchase.dateOfPurchase);
-                        }
-                        else{
-                            let a = dates[dates.length - 1];
-                            a = a.toString();
-                            let b = purchase.dateOfPurchase;
-                            b = b.toString();
-                            if (areDatesConsecutive(a, b)){
-                                purchaseIDs.push(purchase.purchaseID);
-                                dates.push(purchase.dateOfPurchase);
-                                if (dates.length === 7){
-                                    reward.owner = userID;
-                                    await ctx.stub.putState(rewardID.toString(), Buffer.from(JSON.stringify(reward)));
+    //         if (res.value && res.value.value.toString()) {
+    //             let purchase;
+    //             try {
+    //                 purchase = JSON.parse(res.value.value.toString('utf8'));
+    //                 console.log(purchase);
+    //                 if (purchase.userID === userID && purchase.status === 'validated' && purchase.used === false) {
+    //                     if (dates.length === 0){
+    //                         purchaseIDs.push(purchase.purchaseID);
+    //                         dates.push(purchase.dateOfPurchase);
+    //                     }
+    //                     else{
+    //                         let a = dates[dates.length - 1];
+    //                         a = a.toString();
+    //                         let b = purchase.dateOfPurchase;
+    //                         b = b.toString();
+    //                         if (areDatesConsecutive(a, b)){
+    //                             purchaseIDs.push(purchase.purchaseID);
+    //                             dates.push(purchase.dateOfPurchase);
+    //                             if (dates.length === 7){
+    //                                 reward.owner = userID;
+    //                                 await ctx.stub.putState(rewardID.toString(), Buffer.from(JSON.stringify(reward)));
 
-                                    for (const purchaseid of purchaseIDs) {
-                                        const pb = await ctx.stub.getState(purchaseid.toString());
-                                        const p = JSON.parse(pb.toString());
-                                        p.used = rewardID;
-                                        await ctx.stub.putState(purchaseid.toString(), Buffer.from(JSON.stringify(p)));
-                                    }
-                                    await iterator.close();
-                                    return `Reward with rewardID ${rewardID} has been redeemed successfully by user ${userID}`;
-                                }
-                            }
-                            else{
-                                dates.length = 0;
-                                purchaseIDs.length = 0;
-                            }
-                        }
-                    }
-                } catch (err) {
-                    console.log(err);
-                    purchase = res.value.value.toString('utf8');
-                }
-            }
-            if (res.done) {
-                await iterator.close();
-                console.info('============= END : redeemReward ===========');
-                return "Juice purchases not found on 7 consecutive days. Redeem failed!";
-            }
-        }
-    }
+    //                                 for (const purchaseid of purchaseIDs) {
+    //                                     const pb = await ctx.stub.getState(purchaseid.toString());
+    //                                     const p = JSON.parse(pb.toString());
+    //                                     p.used = rewardID;
+    //                                     await ctx.stub.putState(purchaseid.toString(), Buffer.from(JSON.stringify(p)));
+    //                                 }
+    //                                 await iterator.close();
+    //                                 return `Reward with rewardID ${rewardID} has been redeemed successfully by user ${userID}`;
+    //                             }
+    //                         }
+    //                         else{
+    //                             dates.length = 0;
+    //                             purchaseIDs.length = 0;
+    //                         }
+    //                     }
+    //                 }
+    //             } catch (err) {
+    //                 console.log(err);
+    //                 purchase = res.value.value.toString('utf8');
+    //             }
+    //         }
+    //         if (res.done) {
+    //             await iterator.close();
+    //             console.info('============= END : redeemReward ===========');
+    //             return "Juice purchases not found on 7 consecutive days. Redeem failed!";
+    //         }
+    //     }
+    // }
 }
 
 module.exports = feedback;
