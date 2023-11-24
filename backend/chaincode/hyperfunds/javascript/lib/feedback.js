@@ -7,8 +7,8 @@
 const { Contract } = require('fabric-contract-api');
 const ClientIdentity = require('fabric-shim').ClientIdentity;
 
-let outlets = [];
 let students = [];
+let faculties = [];
 
 let studentCounter = -1;
 let studentID;
@@ -16,8 +16,11 @@ let studentID;
 let feedbackCounter = -1;
 let feedbackID;
 
+let facultyCounter = -1;
+let facultyID;
 
-class bphr extends Contract {
+
+class feedback extends Contract {
 
     async initLedger(ctx) {
         console.info('============= START : Initialize Ledger ===========');
@@ -53,8 +56,11 @@ class bphr extends Contract {
         console.info('============= END : Initialize Ledger ===========');
     }
 
-    async registerStudent(ctx, studentName, email) {
+    async registerStudent(ctx, studentName, email, ashokaID) {
         console.info('============= START : registerStudent ===========');
+
+        let cid = new ClientIdentity(ctx.stub);
+        let userID = cid.getID();
 
         studentCounter = Number(studentCounter);
         studentCounter += 1;
@@ -62,6 +68,7 @@ class bphr extends Contract {
 
         // Create the outlet object
         const student = {
+            userID,
             studentID,
             ashokaID,
             studentName,
@@ -78,10 +85,44 @@ class bphr extends Contract {
         return `Successfully registered Student ${studentID}`;
     }
 
+    async registerFaculty(ctx, facultyName, email) {
+        console.info('============= START : registerFaculty ===========');
+
+        let cid = new ClientIdentity(ctx.stub);
+        let userID = cid.getID();
+
+        facultyCounter = Number(facultyCounter);
+        facultyCounter += 1;
+        facultyID = 'FA' + facultyCounter;
+
+        // Create the outlet object
+        const faculty = {
+            userID,
+            facultyID,
+            facultyName,
+            email,
+            feedbackIDs: [] // This array will store feedback related to the faculty
+        };
+        if (!(faculties.includes(faculty))) {
+            faculties.push(faculty);
+        }
+
+        // Store outlet on the ledger
+        await ctx.stub.putState(facultyID.toString(), Buffer.from(JSON.stringify(faculty)));
+        console.info('============= START : registerFaculty ===========');
+        return `Successfully registered Faculty ${facultyID}`;
+    }
+
     async queryAllStudents(ctx) {
         console.info('============= START : queryAllStudents ===========');
         console.info('============= END : queryAllStudents ===========');
         return JSON.stringify(students);
+    }
+
+    async queryAllFaculty(ctx) {
+        console.info('============= START : queryAllFaculty ===========');
+        console.info('============= END : queryAllFaculty ===========');
+        return JSON.stringify(faculties);
     }
 
     // Register a purchase
@@ -155,6 +196,44 @@ class bphr extends Contract {
                 console.info(queriedPurchasesByOutlet);
                 console.info('============= END : queryPurchasesByOutlet ===========');
                 return JSON.stringify(queriedPurchasesByOutlet);
+            }
+        }
+    }
+
+    async queryFeedbacksByStudent(ctx) {
+        console.info('============= START : queryFeedbacksByStudent ===========');
+
+        const startKey = 'F0';
+        const endKey = 'F99999';
+
+        const iterator = await ctx.stub.getStateByRange(startKey, endKey);
+
+        let cid = new ClientIdentity(ctx.stub);
+        let userID = cid.getID();
+
+        const queriedFeedbacksByStudent = [];
+        while (true) {
+            const res = await iterator.next();
+
+            if (res.value && res.value.value.toString()) {
+                const Key = res.value.key;
+                let feedback;
+                try {
+                    feedback = JSON.parse(res.value.value.toString('utf8'));
+                    console.log(feedback);
+                    if (feedback.userID === userID) {
+                        queriedFeedbacksByStudent.push({Key, feedback});
+                    }
+                } catch (err) {
+                    console.log(err);
+                    feedback = res.value.value.toString('utf8');
+                }
+            }
+            if (res.done) {
+                await iterator.close();
+                console.info(queriedFeedbacksByStudent);
+                console.info('============= END : queryFeedbacksByStudent ===========');
+                return JSON.stringify(queriedFeedbacksByStudent);
             }
         }
     }
@@ -258,7 +337,10 @@ class bphr extends Contract {
     async addFeedback(ctx, content, role) {
 
         console.info('============= START : addFeedback ===========');
-        console.log(rewardCounter);
+        console.log(feedbackCounter);
+
+        let cid = new ClientIdentity(ctx.stub);
+        let userID = cid.getID();
 
         let confirmations = 0;
         confirmations = Number(confirmations);
@@ -270,6 +352,7 @@ class bphr extends Contract {
         // Create a new feedback object and store it on the blockchain
         const feedback = {
             feedbackID,
+            userID,
             content,
             //student or faculty
             role,
@@ -438,4 +521,4 @@ class bphr extends Contract {
     }
 }
 
-module.exports = bphr;
+module.exports = feedback;
