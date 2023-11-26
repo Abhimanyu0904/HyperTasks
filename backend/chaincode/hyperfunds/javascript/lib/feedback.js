@@ -315,24 +315,24 @@ class feedback extends Contract {
     // }
 
     // Validate a purchase by an outlet
-    async validatePurchase(ctx, purchaseID, outletID) {
-        const purchaseAsBytes = await ctx.stub.getState(purchaseID);
-        const purchase = JSON.parse(purchaseAsBytes.toString());
-        if (!purchase) {
-            throw new Error(`Purchase ${purchaseID} does not exist`);
-        }
+    // async validatePurchase(ctx, purchaseID, outletID) {
+    //     const purchaseAsBytes = await ctx.stub.getState(purchaseID);
+    //     const purchase = JSON.parse(purchaseAsBytes.toString());
+    //     if (!purchase) {
+    //         throw new Error(`Purchase ${purchaseID} does not exist`);
+    //     }
 
-        if (purchase.outletID !== outletID) {
-            throw new Error(`Outlet ${outletID} cannot validate a purchase made in another outlet.`);
-        }
+    //     if (purchase.outletID !== outletID) {
+    //         throw new Error(`Outlet ${outletID} cannot validate a purchase made in another outlet.`);
+    //     }
 
-        if (purchase.item !== "juice") {
-            throw new Error(`Purchase ${purchaseID} is not valid. Only juice can be validated.`);
-        }
+    //     if (purchase.item !== "juice") {
+    //         throw new Error(`Purchase ${purchaseID} is not valid. Only juice can be validated.`);
+    //     }
 
-        purchase.status = 'validated';
-        await ctx.stub.putState(purchaseID, Buffer.from(JSON.stringify(purchase)));
-    }
+    //     purchase.status = 'validated';
+    //     await ctx.stub.putState(purchaseID, Buffer.from(JSON.stringify(purchase)));
+    // }
 
     // async validateAllPurchases(ctx, outletID) {
     //     console.info('============= START : validateAllUserPurchases ===========');
@@ -388,6 +388,8 @@ class feedback extends Contract {
         feedbackID = 'F' + feedbackCounter;
 
         const confirmedBy = [];
+        let isApproved = false;
+        let isVisible = false;
 
         // Create a new feedback object and store it on the blockchain
         const feedback = {
@@ -397,13 +399,16 @@ class feedback extends Contract {
             //student or faculty
             role,
             confirmations,
-            confirmedBy
+            confirmedBy,
+            isApproved,
+            isVisible
         };
 
         await ctx.stub.putState(feedbackID.toString(), Buffer.from(JSON.stringify(feedback)));
         console.info('============= END : addFeedback ===========');
     }
 
+        //Can only be called by students
     async confirmStudentFeedback(ctx, feedbackID) {
 
         let cid = new ClientIdentity(ctx.stub);
@@ -425,6 +430,9 @@ class feedback extends Contract {
             // Add the user's confirmation
             feedback.confirmedBy.push(userID);
             feedback.confirmations++;
+            if (Number(feedback.confirmations) === Number(students.length)/2) {
+                feedback.isVisible = true;
+            }
         }
         // Update the feedback in the ledger
         await ctx.stub.putState(feedbackID, Buffer.from(JSON.stringify(feedback)));
@@ -432,6 +440,7 @@ class feedback extends Contract {
         return JSON.stringify(feedback);
     }
 
+        //Can only be called by faculty
     async confirmFacultyFeedback(ctx, feedbackID) {
 
         let cid = new ClientIdentity(ctx.stub);
@@ -453,6 +462,9 @@ class feedback extends Contract {
             // Add the user's confirmation
             feedback.confirmedBy.push(userID);
             feedback.confirmations++;
+            if (Number(feedback.confirmations) === Number(faculties.length)/2) {
+                feedback.isVisible = true;
+            }
         }
         // Update the feedback in the ledger
         await ctx.stub.putState(feedbackID, Buffer.from(JSON.stringify(feedback)));
@@ -460,6 +472,7 @@ class feedback extends Contract {
         return JSON.stringify(feedback);
     }
 
+    //Can only be called by students
     async queryStudentFeedbacks(ctx) {
         console.info('============= START : queryStudentFeedbacks ===========');
 
@@ -495,6 +508,7 @@ class feedback extends Contract {
         }
     }
 
+        //Can only be called by faculty
     async queryFacultyFeedbacks(ctx) {
         console.info('============= START : queryFacultyFeedbacks ===========');
 
@@ -526,6 +540,40 @@ class feedback extends Contract {
                 console.info(facultyFeedbacks);
                 console.info('============= END : queryFacultyFeedbacks ===========');
                 return JSON.stringify(facultyFeedbacks);
+            }
+        }
+    }
+
+    //Can only be called by universtiyAdmin
+    async queryAllFeedbacks(ctx) {
+        console.info('============= START : queryAllFeedbacks ===========');
+
+        const startKey = 'F0';
+        const endKey = 'F99999';
+
+        const iterator = await ctx.stub.getStateByRange(startKey, endKey);
+
+        const allFeedbacks = [];
+        while (true) {
+            const res = await iterator.next();
+
+            if (res.value && res.value.value.toString()) {
+                const Key = res.value.key;
+                let feedback;
+                try {
+                    feedback = JSON.parse(res.value.value.toString('utf8'));
+
+                } catch (err) {
+                    console.log(err);
+                    feedback = res.value.value.toString('utf8');
+                }
+                allFeedbacks.push({Key, feedback});
+            }
+            if (res.done) {
+                await iterator.close();
+                console.info(allFeedbacks);
+                console.info('============= END : queryAllFeedbacks ===========');
+                return JSON.stringify(allFeedbacks);
             }
         }
     }
