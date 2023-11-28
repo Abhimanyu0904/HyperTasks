@@ -22,6 +22,7 @@
         "firefox-devtools.vscode-firefox-debug",
         "ms-edgedevtools.vscode-edge-devtools",
         "ms-vscode.cpptools-extension-pack",
-        "ms-kubernetes-tools.vscode-kubernetes-tools"
+        "ms-kubernetes-tools.vscode-kubernetes-tools",
+        "GoogleCloudTools.cloudcode"
     ]
 }
