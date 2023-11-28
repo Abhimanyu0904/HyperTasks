@@ -8,6 +8,7 @@
         "dbaeumer.vscode-eslint",
         "VisualStudioExptTeam.vscodeintellicode",
         "VisualStudioExptTeam.intellicode-api-usage-examples",
+        "ms-python.isort",
         "christian-kohler.npm-intellisense",
         "esbenp.prettier-vscode",
         "rvest.vs-code-prettier-eslint",

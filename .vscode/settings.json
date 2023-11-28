@@ -41,7 +41,8 @@
     ],
     "cSpell.words": [
         "abhimanyu",
-        "chaincode"
+        "chaincode",
+        "hyperledger"
     ],
     "css.lint.duplicateProperties": "error",
     "css.lint.emptyRules": "ignore",
