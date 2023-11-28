@@ -1,0 +1,38 @@
+{
+    "cSpell.words": [
+        "abhimanyu"
+    ],
+    "css.lint.duplicateProperties": "error",
+    "css.lint.emptyRules": "ignore",
+    "css.lint.important": "warning",
+    "files.associations": {
+        "*/.html": "html",
+        "*/templates//.html": "django-html",
+        "*/templates//": "django-txt"
+    },
+    "[html]": {
+        "editor.defaultFormatter": "esbenp.prettier-vscode"
+    },
+    "html.format.indentHandlebars": true,
+    "html.format.indentInnerHtml": true,
+    "[javascript]": {
+        "editor.defaultFormatter": "rvest.vs-code-prettier-eslint"
+    },
+    "javascript.format.enable": false,
+    "javascript.referencesCodeLens.enabled": true,
+    "javascript.referencesCodeLens.showOnAllFunctions": true,
+    "javascript.updateImportsOnFileMove.enabled": "always",
+    "javascript.validate.enable": false,
+    "[json]": {
+        "editor.defaultFormatter": "vscode.json-language-features"
+    },
+    "npm-intellisense.importQuotes": "\"",
+    "prettier.printWidth": 100,
+    "prettier.singleQuote": false,
+    "prettier.tabWidth": 4,
+    "prettier.useTabs": false,
+    "[python]": {
+        "editor.defaultFormatter": "ms-python.autopep8",
+    },
+    "vs-code-prettier-eslint.prettierLast": false
+}
