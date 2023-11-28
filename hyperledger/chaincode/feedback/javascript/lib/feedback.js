@@ -7,7 +7,7 @@
 
 const {Contract, Context} = require("fabric-contract-api"),
     {Iterators} = require("fabric-shim"),
-    {STUDENT_KEY_IDENTIFIER, START_KEY, END_KEY, FACULTY_KEY_IDENTIFIER, ADMIN_KEY_IDENTIFIER, STUDENT_TYPE, FACULTY_TYPE, ADMIN_TYPE} = require("../utils/constants"),
+    {STUDENT_KEY_IDENTIFIER, START_KEY, END_KEY, FACULTY_KEY_IDENTIFIER, ADMIN_KEY_IDENTIFIER, STUDENT_TYPE, FACULTY_TYPE, ADMIN_TYPE, SUCCESS_MSG, FAILURE_MSG} = require("../utils/constants"),
     ClientIdentity = require("fabric-shim").ClientIdentity;
 
 // global variables
@@ -20,7 +20,6 @@ let admins = [],
     feedbackCounter = 0,
     feedbackID,
     studentCounter = 0,
-    studentID,
     students = [];
 
 /**
@@ -72,7 +71,7 @@ class Feedback extends Contract {
 
     /**
      * Initializes the ledger.
-     * @param {Context} ctx - the context object
+     * @param {Context} ctx - context object to interact with the world state
      * @returns {Promise<void>} a Promise that resolves when the ledger is completely initialized
      */
     async initLedger(ctx) {
@@ -99,35 +98,49 @@ class Feedback extends Contract {
         console.info("============= END : Initialize Ledger ===========");
     }
 
-    async registerStudent(ctx, studentName, email, ashokaID) {
+    /**
+     * Registers a student.
+     * @param {Context} ctx - context object to interact with the world state
+     * @param {string} name - the name of the student
+     * @param {string} email - the email of the student
+     * @param {string} ashokaID - the Ashoka ID of the student
+     * @param {string} password - the password for the student
+     * @returns {Promise<string>} - a success or failure message confirming the status of registration of the student
+     */
+    async registerStudent(ctx, name, email, ashokaID, password) {
         console.info("============= START : registerStudent ===========");
 
-        let cid = new ClientIdentity(ctx.stub);
-        let userID = cid.getID();
-        let hash_pass;
+        let cid = new ClientIdentity(ctx.stub),
+            userID = cid.getID();
 
-        studentCounter = Number(studentCounter);
-        studentCounter += 1;
-        studentID = "S" + studentCounter;
+        ++studentCounter;
+        const studentID = STUDENT_KEY_IDENTIFIER + studentCounter;
 
-        // Create the student object
+        // create the student object
         const student = {
-            ashokaID,
+            ashoka_id: ashokaID,
+            asset_id: studentID,
             email,
-            hash_pass,
-            studentID,
-            studentName,
-            userID,
+            id: userID,
+            name,
+            password: password,
+            type: STUDENT_TYPE,
             // feedbackIDs: [] // This array will store feedback related to the student
         };
-        if (!students.includes(student)) {
-            students.push(student);
+
+        if (students.includes(student)) {
+            console.log("student already exists");
+            return FAILURE_MSG;
         }
 
-        // Store outlet on the ledger
-        await ctx.stub.putState(studentID.toString(), Buffer.from(JSON.stringify(student)));
-        console.info("============= START : registerStudent ===========");
-        return `Successfully registered Student ${studentID}`;
+        // add student name to global list of students
+        students.push(student);
+
+        // add student to the ledger
+        await ctx.stub.putState(studentID, Buffer.from(JSON.stringify(student)));
+        console.info("============= END : registerStudent ===========");
+
+        return SUCCESS_MSG;
     }
 
     async registerFaculty(ctx, facultyName, email) {

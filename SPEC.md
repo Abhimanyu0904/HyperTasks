@@ -20,8 +20,12 @@ Create a new user of a given type: student, faculty, administration
 
 ```json
 {
-    "id": String, // state id
+    "ashoka_id": String, // Ashoka ID
+    "asset_id": String, // state id
+    "email": String, // email id (should be Ashoka Email ID)
+    "id": String, // client identity
     "name": String, // user name
+    "password": String, // hashed password of the user
     "type": String, // user type: administration / student / faculty
 }
 ```
