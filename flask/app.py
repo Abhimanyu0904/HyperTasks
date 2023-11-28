@@ -20,7 +20,7 @@ def chaincode(args: List[str]):
     out: None | str = None
     valid: bool = False
 
-    # node + invoke/query,js + chaincode + required arguments for chaincode
+    # node + invoke/query + chaincode + required arguments for chaincode
     args = ["node"] +\
         [os.path.join("..", "hyperledger", "feedback", "javascript", args[0])] +\
         args[1:]
@@ -29,7 +29,9 @@ def chaincode(args: List[str]):
         out = subprocess.check_output(args).decode()
         # TODO: parse output as required
         valid = True
-    except Exception:
+
+    except Exception as e:
+        app.logger.error("Something went wrong: %s", e)
         valid = False
 
     return valid, out
