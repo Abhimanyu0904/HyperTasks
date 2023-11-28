@@ -1,10 +1,9 @@
 /*
  * SPDX-License-Identifier: Apache-2.0
  */
-
 "use strict";
 
-const feedback = require("./lib/feedback");
+const Feedback = require("./lib/feedback");
 
-module.exports.feedback = feedback;
-module.exports.contracts = [feedback];
+module.exports.Feedback = Feedback;
+module.exports.contracts = [Feedback];

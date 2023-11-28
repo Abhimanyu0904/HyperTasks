@@ -1,57 +1,101 @@
+/* eslint-disable @stylistic/js/max-len */
 /*
  * SPDX-License-Identifier: Apache-2.0
  */
 
 "use strict";
 
-const {Contract} = require("fabric-contract-api");
-const ClientIdentity = require("fabric-shim").ClientIdentity;
+const {Contract, Context} = require("fabric-contract-api"),
+    {Iterators} = require("fabric-shim"),
+    {STUDENT_KEY_IDENTIFIER, START_KEY, END_KEY, FACULTY_KEY_IDENTIFIER, ADMIN_KEY_IDENTIFIER, STUDENT_TYPE, FACULTY_TYPE, ADMIN_TYPE} = require("../utils/constants"),
+    ClientIdentity = require("fabric-shim").ClientIdentity;
 
-let students = [];
-let faculties = [];
+// global variables
+let admins = [],
+    adminCounter = 0,
+    adminID,
+    faculties = [],
+    facultyCounter = 0,
+    facultyID,
+    feedbackCounter = 0,
+    feedbackID,
+    studentCounter = 0,
+    studentID,
+    students = [];
 
-let studentCounter = -1;
-let studentID;
+/**
+ * Resolves an iterator by gathering all the iterator results and performing certain actions.
+ * @param {Iterators.StateQueryIterator} iterator - The iterator to be resolved.
+ * @returns {Promise<void>} a promise that is resolved when the iterator fetches all results.
+ */
+async function resolveUserIterator(iterator){
+    let iterator_flag = true;
+    while (iterator_flag) {
+        const res = await iterator.next();
 
-let feedbackCounter = -1;
-let feedbackID;
+        if (res.value && res.value.value.toString()) {
+            try {
+                const user = JSON.parse(res.value.value.toString("utf8"));
+                switch (user.type){
+                case STUDENT_TYPE:
+                    students.push(user.name);
+                    ++studentCounter;
+                    break;
 
-let facultyCounter = -1;
-let facultyID;
+                case FACULTY_TYPE:
+                    faculties.push(user.name);
+                    ++facultyCounter;
+                    break;
 
-class feedback extends Contract {
+                case ADMIN_TYPE:
+                    admins.push(user.name);
+                    ++adminCounter;
+                    break;
 
+                default:
+                    console.log(`unknown user type: ${user.type}`);
+                }
+            } catch (err) {
+                console.log(`${err}`);
+            }
+        }
+
+        if (res.done) {
+            await iterator.close();
+            iterator_flag = false;
+            console.log("Iterator finished fetching results");
+        }
+    }
+}
+
+class Feedback extends Contract {
+
+    /**
+     * Initializes the ledger.
+     * @param {Context} ctx - the context object
+     * @returns {Promise<void>} a Promise that resolves when the ledger is completely initialized
+     */
     async initLedger(ctx) {
         console.info("============= START : Initialize Ledger ===========");
 
-        const startKey = "0";
-        const endKey = "99999";
+        // fetch all iterators asynchronously at the same time
+        const [
+            admin_iterator,
+            faculty_iterator,
+            student_iterator,
+        ] = await Promise.all([
+            ctx.stub.getStateByRange(ADMIN_KEY_IDENTIFIER+START_KEY, ADMIN_KEY_IDENTIFIER+END_KEY),
+            ctx.stub.getStateByRange(FACULTY_KEY_IDENTIFIER+START_KEY, FACULTY_KEY_IDENTIFIER+END_KEY),
+            ctx.stub.getStateByRange(STUDENT_KEY_IDENTIFIER+START_KEY, STUDENT_KEY_IDENTIFIER+END_KEY),
+        ]);
 
-        const iterator = await ctx.stub.getStateByRange(startKey, endKey);
+        // resolve all iterators asynchronously
+        await Promise.all([
+            resolveUserIterator(admin_iterator),
+            resolveUserIterator(faculty_iterator),
+            resolveUserIterator(student_iterator),
+        ]);
 
-        while (true) {
-            const res = await iterator.next();
-
-            if (res.value && res.value.value.toString()) {
-                let purchase;
-                try {
-                    purchase = JSON.parse(res.value.value.toString("utf8"));
-                    purchaseCounter = Number(purchaseCounter);
-                    purchaseCounter += 1;
-                    purchaseID = "P" + purchaseCounter;
-
-                } catch (err) {
-                    console.log(err);
-                    purchase = res.value.value.toString("utf8");
-                }
-            }
-
-            if (res.done) {
-                await iterator.close();
-                console.log(`lastPurchaseID: ${purchaseID}`);
-                break;
-            }
-        }
         console.info("============= END : Initialize Ledger ===========");
     }
 
@@ -663,4 +707,4 @@ class feedback extends Contract {
     // }
 }
 
-module.exports = feedback;
+module.exports = Feedback;
