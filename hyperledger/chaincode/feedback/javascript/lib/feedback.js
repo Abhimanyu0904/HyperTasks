@@ -7,16 +7,14 @@
 
 const {Contract, Context} = require("fabric-contract-api"),
     {Iterators} = require("fabric-shim"),
-    {STUDENT_KEY_IDENTIFIER, START_KEY, END_KEY, FACULTY_KEY_IDENTIFIER, ADMIN_KEY_IDENTIFIER, STUDENT_TYPE, FACULTY_TYPE, ADMIN_TYPE, SUCCESS_MSG, FAILURE_MSG} = require("../utils/constants"),
+    {STUDENT_KEY_IDENTIFIER, START_KEY, END_KEY, FACULTY_KEY_IDENTIFIER, ADMIN_KEY_IDENTIFIER, STUDENT_TYPE, FACULTY_TYPE, ADMIN_TYPE, SUCCESS_MSG, FAILURE_MSG, FEEDBACK_KEY_IDENTIFIER} = require("../utils/constants"),
     ClientIdentity = require("fabric-shim").ClientIdentity;
 
 // global variables
-let admins = [],
-    adminCounter = 0,
-    adminID,
+let adminCounter = 0,
+    admins = [],
     faculties = [],
     facultyCounter = 0,
-    facultyID,
     feedbackCounter = 0,
     feedbackID,
     studentCounter = 0,
@@ -123,7 +121,7 @@ class Feedback extends Contract {
             email,
             id: userID,
             name,
-            password: password,
+            password,
             type: STUDENT_TYPE,
             // feedbackIDs: [] // This array will store feedback related to the student
         };
@@ -143,34 +141,130 @@ class Feedback extends Contract {
         return SUCCESS_MSG;
     }
 
-    async registerFaculty(ctx, facultyName, email) {
+    /**
+     * Registers a faculty.
+     * @param {Context} ctx - context object to interact with the world state
+     * @param {string} name - the name of the faculty
+     * @param {string} email - the email of the faculty
+     * @param {string} ashokaID - the Ashoka ID of the faculty
+     * @param {string} password - the password for the faculty
+     * @returns {Promise<string>} - a success or failure message confirming the status of registration of the faculty
+     */
+    async registerFaculty(ctx, name, email, ashokaID, password) {
         console.info("============= START : registerFaculty ===========");
 
-        let cid = new ClientIdentity(ctx.stub);
-        let userID = cid.getID();
-        let hash_pass;
+        let cid = new ClientIdentity(ctx.stub),
+            userID = cid.getID();
 
-        facultyCounter = Number(facultyCounter);
-        facultyCounter += 1;
-        facultyID = "FA" + facultyCounter;
+        ++facultyCounter;
+        const facultyID = FACULTY_KEY_IDENTIFIER + facultyCounter;
 
         // Create the outlet object
         const faculty = {
+            ashoka_id: ashokaID,
+            asset_id: facultyID,
             email,
-            facultyID,
-            facultyName,
-            hash_pass,
-            userID,
+            id: userID,
+            name,
+            password,
+            type: FACULTY_TYPE,
             // feedbackIDs: [] // This array will store feedback related to the faculty
         };
-        if (!faculties.includes(faculty)) {
-            faculties.push(faculty);
+
+        if (faculties.includes(faculty)) {
+            console.log("faculty already exists");
+            return FAILURE_MSG;
         }
 
-        // Store outlet on the ledger
-        await ctx.stub.putState(facultyID.toString(), Buffer.from(JSON.stringify(faculty)));
-        console.info("============= START : registerFaculty ===========");
-        return `Successfully registered Faculty ${facultyID}`;
+        // add faculty name to global list of faculties
+        faculties.push(faculty);
+
+        // add faculty to the ledger
+        await ctx.stub.putState(facultyID, Buffer.from(JSON.stringify(faculty)));
+        console.info("============= END : registerFaculty ===========");
+
+        return SUCCESS_MSG;
+    }
+
+    /**
+     * Registers an admin.
+     * @param {Context} ctx - context object to interact with the world state
+     * @param {string} name - the name of the admin
+     * @param {string} email - the email of the admin
+     * @param {string} ashokaID - the Ashoka ID of the admin
+     * @param {string} password - the password for the admin
+     * @returns {Promise<string>} - a success or failure message confirming the status of registration of the admin
+     */
+    async registerAdmin(ctx, name, email, ashokaID, password) {
+        console.info("============= START : registerAdmin ===========");
+
+        let cid = new ClientIdentity(ctx.stub),
+            userID = cid.getID();
+
+        ++adminCounter;
+        const adminID = ADMIN_KEY_IDENTIFIER + adminCounter;
+
+        // Create the outlet object
+        const admin = {
+            ashoka_id: ashokaID,
+            asset_id: adminID,
+            email,
+            id: userID,
+            name,
+            password,
+            type: ADMIN_TYPE,
+            // feedbackIDs: [] // This array will store feedback related to the faculty
+        };
+
+        if (admins.includes(admin)) {
+            console.log("admin already exists");
+            return FAILURE_MSG;
+        }
+
+        // add faculty name to global list of faculties
+        admins.push(admin);
+
+        // add faculty to the ledger
+        await ctx.stub.putState(adminID, Buffer.from(JSON.stringify(admin)));
+        console.info("============= END : registerAdmin ===========");
+
+        return SUCCESS_MSG;
+    }
+
+    async addFeedback(ctx, content, role) {
+
+        console.info("============= START : addFeedback ===========");
+        console.log(feedbackCounter);
+
+        let cid = new ClientIdentity(ctx.stub);
+        let userID = cid.getID();
+
+        let confirmations = 0;
+        confirmations = Number(confirmations);
+
+        feedbackCounter = Number(feedbackCounter);
+        feedbackCounter += 1;
+        feedbackID = FEEDBACK_KEY_IDENTIFIER + feedbackCounter;
+
+        const confirmedBy = [];
+        let isApproved = false;
+        let isVisible = false;
+
+        // Create a new feedback object and store it on the blockchain
+        const feedback = {
+            confirmations,
+            confirmedBy,
+            content,
+            feedbackID,
+            isApproved,
+            isVisible,
+            //student or faculty
+            role,
+            userID,
+        };
+
+        await ctx.stub.putState(feedbackID.toString(), Buffer.from(JSON.stringify(feedback)));
+        console.info("============= END : addFeedback ===========");
     }
 
     async queryAllStudents(ctx) {
@@ -184,77 +278,6 @@ class Feedback extends Contract {
         console.info("============= END : queryAllFaculty ===========");
         return JSON.stringify(faculties);
     }
-
-    // async registerPurchase(ctx, outletID, item, date) {
-
-    //     let cid = new ClientIdentity(ctx.stub);
-    //     let userID = cid.getID();
-
-    //     //"yyyy-mm-dd"
-    //     const status = 'pending';
-    //     let dateOfPurchase;
-    //     if (date === "x"){
-    //         dateOfPurchase = new Date().toISOString().split('T')[0];
-    //     }
-    //     else{
-    //         dateOfPurchase = date;
-    //     }
-    //     // const dateOfPurchase = date ? date : new Date().toISOString().split('T')[0];
-    //     const used = false;
-
-    //     purchaseCounter = Number(purchaseCounter);
-    //     purchaseCounter += 1;
-    //     purchaseID = 'P' + purchaseCounter;
-    //     const purchase = {
-    //         purchaseID,
-    //         userID,
-    //         outletID,
-    //         item,
-    //         status,
-    //         dateOfPurchase,
-    //         used,
-    //     };
-
-    //     await ctx.stub.putState(purchaseID.toString(), Buffer.from(JSON.stringify(purchase)));
-    //     console.log(`Item ${item} purchased successfully from outlet ${outletID} on ${date}! Your Purchase ID is ${purchaseID}. Please save it`);
-    // }
-
-    // async queryPurchasesByOutlet(ctx, outletID) {
-    //     console.info('============= START : queryPurchasesByOutlet ===========');
-
-    //     const startKey = 'P0';
-    //     const endKey = 'P99999';
-
-    //     const iterator = await ctx.stub.getStateByRange(startKey, endKey);
-
-    //     const queriedPurchasesByOutlet = [];
-    //     while (true) {
-    //         const res = await iterator.next();
-
-    //         if (res.value && res.value.value.toString()) {
-    //             const Key = res.value.key;
-    //             let purchase;
-    //             try {
-    //                 purchase = JSON.parse(res.value.value.toString('utf8'));
-    //                 console.log(purchase);
-    //                 if (purchase.outletID === outletID) {
-    //                     queriedPurchasesByOutlet.push({Key, purchase});
-    //                 }
-
-    //             } catch (err) {
-    //                 console.log(err);
-    //                 purchase = res.value.value.toString('utf8');
-    //             }
-
-    //         }
-    //         if (res.done) {
-    //             await iterator.close();
-    //             console.info(queriedPurchasesByOutlet);
-    //             console.info('============= END : queryPurchasesByOutlet ===========');
-    //             return JSON.stringify(queriedPurchasesByOutlet);
-    //         }
-    //     }
-    // }
 
     async queryFeedbacksByStudent(ctx) {
         console.info("============= START : queryFeedbacksByStudent ===========");
@@ -330,138 +353,6 @@ class Feedback extends Contract {
                 return JSON.stringify(queriedFeedbacksByFaculty);
             }
         }
-    }
-
-    // async queryPurchasesByUser(ctx) {
-    //     console.info('============= START : queryPurchasesByUser ===========');
-
-    //     const startKey = 'P0';
-    //     const endKey = 'P99999';
-
-    //     const iterator = await ctx.stub.getStateByRange(startKey, endKey);
-
-    //     let cid = new ClientIdentity(ctx.stub);
-    //     let userID = cid.getID();
-
-    //     const queriedPurchasesByUser = [];
-    //     while (true) {
-    //         const res = await iterator.next();
-
-    //         if (res.value && res.value.value.toString()) {
-    //             const Key = res.value.key;
-    //             let purchase;
-    //             try {
-    //                 purchase = JSON.parse(res.value.value.toString('utf8'));
-    //                 console.log(purchase);
-    //                 if (purchase.userID === userID) {
-    //                     queriedPurchasesByUser.push({Key, purchase});
-    //                 }
-    //             } catch (err) {
-    //                 console.log(err);
-    //                 purchase = res.value.value.toString('utf8');
-    //             }
-    //         }
-    //         if (res.done) {
-    //             await iterator.close();
-    //             console.info(queriedPurchasesByUser);
-    //             console.info('============= END : queryPurchasesByUser ===========');
-    //             return JSON.stringify(queriedPurchasesByUser);
-    //         }
-    //     }
-    // }
-
-    // Validate a purchase by an outlet
-    // async validatePurchase(ctx, purchaseID, outletID) {
-    //     const purchaseAsBytes = await ctx.stub.getState(purchaseID);
-    //     const purchase = JSON.parse(purchaseAsBytes.toString());
-    //     if (!purchase) {
-    //         throw new Error(`Purchase ${purchaseID} does not exist`);
-    //     }
-
-    //     if (purchase.outletID !== outletID) {
-    //         throw new Error(`Outlet ${outletID} cannot validate a purchase made in another outlet.`);
-    //     }
-
-    //     if (purchase.item !== "juice") {
-    //         throw new Error(`Purchase ${purchaseID} is not valid. Only juice can be validated.`);
-    //     }
-
-    //     purchase.status = 'validated';
-    //     await ctx.stub.putState(purchaseID, Buffer.from(JSON.stringify(purchase)));
-    // }
-
-    // async validateAllPurchases(ctx, outletID) {
-    //     console.info('============= START : validateAllUserPurchases ===========');
-
-    //     const startKey = 'P0';
-    //     const endKey = 'P99999';
-
-    //     const iterator = await ctx.stub.getStateByRange(startKey, endKey);
-
-    //     while (true) {
-    //         const res = await iterator.next();
-
-    //         if (res.value && res.value.value.toString()) {
-    //             const Key = res.value.key;
-    //             let purchase;
-    //             try {
-    //                 purchase = JSON.parse(res.value.value.toString('utf8'));
-    //                 if ((purchase.outletID).toString() === outletID) {
-    //                     if (purchase.item === "juice" && purchase.status !== 'validated'){
-    //                         purchase.status = 'validated';
-    //                         let temp_purchaseID = purchase.purchaseID;
-    //                         await ctx.stub.putState(temp_purchaseID.toString(), Buffer.from(JSON.stringify(purchase)));
-    //                     }
-    //                 }
-
-    //             } catch (err) {
-    //                 console.log(err);
-    //                 purchase = res.value.value.toString('utf8');
-    //             }
-
-    //         }
-    //         if (res.done) {
-    //             await iterator.close();
-    //             return "Ran successfully. Validated all purchases with juice as an item."
-    //             console.info('============= END : validateAllUserPurchases ===========');
-    //         }
-    //     }
-    // }
-
-    async addFeedback(ctx, content, role) {
-
-        console.info("============= START : addFeedback ===========");
-        console.log(feedbackCounter);
-
-        let cid = new ClientIdentity(ctx.stub);
-        let userID = cid.getID();
-
-        let confirmations = 0;
-        confirmations = Number(confirmations);
-
-        feedbackCounter = Number(feedbackCounter);
-        feedbackCounter += 1;
-        feedbackID = "F" + feedbackCounter;
-
-        const confirmedBy = [];
-        let isApproved = false;
-        let isVisible = false;
-
-        // Create a new feedback object and store it on the blockchain
-        const feedback = {
-            confirmations,
-            confirmedBy,
-            content,
-            feedbackID,
-            isApproved,
-            isVisible,
-            //student or faculty
-            role,
-            userID,
-        };
-
-        await ctx.stub.putState(feedbackID.toString(), Buffer.from(JSON.stringify(feedback)));
-        console.info("============= END : addFeedback ===========");
     }
 
     //Can only be called by students
@@ -633,91 +524,257 @@ class Feedback extends Contract {
             }
         }
     }
-
-    // async redeemReward(ctx, rewardID) {
-
-    //     console.info('============= START : redeemReward ===========');
-
-    //     function areDatesConsecutive(date1, date2) {
-
-    //         let d1 = new Date(date1);
-    //         let d2 = new Date(date2);
-
-    //         // Calculate the difference in milliseconds
-    //         let difference = d2 - d1;
-
-    //         // Convert the difference to days
-    //         let differenceInDays = difference / (1000 * 60 * 60 * 24);
-
-    //         return differenceInDays === 1;
-    //     }
-
-    //     const rewardAsBytes = await ctx.stub.getState(rewardID.toString());
-    //     const reward = JSON.parse(rewardAsBytes.toString());
-
-    //     const startKey = 'P0';
-    //     const endKey = 'P99999';
-
-    //     const iterator = await ctx.stub.getStateByRange(startKey, endKey);
-
-    //     let cid = new ClientIdentity(ctx.stub);
-    //     let userID = cid.getID();
-
-    //     let purchaseIDs = [];
-    //     let dates = [];
-    //     while (true) {
-    //         const res = await iterator.next();
-
-    //         if (res.value && res.value.value.toString()) {
-    //             let purchase;
-    //             try {
-    //                 purchase = JSON.parse(res.value.value.toString('utf8'));
-    //                 console.log(purchase);
-    //                 if (purchase.userID === userID && purchase.status === 'validated' && purchase.used === false) {
-    //                     if (dates.length === 0){
-    //                         purchaseIDs.push(purchase.purchaseID);
-    //                         dates.push(purchase.dateOfPurchase);
-    //                     }
-    //                     else{
-    //                         let a = dates[dates.length - 1];
-    //                         a = a.toString();
-    //                         let b = purchase.dateOfPurchase;
-    //                         b = b.toString();
-    //                         if (areDatesConsecutive(a, b)){
-    //                             purchaseIDs.push(purchase.purchaseID);
-    //                             dates.push(purchase.dateOfPurchase);
-    //                             if (dates.length === 7){
-    //                                 reward.owner = userID;
-    //                                 await ctx.stub.putState(rewardID.toString(), Buffer.from(JSON.stringify(reward)));
-
-    //                                 for (const purchaseid of purchaseIDs) {
-    //                                     const pb = await ctx.stub.getState(purchaseid.toString());
-    //                                     const p = JSON.parse(pb.toString());
-    //                                     p.used = rewardID;
-    //                                     await ctx.stub.putState(purchaseid.toString(), Buffer.from(JSON.stringify(p)));
-    //                                 }
-    //                                 await iterator.close();
-    //                                 return `Reward with rewardID ${rewardID} has been redeemed successfully by user ${userID}`;
-    //                             }
-    //                         }
-    //                         else{
-    //                             dates.length = 0;
-    //                             purchaseIDs.length = 0;
-    //                         }
-    //                     }
-    //                 }
-    //             } catch (err) {
-    //                 console.log(err);
-    //                 purchase = res.value.value.toString('utf8');
-    //             }
-    //         }
-    //         if (res.done) {
-    //             await iterator.close();
-    //             console.info('============= END : redeemReward ===========');
-    //             return "Juice purchases not found on 7 consecutive days. Redeem failed!";
-    //         }
-    //     }
-    // }
 }
-
 module.exports = Feedback;
+
+// async registerPurchase(ctx, outletID, item, date) {
+
+//     let cid = new ClientIdentity(ctx.stub);
+//     let userID = cid.getID();
+
+//     //"yyyy-mm-dd"
+//     const status = 'pending';
+//     let dateOfPurchase;
+//     if (date === "x"){
+//         dateOfPurchase = new Date().toISOString().split('T')[0];
+//     }
+//     else{
+//         dateOfPurchase = date;
+//     }
+//     // const dateOfPurchase = date ? date : new Date().toISOString().split('T')[0];
+//     const used = false;
+
+//     purchaseCounter = Number(purchaseCounter);
+//     purchaseCounter += 1;
+//     purchaseID = 'P' + purchaseCounter;
+//     const purchase = {
+//         purchaseID,
+//         userID,
+//         outletID,
+//         item,
+//         status,
+//         dateOfPurchase,
+//         used,
+//     };
+
+//     await ctx.stub.putState(purchaseID.toString(), Buffer.from(JSON.stringify(purchase)));
+//     console.log(`Item ${item} purchased successfully from outlet ${outletID} on ${date}! Your Purchase ID is ${purchaseID}. Please save it`);
+// }
+
+// async queryPurchasesByOutlet(ctx, outletID) {
+//     console.info('============= START : queryPurchasesByOutlet ===========');
+
+//     const startKey = 'P0';
+//     const endKey = 'P99999';
+
+//     const iterator = await ctx.stub.getStateByRange(startKey, endKey);
+
+//     const queriedPurchasesByOutlet = [];
+//     while (true) {
+//         const res = await iterator.next();
+
+//         if (res.value && res.value.value.toString()) {
+//             const Key = res.value.key;
+//             let purchase;
+//             try {
+//                 purchase = JSON.parse(res.value.value.toString('utf8'));
+//                 console.log(purchase);
+//                 if (purchase.outletID === outletID) {
+//                     queriedPurchasesByOutlet.push({Key, purchase});
+//                 }
+
+//             } catch (err) {
+//                 console.log(err);
+//                 purchase = res.value.value.toString('utf8');
+//             }
+
+//         }
+//         if (res.done) {
+//             await iterator.close();
+//             console.info(queriedPurchasesByOutlet);
+//             console.info('============= END : queryPurchasesByOutlet ===========');
+//             return JSON.stringify(queriedPurchasesByOutlet);
+//         }
+//     }
+// }
+
+// async queryPurchasesByUser(ctx) {
+//     console.info('============= START : queryPurchasesByUser ===========');
+
+//     const startKey = 'P0';
+//     const endKey = 'P99999';
+
+//     const iterator = await ctx.stub.getStateByRange(startKey, endKey);
+
+//     let cid = new ClientIdentity(ctx.stub);
+//     let userID = cid.getID();
+
+//     const queriedPurchasesByUser = [];
+//     while (true) {
+//         const res = await iterator.next();
+
+//         if (res.value && res.value.value.toString()) {
+//             const Key = res.value.key;
+//             let purchase;
+//             try {
+//                 purchase = JSON.parse(res.value.value.toString('utf8'));
+//                 console.log(purchase);
+//                 if (purchase.userID === userID) {
+//                     queriedPurchasesByUser.push({Key, purchase});
+//                 }
+//             } catch (err) {
+//                 console.log(err);
+//                 purchase = res.value.value.toString('utf8');
+//             }
+//         }
+//         if (res.done) {
+//             await iterator.close();
+//             console.info(queriedPurchasesByUser);
+//             console.info('============= END : queryPurchasesByUser ===========');
+//             return JSON.stringify(queriedPurchasesByUser);
+//         }
+//     }
+// }
+
+// Validate a purchase by an outlet
+// async validatePurchase(ctx, purchaseID, outletID) {
+//     const purchaseAsBytes = await ctx.stub.getState(purchaseID);
+//     const purchase = JSON.parse(purchaseAsBytes.toString());
+//     if (!purchase) {
+//         throw new Error(`Purchase ${purchaseID} does not exist`);
+//     }
+
+//     if (purchase.outletID !== outletID) {
+//         throw new Error(`Outlet ${outletID} cannot validate a purchase made in another outlet.`);
+//     }
+
+//     if (purchase.item !== "juice") {
+//         throw new Error(`Purchase ${purchaseID} is not valid. Only juice can be validated.`);
+//     }
+
+//     purchase.status = 'validated';
+//     await ctx.stub.putState(purchaseID, Buffer.from(JSON.stringify(purchase)));
+// }
+
+// async validateAllPurchases(ctx, outletID) {
+//     console.info('============= START : validateAllUserPurchases ===========');
+
+//     const startKey = 'P0';
+//     const endKey = 'P99999';
+
+//     const iterator = await ctx.stub.getStateByRange(startKey, endKey);
+
+//     while (true) {
+//         const res = await iterator.next();
+
+//         if (res.value && res.value.value.toString()) {
+//             const Key = res.value.key;
+//             let purchase;
+//             try {
+//                 purchase = JSON.parse(res.value.value.toString('utf8'));
+//                 if ((purchase.outletID).toString() === outletID) {
+//                     if (purchase.item === "juice" && purchase.status !== 'validated'){
+//                         purchase.status = 'validated';
+//                         let temp_purchaseID = purchase.purchaseID;
+//                         await ctx.stub.putState(temp_purchaseID.toString(), Buffer.from(JSON.stringify(purchase)));
+//                     }
+//                 }
+
+//             } catch (err) {
+//                 console.log(err);
+//                 purchase = res.value.value.toString('utf8');
+//             }
+
+//         }
+//         if (res.done) {
+//             await iterator.close();
+//             return "Ran successfully. Validated all purchases with juice as an item."
+//             console.info('============= END : validateAllUserPurchases ===========');
+//         }
+//     }
+// }
+
+// async redeemReward(ctx, rewardID) {
+
+//     console.info('============= START : redeemReward ===========');
+
+//     function areDatesConsecutive(date1, date2) {
+
+//         let d1 = new Date(date1);
+//         let d2 = new Date(date2);
+
+//         // Calculate the difference in milliseconds
+//         let difference = d2 - d1;
+
+//         // Convert the difference to days
+//         let differenceInDays = difference / (1000 * 60 * 60 * 24);
+
+//         return differenceInDays === 1;
+//     }
+
+//     const rewardAsBytes = await ctx.stub.getState(rewardID.toString());
+//     const reward = JSON.parse(rewardAsBytes.toString());
+
+//     const startKey = 'P0';
+//     const endKey = 'P99999';
+
+//     const iterator = await ctx.stub.getStateByRange(startKey, endKey);
+
+//     let cid = new ClientIdentity(ctx.stub);
+//     let userID = cid.getID();
+
+//     let purchaseIDs = [];
+//     let dates = [];
+//     while (true) {
+//         const res = await iterator.next();
+
+//         if (res.value && res.value.value.toString()) {
+//             let purchase;
+//             try {
+//                 purchase = JSON.parse(res.value.value.toString('utf8'));
+//                 console.log(purchase);
+//                 if (purchase.userID === userID && purchase.status === 'validated' && purchase.used === false) {
+//                     if (dates.length === 0){
+//                         purchaseIDs.push(purchase.purchaseID);
+//                         dates.push(purchase.dateOfPurchase);
+//                     }
+//                     else{
+//                         let a = dates[dates.length - 1];
+//                         a = a.toString();
+//                         let b = purchase.dateOfPurchase;
+//                         b = b.toString();
+//                         if (areDatesConsecutive(a, b)){
+//                             purchaseIDs.push(purchase.purchaseID);
+//                             dates.push(purchase.dateOfPurchase);
+//                             if (dates.length === 7){
+//                                 reward.owner = userID;
+//                                 await ctx.stub.putState(rewardID.toString(), Buffer.from(JSON.stringify(reward)));
+
+//                                 for (const purchaseid of purchaseIDs) {
+//                                     const pb = await ctx.stub.getState(purchaseid.toString());
+//                                     const p = JSON.parse(pb.toString());
+//                                     p.used = rewardID;
+//                                     await ctx.stub.putState(purchaseid.toString(), Buffer.from(JSON.stringify(p)));
+//                                 }
+//                                 await iterator.close();
+//                                 return `Reward with rewardID ${rewardID} has been redeemed successfully by user ${userID}`;
+//                             }
+//                         }
+//                         else{
+//                             dates.length = 0;
+//                             purchaseIDs.length = 0;
+//                         }
+//                     }
+//                 }
+//             } catch (err) {
+//                 console.log(err);
+//                 purchase = res.value.value.toString('utf8');
+//             }
+//         }
+//         if (res.done) {
+//             await iterator.close();
+//             console.info('============= END : redeemReward ===========');
+//             return "Juice purchases not found on 7 consecutive days. Redeem failed!";
+//         }
+//     }
+// }

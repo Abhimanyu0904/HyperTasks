@@ -1,6 +1,7 @@
 module.exports.ADMIN_KEY_IDENTIFIER="U";
 module.exports.FACULTY_KEY_IDENTIFIER="F";
 module.exports.STUDENT_KEY_IDENTIFIER="S";
+module.exports.FEEDBACK_KEY_IDENTIFIER="FE";
 module.exports.START_KEY="1";
 module.exports.END_KEY="999999";
 module.exports.STUDENT_TYPE="student";
