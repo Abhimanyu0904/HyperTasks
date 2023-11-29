@@ -11,9 +11,7 @@ const {Contract, Context} = require("fabric-contract-api"),
     ClientIdentity = require("fabric-shim").ClientIdentity;
 
 // global variables
-let adminCounter = 0,
-    admins = [],
-    faculties = [],
+let faculties = [],
     facultyCounter = 0,
     feedbackCounter = 0,
     feedbackID,
@@ -97,138 +95,68 @@ class Feedback extends Contract {
     }
 
     /**
-     * Registers a student.
+     * Registers a user of student or faculty type.
      * @param {Context} ctx - context object to interact with the world state
-     * @param {string} name - the name of the student
-     * @param {string} email - the email of the student
-     * @param {string} ashokaID - the Ashoka ID of the student
-     * @param {string} password - the password for the student
-     * @returns {Promise<string>} - a success or failure message confirming the status of registration of the student
+     * @param {string} name - the name of the user
+     * @param {string} email - the email of the user
+     * @param {string} ashoka_id - the Ashoka ID of the user
+     * @param ashoka_id
+     * @param {string} password - the hashed password for the user
+     * @param {string} type - the type of the user: student | faculty
+     * @returns {Promise<Buffer>} - a success or failure message confirming the status of registration
      */
-    async registerStudent(ctx, name, email, ashokaID, password) {
-        console.info("============= START : registerStudent ===========");
+    async registerUser(ctx, name, email, ashoka_id, password, type) {
+        console.info("=============== START : registerUser ===============");
 
-        let cid = new ClientIdentity(ctx.stub),
-            userID = cid.getID();
+        let asset_id,
+            cid = new ClientIdentity(ctx.stub),
+            id = cid.getID();
 
-        ++studentCounter;
-        const studentID = STUDENT_KEY_IDENTIFIER + studentCounter;
+        switch (type){
+        case FACULTY_TYPE:
+            ++facultyCounter;
+            asset_id = FACULTY_KEY_IDENTIFIER + facultyCounter;
+            if (faculties.includes(name)) {
+                console.log("faculty already exists");
+                return FAILURE_MSG;
+            }
+            // add faculty name to global list of faculties
+            faculties.push(name);
+            break;
 
-        // create the student object
-        const student = {
-            ashoka_id: ashokaID,
-            asset_id: studentID,
-            email,
-            id: userID,
-            name,
-            password,
-            type: STUDENT_TYPE,
-            // feedbackIDs: [] // This array will store feedback related to the student
-        };
+        case STUDENT_TYPE:
+            ++studentCounter;
+            asset_id = STUDENT_KEY_IDENTIFIER + studentCounter;
+            if (students.includes(name)) {
+                console.log("student already exists");
+                return FAILURE_MSG;
+            }
+            // add student name to global list of students
+            students.push(name);
+            break;
 
-        if (students.includes(student)) {
-            console.log("student already exists");
+        default:
+            console.log(`unknown user type: ${type}`);
             return FAILURE_MSG;
         }
 
-        // add student name to global list of students
-        students.push(student);
+        // create the user asset object
+        const user = {
+            ashoka_id,
+            asset_id,
+            email,
+            id,
+            name,
+            password,
+            type,
+            verified: false,
+        };
 
-        // add student to the ledger
-        await ctx.stub.putState(studentID, Buffer.from(JSON.stringify(student)));
+        // add user to the ledger
+        await ctx.stub.putState(asset_id, Buffer.from(JSON.stringify(user)));
         console.info("============= END : registerStudent ===========");
 
-        return SUCCESS_MSG;
-    }
-
-    /**
-     * Registers a faculty.
-     * @param {Context} ctx - context object to interact with the world state
-     * @param {string} name - the name of the faculty
-     * @param {string} email - the email of the faculty
-     * @param {string} ashokaID - the Ashoka ID of the faculty
-     * @param {string} password - the password for the faculty
-     * @returns {Promise<string>} - a success or failure message confirming the status of registration of the faculty
-     */
-    async registerFaculty(ctx, name, email, ashokaID, password) {
-        console.info("============= START : registerFaculty ===========");
-
-        let cid = new ClientIdentity(ctx.stub),
-            userID = cid.getID();
-
-        ++facultyCounter;
-        const facultyID = FACULTY_KEY_IDENTIFIER + facultyCounter;
-
-        // Create the outlet object
-        const faculty = {
-            ashoka_id: ashokaID,
-            asset_id: facultyID,
-            email,
-            id: userID,
-            name,
-            password,
-            type: FACULTY_TYPE,
-            // feedbackIDs: [] // This array will store feedback related to the faculty
-        };
-
-        if (faculties.includes(faculty)) {
-            console.log("faculty already exists");
-            return FAILURE_MSG;
-        }
-
-        // add faculty name to global list of faculties
-        faculties.push(faculty);
-
-        // add faculty to the ledger
-        await ctx.stub.putState(facultyID, Buffer.from(JSON.stringify(faculty)));
-        console.info("============= END : registerFaculty ===========");
-
-        return SUCCESS_MSG;
-    }
-
-    /**
-     * Registers an admin.
-     * @param {Context} ctx - context object to interact with the world state
-     * @param {string} name - the name of the admin
-     * @param {string} email - the email of the admin
-     * @param {string} ashokaID - the Ashoka ID of the admin
-     * @param {string} password - the password for the admin
-     * @returns {Promise<string>} - a success or failure message confirming the status of registration of the admin
-     */
-    async registerAdmin(ctx, name, email, ashokaID, password) {
-        console.info("============= START : registerAdmin ===========");
-
-        let cid = new ClientIdentity(ctx.stub),
-            userID = cid.getID();
-
-        ++adminCounter;
-        const adminID = ADMIN_KEY_IDENTIFIER + adminCounter;
-
-        // Create the outlet object
-        const admin = {
-            ashoka_id: ashokaID,
-            asset_id: adminID,
-            email,
-            id: userID,
-            name,
-            password,
-            type: ADMIN_TYPE,
-            // feedbackIDs: [] // This array will store feedback related to the faculty
-        };
-
-        if (admins.includes(admin)) {
-            console.log("admin already exists");
-            return FAILURE_MSG;
-        }
-
-        // add faculty name to global list of faculties
-        admins.push(admin);
-
-        // add faculty to the ledger
-        await ctx.stub.putState(adminID, Buffer.from(JSON.stringify(admin)));
-        console.info("============= END : registerAdmin ===========");
-
-        return SUCCESS_MSG;
+        return Buffer.from(SUCCESS_MSG);
     }
 
     async addFeedback(ctx, content, role) {
