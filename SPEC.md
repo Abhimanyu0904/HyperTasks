@@ -27,6 +27,7 @@ Create a new user of a given type: student, faculty, administration
     "name": String, // user name
     "password": String, // hashed password of the user
     "type": String, // user type: administration / student / faculty
+    "verified": Boolean, // is the user verified by the admin authority
 }
 ```
 
@@ -39,12 +40,18 @@ confirmations for the request based on the current number of total users of that
 
 ```json
 {
+    "admin_notes": String, // notes from the admin about the request
+    "asset_id": String, // state id
     "confirmations": Number, // current confirmations
-    "description": String, // description of the  request
-    "id": String, // state id
+    "confirmed": Boolean, // is it confirmed
+    "confirmed_by": {String: Bool}, // a dictionary storing identifiers for who has confirmed this request to avoid double confirmation
+    "description": String, // description of the request
+    "id": String, // client id
     "required_confirmations": Number, // number of required confirmations
     "status": String, // current status of the request: not started (default) / in progress / implemented
-    "user_type": String, // user type: administration / student / faculty
+    "update_type": String, // what kind of update was just performed
+    "updated_at": Number, // epoch time in milliseconds
+    "user_type": String, // user type: student / faculty
 }
 ```
 
