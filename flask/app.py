@@ -1,3 +1,10 @@
+from flask import render_template, url_for, redirect, flash, request, session
+# from project1 import db, app, bcrypt, images
+from forms import *
+# from .models import *
+# from flask_login import login_user, current_user, logout_user, login_required
+
+
 """
 Application code
 """
@@ -11,6 +18,7 @@ from flask import Flask
 ########## GLOBAL VARIABLES ##########
 app = Flask(__name__)
 
+app.config['SECRET_KEY'] = "feedback"
 
 ########## CHAINCODE PROCESSOR ##########
 def chaincode(args: List[str]):
@@ -36,46 +44,77 @@ def chaincode(args: List[str]):
 
     return valid, out
 
+@app.route("/")
+@app.route("/home")
+def home():
+    return render_template('home.html')
 
-########## REQUESTS ##########
-@app.get("/")
-def index():
-    """
-    Index page
-    """
+@app.route("/user_auth")
+def user_auth():
+    return render_template('user_auth.html')
 
+@app.route("/register", methods = ['GET', 'POST'])
+def register():
+    registration_form = RegistrationForm()
+    if request.method == 'POST':
+        if registration_form.validate_on_submit():
+            return render_template("register.html",form=registration_form)
+    return render_template("register.html",form=registration_form)
 
-########## AUTHENTICATION ##########
-@app.get("/signup")
-def get_signup():
-    """
-    Signup page
-    """
-
-
-@app.post("/signup")
-def post_signup():
-    """
-    Process signup details
-    """
-
-
-@app.get("/signin")
-def get_signin():
-    """
-    Signin page
-    """
+@app.route("/login", methods = ['GET', 'POST'])
+def login():
+    login_form = LoginForm()
+    if request.method == 'POST':
+        if login_form.validate_on_submit():
+            return render_template("login.html",form=login_form)
+    return render_template("login.html",form=login_form)
 
 
-@app.post("/signin")
-def post_signin():
-    """
-    Process signin details
-    """
+@app.route("/admin_login", methods = ['GET', 'POST'])
+def admin_login():
+    admin_login_form = AdminLoginForm()
+    if request.method == 'POST':
+        if admin_login_form.validate_on_submit():
+            return render_template("admin_login.html",form=admin_login_form)
+    return render_template("admin_login.html",form=admin_login_form)
+
+@app.route("/student_feedbacks", methods = ['GET', 'POST'])
+def student_feedbacks():
+    
+
+# ########## AUTHENTICATION ##########
+# @app.get("/signup")
+# def get_signup():
+#     """
+#     Signup page
+#     """
 
 
-@app.post("/signout")
-def signout():
-    """
-    Process user signout
-    """
+# @app.post("/signup")
+# def post_signup():
+#     """
+#     Process signup details
+#     """
+
+
+# @app.get("/signin")
+# def get_signin():
+#     """
+#     Signin page
+#     """
+
+
+# @app.post("/signin")
+# def post_signin():
+#     """
+#     Process signin details
+#     """
+
+
+# @app.post("/signout")
+# def signout():
+#     """
+#     Process user signout
+#     """
+if __name__ == '__main__':
+    app.run(debug=True, port = 5001)
