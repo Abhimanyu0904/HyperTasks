@@ -56,25 +56,31 @@ def user_auth():
 @app.route("/register", methods = ['GET', 'POST'])
 def register():
     registration_form = RegistrationForm()
-    if registration_form.validate_on_submit():
-        return render_template("register.html",form=registration_form)
+    if request.method == 'POST':
+        if registration_form.validate_on_submit():
+            return render_template("register.html",form=registration_form)
     return render_template("register.html",form=registration_form)
 
 @app.route("/login", methods = ['GET', 'POST'])
 def login():
     login_form = LoginForm()
-    if login_form.validate_on_submit():
-        return render_template("login.html",form=login_form)
+    if request.method == 'POST':
+        if login_form.validate_on_submit():
+            return render_template("login.html",form=login_form)
     return render_template("login.html",form=login_form)
 
 
 @app.route("/admin_login", methods = ['GET', 'POST'])
 def admin_login():
     admin_login_form = AdminLoginForm()
-    if admin_login_form.validate_on_submit():
-        return render_template("admin_login.html",form=admin_login_form)
+    if request.method == 'POST':
+        if admin_login_form.validate_on_submit():
+            return render_template("admin_login.html",form=admin_login_form)
     return render_template("admin_login.html",form=admin_login_form)
 
+@app.route("/student_feedbacks", methods = ['GET', 'POST'])
+def student_feedbacks():
+    
 
 # ########## AUTHENTICATION ##########
 # @app.get("/signup")
