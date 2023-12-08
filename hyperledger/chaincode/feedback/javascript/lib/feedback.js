@@ -7,7 +7,7 @@
 
 const {Contract, Context} = require("fabric-contract-api"),
     {Iterators} = require("fabric-shim"),
-    {ADMIN_TYPE, STUDENT_KEY_IDENTIFIER, START_KEY, END_KEY, FACULTY_KEY_IDENTIFIER, STUDENT_TYPE, FACULTY_TYPE, SUCCESS_MSG, FAILURE_MSG, REQUEST_KEY_IDENTIFIER, NOT_STARTED, ADMIN_KEY_IDENTIFIER, HASH, HASH_ENCODING, CREATION, CONFIRMATION, STATUS, CONFIRMED} = require("../utils/constants"),
+    {UNIVERSITY_TYPE, STUDENT_KEY_IDENTIFIER, START_KEY, END_KEY, FACULTY_KEY_IDENTIFIER, STUDENT_TYPE, FACULTY_TYPE, SUCCESS_MSG, FAILURE_MSG, REQUEST_KEY_IDENTIFIER, NOT_STARTED, UNIVERSITY_KEY_IDENTIFIER, HASH, HASH_ENCODING, CREATION, CONFIRMATION, STATUS, CONFIRMED} = require("../utils/constants"),
     ClientIdentity = require("fabric-shim").ClientIdentity,
     crypto = require("crypto");
 
@@ -16,9 +16,9 @@ let facultyCounter = 0,
     requestCounter = 0,
     studentCounter = 0,
     users = {
-        admin: false,
         faculties: {},
         students: {},
+        university: false,
     };
 
 /**
@@ -34,31 +34,34 @@ async function resolveIterator(iterator){
         if (res.value && res.value.value.toString()) {
             try {
                 const asset = JSON.parse(res.value.value.toString("utf8"));
+
                 switch (asset.asset_id[0]){
                 case STUDENT_KEY_IDENTIFIER:
-                    ++studentCounter;
-                    users.students[crypto
+                    var identifier = crypto
                         .createHash(HASH)
                         .update(asset.email)
-                        .update(asset.name)
-                        .digest(HASH_ENCODING)] = true;
+                        .digest(HASH_ENCODING);
+
+                    ++studentCounter;
+                    users.students[identifier] = true;
                     break;
 
                 case FACULTY_KEY_IDENTIFIER:
-                    ++facultyCounter;
-                    users.faculties[crypto
+                    identifier = crypto
                         .createHash(HASH)
                         .update(asset.email)
-                        .update(asset.name)
-                        .digest(HASH_ENCODING)] = true;
+                        .digest(HASH_ENCODING);
+
+                    ++facultyCounter;
+                    users.faculties[identifier] = true;
                     break;
 
                 case REQUEST_KEY_IDENTIFIER:
                     ++requestCounter;
                     break;
 
-                case ADMIN_KEY_IDENTIFIER:
-                    users.admin = true;
+                case UNIVERSITY_KEY_IDENTIFIER:
+                    users.university = true;
                     break;
 
                 default:
@@ -87,16 +90,20 @@ class Feedback extends Contract {
      */
     async initLedger(ctx) {
         console.info("=============== START : initLedger ===============");
+        const cid = new ClientIdentity(ctx.stub),
+            id = cid.getID();
 
         // fetch all iterators asynchronously at the same time
         const [
             faculty_iterator,
             requests_iterator,
             student_iterator,
+            university_iterator,
         ] = await Promise.all([
             ctx.stub.getStateByRange(FACULTY_KEY_IDENTIFIER+START_KEY, FACULTY_KEY_IDENTIFIER+END_KEY),
             ctx.stub.getStateByRange(REQUEST_KEY_IDENTIFIER+START_KEY, REQUEST_KEY_IDENTIFIER+END_KEY),
             ctx.stub.getStateByRange(STUDENT_KEY_IDENTIFIER+START_KEY, STUDENT_KEY_IDENTIFIER+END_KEY),
+            ctx.stub.getStateByRange(UNIVERSITY_KEY_IDENTIFIER+START_KEY, UNIVERSITY_KEY_IDENTIFIER+END_KEY),
         ]);
         console.log("iterators fetched");
 
@@ -105,27 +112,29 @@ class Feedback extends Contract {
             resolveIterator(faculty_iterator),
             resolveIterator(requests_iterator),
             resolveIterator(student_iterator),
+            resolveIterator(university_iterator),
         ]);
         console.log("iterators resolved");
 
-        if (!users.admin) {
-            console.log("creating admin asset");
-            const asset_id = ADMIN_KEY_IDENTIFIER+1;
-            const admin = {
+        if (!users.university) {
+            console.log("creating university asset");
+            const asset_id = UNIVERSITY_KEY_IDENTIFIER+1;
+            const ashoka = {
                 ashoka_id: "0000000000",
                 asset_id,
                 email: "admin@ashoka.edu.in",
-                id: "",
-                name: "admin",
+                id,
+                name: "ashoka",
                 password: crypto
                     .createHash(HASH)
                     .update("admin")
                     .digest(HASH_ENCODING),
-                type: ADMIN_TYPE,
+                type: UNIVERSITY_TYPE,
                 verified: true,
             };
-            await ctx.stub.putState(asset_id, Buffer.from(JSON.stringify(admin)));
-            console.log("admin asset created");
+            await ctx.stub.putState(asset_id, Buffer.from(JSON.stringify(ashoka)));
+            users.university = true;
+            console.log("university asset created");
         }
 
         console.info("=============== END : initLedger ===============");
@@ -143,7 +152,6 @@ class Feedback extends Contract {
      */
     async registerUser(ctx, name, email, ashoka_id, password, type) {
         console.info("=============== START : registerUser ===============");
-
         let asset_id,
             cid = new ClientIdentity(ctx.stub),
             id = cid.getID(),
@@ -151,7 +159,6 @@ class Feedback extends Contract {
         const identifier = crypto
             .createHash(HASH)
             .update(email)
-            .update(name)
             .digest(HASH_ENCODING);
 
         switch (type){
@@ -203,7 +210,10 @@ class Feedback extends Contract {
             email,
             id,
             name,
-            password,
+            password: crypto
+                .createHash(HASH)
+                .update(password)
+                .digest(HASH_ENCODING),
             type,
             verified: false,
         };
@@ -213,7 +223,8 @@ class Feedback extends Contract {
         ret = {
             message: SUCCESS_MSG,
         };
-        console.info("=============== END : registerStudent ===============");
+
+        console.info("=============== END : registerUser ===============");
         return Buffer.from(JSON.stringify(ret));
     }
 
@@ -347,12 +358,11 @@ class Feedback extends Contract {
      * @param {string} name - The name of the user.
      * @returns {Promise<Buffer>} a promise that resolves after feedback is updated giving indication of success or failure of the operation.
      */
-    async confirmRequest(ctx, requestID, email, name) {
+    async confirmRequest(ctx, requestID, email) {
         console.info("=============== START : confirmRequest ===============");
         const identifier = crypto
             .createHash(HASH)
             .update(email)
-            .update(name)
             .digest(HASH_ENCODING);
         let ret = {};
 
