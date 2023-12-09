@@ -7,7 +7,7 @@
 
 const {Contract, Context} = require("fabric-contract-api"),
     {Iterators} = require("fabric-shim"),
-    {UNIVERSITY_TYPE, STUDENT_KEY_IDENTIFIER, FACULTY_KEY_IDENTIFIER, STUDENT_TYPE, FACULTY_TYPE, SUCCESS_MSG, FAILURE_MSG, REQUEST_KEY_IDENTIFIER, NOT_STARTED, UNIVERSITY_KEY_IDENTIFIER, HASH, HASH_ENCODING, CREATION, CONFIRMATION, STATUS, CONFIRMED, REQUEST_TYPE} = require("../utils/constants"),
+    {UNIVERSITY_TYPE, STUDENT_KEY_IDENTIFIER, FACULTY_KEY_IDENTIFIER, STUDENT_TYPE, FACULTY_TYPE, SUCCESS_MSG, FAILURE_MSG, REQUEST_KEY_IDENTIFIER, NOT_STARTED, UNIVERSITY_KEY_IDENTIFIER, HASH, HASH_ENCODING, CREATION, CONFIRMATION, STATUS, CONFIRMED, REQUEST_TYPE, ADMIN_EMAIL} = require("../utils/constants"),
     crypto = require("crypto");
 
 // global variables
@@ -27,6 +27,7 @@ let facultyCounter = 0,
  */
 async function resolveIterator(iterator){
     let iterator_flag = true;
+
     while (iterator_flag) {
         const res = await iterator.next();
 
@@ -102,7 +103,7 @@ class Feedback extends Contract {
             ctx.stub.getStateByPartialCompositeKey(STUDENT_KEY_IDENTIFIER, []),
             ctx.stub.getStateByPartialCompositeKey(UNIVERSITY_KEY_IDENTIFIER, [
                 "1",
-                "admin@ashoka.edu.in",
+                ADMIN_EMAIL,
             ]),
         ]);
         console.log("iterators fetched");
@@ -118,15 +119,14 @@ class Feedback extends Contract {
 
         if (!users.university) {
             console.log("creating university asset");
-            const email = "admin@ashoka.edu.in",
-                key = ctx.stub.createCompositeKey(UNIVERSITY_KEY_IDENTIFIER, [
-                    "1",
-                    email,
-                ]);
+            const key = ctx.stub.createCompositeKey(UNIVERSITY_KEY_IDENTIFIER, [
+                "1",
+                ADMIN_EMAIL,
+            ]);
 
             const ashoka = {
                 ashoka_id: "0000000000",
-                email,
+                email: ADMIN_EMAIL,
                 name: "ashoka",
                 password: crypto
                     .createHash(HASH)
@@ -150,19 +150,19 @@ class Feedback extends Contract {
      * @param {string} email - the email of the user
      * @param {string} ashoka_id - the Ashoka ID of the user
      * @param {string} password - the hashed password for the user
-     * @param {string} type - the type of the user: student | faculty
+     * @param {string} user_type - the type of the user: student | faculty
      * @returns {Promise<Buffer>} - a success or failure message confirming the status of registration
      */
-    async registerUser(ctx, name, email, ashoka_id, password, type) {
+    async registerUser(ctx, name, email, ashoka_id, password, user_type) {
         console.info("=============== START : registerUser ===============");
-        let key;
+        let key = "";
         const identifier = crypto
                 .createHash(HASH)
                 .update(email)
                 .digest(HASH_ENCODING),
             ret = {};
 
-        switch (type){
+        switch (user_type){
         case FACULTY_TYPE:
             ++facultyCounter;
             key = ctx.stub.createCompositeKey(FACULTY_KEY_IDENTIFIER, [
@@ -198,7 +198,7 @@ class Feedback extends Contract {
             break;
 
         default:
-            ret.error= `unknown user type: ${type}`;
+            ret.error= `unknown user type: ${user_type}`;
             ret.message= FAILURE_MSG;
             console.error(ret.error);
             return Buffer.from(JSON.stringify(ret));
@@ -213,7 +213,7 @@ class Feedback extends Contract {
                 .createHash(HASH)
                 .update(password)
                 .digest(HASH_ENCODING),
-            type,
+            type: user_type,
             verified: false,
         };
         // add user to the ledger
@@ -258,23 +258,23 @@ class Feedback extends Contract {
             return Buffer.from(JSON.stringify(ret));
         }
 
-        const now = new Date().getTime();
-        // create a new request asset
-        const request = {
-            confirmations: 0,
-            confirmed: false,
-            confirmed_by: [],
-            created_at: now,
-            description,
-            key,
-            required_confirmations,
-            status: NOT_STARTED,
-            type: REQUEST_TYPE,
-            university_notes: "",
-            update_type: CREATION,
-            updated_at: now,
-            user_type,
-        };
+        const now = new Date().getTime(),
+            // create a new request asset
+            request = {
+                confirmations: 0,
+                confirmed: false,
+                confirmed_by: {},
+                created_at: now,
+                description,
+                key,
+                required_confirmations,
+                status: NOT_STARTED,
+                type: REQUEST_TYPE,
+                university_notes: "",
+                update_type: CREATION,
+                updated_at: now,
+                user_type,
+            };
 
         await ctx.stub.putState(key, Buffer.from(JSON.stringify(request)));
         ret.message = SUCCESS_MSG;
@@ -314,7 +314,7 @@ class Feedback extends Contract {
             if (res.value && res.value.value.toString()) {
                 try {
                     const request = JSON.parse(res.value.value.toString("utf8"));
-                    if (request.confirmed == confirmed) {
+                    if (request.confirmed === confirmed) {
                         requests.push(request);
                     }
                 } catch (err) {
@@ -329,7 +329,7 @@ class Feedback extends Contract {
         }
 
         console.info("=============== END : queryRequests ===============");
-        return Buffer.from(JSON.stringify(requests));
+        return Buffer.from(JSON.stringify({message: SUCCESS_MSG, response: requests}));
     }
 
     /**
@@ -358,7 +358,7 @@ class Feedback extends Contract {
         const request = JSON.parse(requestAsBytes.toString());
 
         // check if user has already confirmed
-        if (Object.hasOwn(request.confirmedBy, identifier)) {
+        if (Object.hasOwn(request.confirmed_by, identifier)) {
             ret.error = "User has already confirmed this feedback.";
             ret.message = FAILURE_MSG;
             console.error(ret.error);
@@ -366,7 +366,7 @@ class Feedback extends Contract {
         }
 
         // add confirmation
-        request.confirmedBy[identifier] = true;
+        request.confirmed_by[identifier] = true;
         ++request.confirmations;
         request.update_type = CONFIRMATION;
         if (request.confirmations === request.required_confirmations){
@@ -457,14 +457,14 @@ class Feedback extends Contract {
         }
 
         console.info("=============== END : queryRequestHistory ===============");
-        return Buffer.from(JSON.stringify(requests));
+        return Buffer.from(JSON.stringify({message: SUCCESS_MSG, response: requests}));
     }
 
     /**
      * Validates the given user asset.
      * @param {Context} ctx - context object to interact with the world state
-     * @param {string} email - The user email id.
      * @param {string} user_type - The user type.
+     * @param {string} email - The user email id.
      * @returns {Promise<Buffer>} A promise that resolves with the request history.
      */
     async validateUser(ctx, user_type, email){
@@ -493,8 +493,6 @@ class Feedback extends Contract {
                     const u = JSON.parse(res.value.value.toString("utf8"));
                     if (u.email === email) {
                         user = u;
-                        await iterator.close();
-                        iterator_flag = false;
                     }
                 } catch (err) {
                     console.error(err);
@@ -509,33 +507,50 @@ class Feedback extends Contract {
 
         user.verified= true;
 
-        await ctx.stub.putState(key, Buffer.from(JSON.stringify(user)));
+        await ctx.stub.putState(user.key, Buffer.from(JSON.stringify(user)));
         ret.message = SUCCESS_MSG;
         console.info("=============== END : validateUser ===============");
         return Buffer.from(JSON.stringify(ret));
     }
 
     /**
-     * Retrieves the given user asset.
+     * Retrieves the user asset for the given email id and verifies if password is correct.
      * @param {Context} ctx - context object to interact with the world state
+     * @param {string} user_type - the type of the user
      * @param {string} email - The email of the user to retrieve.
-     * @param password
-     * @returns {Promise<Buffer>} A promise that resolves with the request history.
+     * @param {string} password - the password entered by the user
+     * @returns {Promise<Buffer>} A promise that resolves with a success message and user object if credentials are correct.
      */
-    async queryUser(ctx, email, password) {
-        console.info("=============== START : queryUser ===============");
-        const iterator = await ctx.stub.getStateByRange();
-        let iterator_flag = true,
-            requests = [];
+    async loginUser(ctx, user_type, email, password) {
+        console.info("=============== START : loginUser ===============");
+        const ret = {message: FAILURE_MSG, response: {}};
+        let iterator_flag = true;
+
+        if (![
+            FACULTY_TYPE,
+            STUDENT_TYPE,
+        ].includes(user_type)){
+            ret.error = `unknown user type: ${user_type}`;
+            console.error(ret.error);
+            return Buffer.from(JSON.stringify(ret));
+        }
+        const objectType = user_type === FACULTY_TYPE ? FACULTY_KEY_IDENTIFIER : STUDENT_KEY_IDENTIFIER;
+        const iterator = await ctx.stub.getStateByPartialCompositeKey(objectType, [email]);
 
         while (iterator_flag) {
             const res = await iterator.next();
 
             if (res.value && res.value.value.toString()) {
                 try {
-                    const request = JSON.parse(res.value.value.toString("utf8"));
-                    if (request.update_type !== CONFIRMATION) // filter out confirmation updates
-                        requests.unshift(request); // have a list starting from oldest to latest update
+                    const user = JSON.parse(res.value.value.toString("utf8"));
+                    if (user.email === email &&
+                        user.password === crypto
+                            .createHash(HASH)
+                            .update(password)
+                            .digest(HASH_ENCODING)) {
+                        ret.message = SUCCESS_MSG;
+                        ret.response = user;
+                    }
                 } catch (err) {
                     console.error(err);
                     console.error(res.value.value.toString("utf8"));
@@ -548,8 +563,8 @@ class Feedback extends Contract {
             }
         }
 
-        console.info("=============== END : queryUser ===============");
-        return Buffer.from(JSON.stringify(user));
+        console.info("=============== END : loginUser ===============");
+        return Buffer.from(JSON.stringify(ret));
     }
 }
 
