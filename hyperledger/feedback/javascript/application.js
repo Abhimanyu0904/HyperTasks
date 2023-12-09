@@ -156,8 +156,8 @@ async function executeChaincode() {
             var ashoka_id = process.argv[4],
                 name = process.argv[5],
                 password = process.argv[6],
-                type = process.argv[7];
-            response = await contract.submitTransaction("registerUser", name, email, ashoka_id, password, type);
+                user_type = process.argv[7];
+            response = await contract.submitTransaction("registerUser", name, email, ashoka_id, password, user_type);
             console.log(JSON
                 .stringify(JSON
                     .parse(Buffer
@@ -167,8 +167,8 @@ async function executeChaincode() {
 
         case "addRequest":
             var description = process.argv[4];
-            type = process.argv[5];
-            response = await contract.submitTransaction("addRequest", description, type);
+            user_type = process.argv[5];
+            response = await contract.submitTransaction("addRequest", description, user_type);
             console.log(JSON
                 .stringify(JSON
                     .parse(Buffer
@@ -178,8 +178,8 @@ async function executeChaincode() {
 
         case "queryRequests":
             var confirmed = process.argv[4];
-            type = process.argv[5];
-            response = await contract.evaluateTransaction("queryRequests", type, confirmed);
+            user_type = process.argv[5];
+            response = await contract.evaluateTransaction("queryRequests", user_type, confirmed);
             console.log(JSON
                 .stringify(JSON
                     .parse(Buffer
@@ -188,8 +188,8 @@ async function executeChaincode() {
             break;
 
         case "confirmRequest":
-            var requestID = process.argv[4];
-            response = await contract.submitTransaction("confirmRequest", requestID, email);
+            var key = process.argv[4];
+            response = await contract.submitTransaction("confirmRequest", key, email);
             console.log(JSON
                 .stringify(JSON
                     .parse(Buffer
@@ -200,8 +200,8 @@ async function executeChaincode() {
         case "updateRequest":
             var notes = process.argv[4],
                 status = process.argv[5];
-            requestID = process.argv[6];
-            response = await contract.submitTransaction("updateRequest", requestID, notes, status);
+            key = process.argv[6];
+            response = await contract.submitTransaction("updateRequest", key, notes, status);
             console.log(JSON
                 .stringify(JSON
                     .parse(Buffer
@@ -210,8 +210,8 @@ async function executeChaincode() {
             break;
 
         case "queryRequestHistory":
-            requestID = process.argv[4];
-            response = await contract.evaluateTransaction("queryRequestHistory", requestID);
+            key = process.argv[4];
+            response = await contract.evaluateTransaction("queryRequestHistory", key);
             console.log(JSON
                 .stringify(JSON
                     .parse(Buffer
@@ -220,8 +220,9 @@ async function executeChaincode() {
             break;
 
         case "validateUser":
-            var userID = process.argv[4];
-            response = await contract.submitTransaction("validateUser", userID);
+            var email_to_validate = process.argv[4];
+            user_type = process.argv[5];
+            response = await contract.submitTransaction("validateUser", user_type, email_to_validate);
             console.log(JSON
                 .stringify(JSON
                     .parse(Buffer
@@ -229,8 +230,11 @@ async function executeChaincode() {
                         .toString()), null, 2));
             break;
 
-        case "queryUser":
-            response = await contract.evaluateTransaction("queryUser", email);
+        case "loginUser":
+            password = process.argv[4];
+            user_type = process.argv[5];
+
+            response = await contract.evaluateTransaction("loginUser", user_type, email, password);
             console.log(JSON
                 .stringify(JSON
                     .parse(Buffer

@@ -1,1 +1,0 @@
-[34m2023-12-09 13:18:53.857 IST 0001 INFO[0m [chaincodeCmd] [34;1mchaincodeInvokeOrQuery[0m -> Chaincode invoke successful. result: status:200 

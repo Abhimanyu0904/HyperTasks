@@ -41,6 +41,7 @@ confirmations for the request based on the current number of total users of that
     "confirmations": Number, // current confirmations
     "confirmed": Boolean, // is it confirmed
     "confirmed_by": {String: Bool}, // a dictionary storing identifiers for who has confirmed this request to avoid double confirmation
+    "created_at": Number, // epoch time in milliseconds
     "description": String, // description of the request
     "key": String, // key to fetch this request from the blockchain
     "required_confirmations": Number, // number of required confirmations
