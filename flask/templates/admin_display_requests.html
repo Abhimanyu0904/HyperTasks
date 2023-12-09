@@ -1,0 +1,118 @@
+{% extends "base.html" %} {% block content %}
+<section class="vh-100 mb-8">
+    <div class="container h-100">
+        <div class="row d-flex justify-content-center h-100">
+            <div class="col">
+                <div class="text-center">
+                    <br>
+                    {% if filter == "All" %}
+                    <h1> All {{session['type']}} requests </h1>
+                    {%elif filter == 'Unconfirmed' %}
+                    <h1> Unconfirmed {{session['type']}} requests </h1>
+                    {%else%}
+                    <h1> Confirmed {{session['type']}} requests </h1>
+                    {%endif%}
+                </div>
+                <br>
+                <br>
+                <div class="d-flex justify-content-center">
+                    <a href="{{ url_for('add_request') }}">
+                        <button type="button" class="btn btn-dark btn-lg me-2">Add
+                            New Request</button>
+                    </a>
+                </div>
+                <br>
+
+                {% for request in requests %}
+                <div class="card mb-4">
+                    <div class="card-text p-4">
+                        <div class="row align-items-center">
+                            <div class="col-md-2">
+                                <div class="text-center">
+                                    <span>something</span>
+                                    <br><br>
+                                    <span class="fs-4 fw-bold"></span>
+                                </div>
+                            </div>
+                            <div class="col-md-2">
+                                <div class="text-center">
+                                    <span>Description</span>
+                                    <br><br>
+                                    <span class="fs-4 fw-bold">{{request.description}}</span>
+                                </div>
+                            </div>
+                            <div class="col-md-2 d-flex justify-content-center">
+                                <div class="text-center">
+                                    <span>Status</span>
+                                    <br><br>
+                                    <span class="fs-4 fw-bold">{{request.status}}</span>
+                                </div>
+                            </div>
+                            <div class="col-2 d-flex justify-content-center">
+                                <div class="text-center">
+                                    <span>No. of Confirmations</span>
+                                    <br><br>
+                                    <span class="fs-4 fw-bold">{{request.confirmations}}</span>
+                                </div>
+                            </div>
+                            <div class="col-md-2 d-flex justify-content-center">
+                                <div class="text-center">
+                                    <span>Date Created</span>
+                                    <br><br>
+                                    <span class="fs-4 fw-bold">{{request.updated_at}}</span>
+                                </div>
+                            </div>
+                            <div class="col-md-2 d-flex justify-content-center">
+                                <div class="text-center">
+                                    <div class="container">
+                                        <div class="row">
+                                            <form method="post"
+                                                action="{{url_for('admin_display_requests')}}">
+                                                {{initiate_request_form.csrf_token}}
+                                                {{initiate_request_form.request_id(value
+                                                = request.id)}}
+                                                {{initiate_request_form.initiate(class="btn
+                                                btn-success")}}
+                                            </form>
+                                        </div>
+                                    </div>
+                                    <br>
+                                    {%if request.status == 'in progress'%}
+                                    <form method="post"
+                                        action="{{url_for('admin_display_requests')}}">
+                                        {{hold_request_form.csrf_token}}
+                                        {{hold_request_form.request_id(value
+                                            = request.id)}}
+                                        {{hold_request_form.put_on_hold(class="btn
+                                        btn-danger")}}
+                                    </form>
+
+                                    {% elif request.status == "on hold" %}
+
+                                    <form method="post"
+                                    action="{{url_for('admin_display_requests')}}">
+                                    {{resume_request_form.csrf_token}}
+                                    {{resume_request_form.request_id(value
+                                        = request.id)}}
+                                    {{resume_request_form.resume(class="btn
+                                    btn-danger")}}
+                                </form>
+                                    {%endif%}
+                                    <br>
+                                    <form method="post"
+                                        action="{{url_for('admin_display_requests')}}">
+                                        {{finish_request_form.csrf_token}}
+                                        {{finish_request_form.request_id(value = request.id)}}
+                                        {{finish_request_form.finish(class="btn
+                                        btn-danger")}}
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </section>
+    {%endblock content%}

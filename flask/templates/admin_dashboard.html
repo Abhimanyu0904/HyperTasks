@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="vh-100 d-flex align-items-center justify-content-center">
+    <div class="text-center">
+        <h1>Welcome to the Admin Dashboard</h1>
+        <br><br>
+        <a href="{{ url_for('user_registration_requests') }}">
+            <button type="button" class="btn btn-success btn-lg" style="padding: 20px 40px; font-size: 24px;">User Registration Requests</button>
+        </a>
+        <a href="{{ url_for('admin_display_requests') }}">
+            <button type="button" class="btn btn-danger btn-lg" style="padding: 20px 40px; font-size: 24px;">All Requests</button>
+        </a>
+    </div>
+</div>
+{% endblock content %}
