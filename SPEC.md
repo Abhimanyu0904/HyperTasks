@@ -14,20 +14,18 @@ Fetch all confirmed requests of the given user type
 
 ### Invoke Add User
 
-Create a new user of a given type: student, faculty, administration
+Create a new user of a given type: student, faculty
 
 #### Model
 
 ```json
 {
     "ashoka_id": String, // Ashoka ID
-    "asset_id": String, // state id
     "email": String, // email id (should be Ashoka Email ID)
-    "id": String, // client identity
     "name": String, // user name
     "password": String, // hashed password of the user
-    "type": String, // user type: administration / student / faculty
-    "verified": Boolean, // is the user verified by the admin authority
+    "type": String, // user type: university / student / faculty
+    "verified": Boolean, // is the user verified by the university authority
 }
 ```
 
@@ -40,15 +38,15 @@ confirmations for the request based on the current number of total users of that
 
 ```json
 {
-    "admin_notes": String, // notes from the admin about the request
-    "asset_id": String, // state id
     "confirmations": Number, // current confirmations
     "confirmed": Boolean, // is it confirmed
     "confirmed_by": {String: Bool}, // a dictionary storing identifiers for who has confirmed this request to avoid double confirmation
     "description": String, // description of the request
-    "id": String, // client id
+    "key": String, // key to fetch this request from the blockchain
     "required_confirmations": Number, // number of required confirmations
     "status": String, // current status of the request: not started (default) / in progress / implemented
+    "type": String, // can only be "request"
+    "university_notes": String, // notes from the university about the request
     "update_type": String, // what kind of update was just performed
     "updated_at": Number, // epoch time in milliseconds
     "user_type": String, // user type: student / faculty
@@ -61,7 +59,7 @@ Increment the confirmations for the given request ID.
 
 ### Invoke Update Request Status
 
-Update the request status of the given request ID. This can be done by the administration user type only.
+Update the request status of the given request ID. This can be done by the university user type only.
 
 ## Website Requirements
 
@@ -86,7 +84,7 @@ Update the request status of the given request ID. This can be done by the admin
   - What is the request
   - Number of people who want the change
   - Status of implementation: Not Started, In Progress, Implemented
-  - Admin notes
+  - University notes
   - TODO: Add any more as application progresses
 
 ### User Authentication
@@ -97,9 +95,9 @@ Update the request status of the given request ID. This can be done by the admin
 
 - Sign Up a user:
 
-  - A user can be a student, faculty, or administration
+  - A user can be a student, faculty
   - One user type can only view the requests of the same user type, and thus show support for
-  requests from the same user type. Administration type role can only view the confirmed requests for
+  requests from the same user type. University type role can only view the confirmed requests for
   both types but not see unconfirmed requests for either type. Only they can update the status of a request.
 
 - TODO: Add any more as application progresses

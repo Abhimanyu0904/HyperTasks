@@ -1,3 +1,4 @@
+/* eslint-disable @stylistic/js/max-len */
 "use strict";
 
 // eslint-disable-next-line @stylistic/js/max-len
@@ -156,29 +157,44 @@ async function executeChaincode() {
                 name = process.argv[5],
                 password = process.argv[6],
                 type = process.argv[7];
-                // eslint-disable-next-line @stylistic/js/max-len
-            await contract.submitTransaction("registerUser", name, email, ashoka_id, password, type);
+            response = await contract.submitTransaction("registerUser", name, email, ashoka_id, password, type);
+            console.log(JSON
+                .stringify(JSON
+                    .parse(Buffer
+                        .from(JSON.parse(response.toString()).data)
+                        .toString()), null, 2));
             break;
 
         case "addRequest":
             var description = process.argv[4];
             type = process.argv[5];
             response = await contract.submitTransaction("addRequest", description, type);
+            console.log(JSON
+                .stringify(JSON
+                    .parse(Buffer
+                        .from(JSON.parse(response.toString()).data)
+                        .toString()), null, 2));
             break;
 
         case "queryRequests":
             var confirmed = process.argv[4];
             type = process.argv[5];
             response = await contract.evaluateTransaction("queryRequests", type, confirmed);
-            // console.log(response.toString());
-            response = response.toString();
-            response = JSON.stringify(JSON.parse(response), null, 2);
-            console.log(response);
+            console.log(JSON
+                .stringify(JSON
+                    .parse(Buffer
+                        .from(JSON.parse(response.toString()).data)
+                        .toString()), null, 2));
             break;
 
         case "confirmRequest":
             var requestID = process.argv[4];
             response = await contract.submitTransaction("confirmRequest", requestID, email);
+            console.log(JSON
+                .stringify(JSON
+                    .parse(Buffer
+                        .from(JSON.parse(response.toString()).data)
+                        .toString()), null, 2));
             break;
 
         case "updateRequest":
@@ -186,15 +202,40 @@ async function executeChaincode() {
                 status = process.argv[5];
             requestID = process.argv[6];
             response = await contract.submitTransaction("updateRequest", requestID, notes, status);
+            console.log(JSON
+                .stringify(JSON
+                    .parse(Buffer
+                        .from(JSON.parse(response.toString()).data)
+                        .toString()), null, 2));
             break;
 
         case "queryRequestHistory":
             requestID = process.argv[4];
             response = await contract.evaluateTransaction("queryRequestHistory", requestID);
-            // console.log(response.toString());
-            response = response.toString();
-            response = JSON.stringify(JSON.parse(response), null, 2);
-            console.log(response);
+            console.log(JSON
+                .stringify(JSON
+                    .parse(Buffer
+                        .from(JSON.parse(response.toString()).data)
+                        .toString()), null, 2));
+            break;
+
+        case "validateUser":
+            var userID = process.argv[4];
+            response = await contract.submitTransaction("validateUser", userID);
+            console.log(JSON
+                .stringify(JSON
+                    .parse(Buffer
+                        .from(JSON.parse(response.toString()).data)
+                        .toString()), null, 2));
+            break;
+
+        case "queryUser":
+            response = await contract.evaluateTransaction("queryUser", email);
+            console.log(JSON
+                .stringify(JSON
+                    .parse(Buffer
+                        .from(JSON.parse(response.toString()).data)
+                        .toString()), null, 2));
             break;
 
         default:
@@ -205,7 +246,9 @@ async function executeChaincode() {
         // disconnect from gateway
         await gateway.disconnect();
     } catch (error) {
+        // print error stack
         console.error(`Failed to submit or evaluate transaction: ${error}.`);
+        console.error(error.stack);
         process.exit(1);
     }
 }

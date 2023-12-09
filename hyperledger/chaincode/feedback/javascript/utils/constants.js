@@ -7,6 +7,7 @@ module.exports.END_KEY = "999999";
 module.exports.STUDENT_TYPE = "student";
 module.exports.FACULTY_TYPE = "faculty";
 module.exports.UNIVERSITY_TYPE = "university";
+module.exports.REQUEST_TYPE = "request";
 module.exports.SUCCESS_MSG = "success";
 module.exports.FAILURE_MSG = "failure";
 module.exports.NOT_STARTED = "not started";
