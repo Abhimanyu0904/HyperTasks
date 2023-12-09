@@ -1,6 +1,9 @@
 # walllet
 hyperledger/feedback/javascript/wallet
 
+# test-network
+hyperledger/test-network
+
 ### Flask ###
 instance/*
 !instance/.gitignore

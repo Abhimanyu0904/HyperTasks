@@ -29,7 +29,7 @@ class AddRequestForm(FlaskForm):
     submit = SubmitField('Submit')
 
 class ConfirmRequestForm(FlaskForm):
-    request_id = HiddenField("Request Id", validators=[DataRequired()])
+    request_key = HiddenField("Request Key", validators=[DataRequired()])
     confirm = SubmitField('Confirm')
 
 class FilterConfirmedRequestsForm(FlaskForm):
@@ -39,7 +39,7 @@ class FilterUnconfirmedRequestsForm(FlaskForm):
     unconfirmed_requests = SubmitField('Unconfirmed Requests')
 
 class ViewHistoryForm(FlaskForm):
-    request_id = HiddenField("Request Id", validators=[DataRequired()])
+    request_key = HiddenField("Request Key", validators=[DataRequired()])
     view_history = SubmitField('View History')
 
 class AcceptUserRegistrationRequestForm(FlaskForm):
@@ -51,21 +51,27 @@ class RejectUserRegistrationRequestForm(FlaskForm):
     reject = SubmitField('Reject')
 
 class InitiateRequestForm(FlaskForm):
-    request_id = HiddenField("Request Id", validators=[DataRequired()])
+    request_key = HiddenField("Request Key", validators=[DataRequired()])
     initiate = SubmitField('Initiate')
 
 class HoldRequestForm(FlaskForm):
-    request_id = HiddenField("Request Id", validators=[DataRequired()])
+    request_key = HiddenField("Request Key", validators=[DataRequired()])
     put_on_hold = SubmitField('Put On Hold')
 
 class ResumeRequestForm(FlaskForm):
-    request_id = HiddenField("Request Id", validators=[DataRequired()])
+    request_key = HiddenField("Request Key", validators=[DataRequired()])
     resume = SubmitField('Resume')
 
 class FinishRequestForm(FlaskForm):
-    request_id = HiddenField("Request Id", validators=[DataRequired()])
+    request_key = HiddenField("Request Key", validators=[DataRequired()])
     finish = SubmitField('Finish')
 
 class DropRequestForm(FlaskForm):
-    request_id = HiddenField("Request Id", validators=[DataRequired()])
+    request_key = HiddenField("Request Key", validators=[DataRequired()])
     drop = SubmitField('Drop')
+
+class FilterStudentRequestsForm(FlaskForm):
+    student_requests = SubmitField('Student Requests')
+
+class FilterFacultyRequestsForm(FlaskForm):
+    faculty_requests = SubmitField('Faculty Requests')

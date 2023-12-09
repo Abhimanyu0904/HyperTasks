@@ -20,7 +20,7 @@ app = Flask(__name__)
 login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = 'login'
-login_manager.login_message = "Please login first to use your cart"
+login_manager.login_message = "Please login first to access the website"
 login_manager.login_message_category = 'warning'
 
 
@@ -61,13 +61,13 @@ class User(UserMixin):
 
 
 @login_manager.user_loader
-def load_user(user_id):
-    # valid, user_data = chaincode(["getUser", user_id, password])
-    # if valid and user_data:
-    #     user_type = user_data['type']
-    #     return User(user_id, password, user_type)
-    # return None
-    pass
+def load_user(user_id, password):
+    valid, user_data = chaincode(["loginUser", user_id, password])
+    if valid and user_data.message == "success":
+        user_type = user_data.response.type
+        return User(user_id, password, user_type)
+    return None
+
 
 
 @app.route("/")
@@ -90,7 +90,9 @@ def register():
             email_id = registration_form.email_id.data
             name = registration_form.name.data
             type = registration_form.type.data
-            valid, output = chaincode([name, email_id, ashokaid, type])
+            password = registration_form.password.data
+            valid, output = chaincode(
+                ['registerUser', email_id, ashokaid, name, password, type])
             if valid:
                 # TODO: Parse Output after chaincode execution
                 flash("Registration Request Sent Successfully. You will receive an email notification when your request is processed.", "success")
@@ -216,8 +218,17 @@ def admin_display_requests():
             if valid:
                 flash("Request Dropped!", "success")
                 return redirect(url_for('admin_display_requests'))
-            else:
-                flash("Something went wrong. Please try again.", "danger")
+        elif request.method == 'POST' and 'faculty' in request.form:
+            if filter_faculty_requests_form.validate_on_submit():
+                valid, output = chaincode(
+                    ['queryRequests', 'admin@ashoka.edu.in', 'false', 'faculty'])
+                if valid:
+                    if output.get('message') == 'success':
+                        return render_template("admin_display_requests.html", requests=output.get('response'), initiate_request_form=initiate_request_form, finish_request_form=finish_request_form, hold_request_form=hold_request_form, resume_request_form=resume_request_form, drop_request_form=drop_request_form, filter_student_requests_form=filter_student_requests_form, filter_faculty_requests_form=filter_faculty_requests_form, filter='faculty')
+                    else:
+                        flash(f"{output.get('error')}", "danger")
+                else:
+                    flash("Something went wrong. Please try again.", "danger")
                 return redirect(url_for('admin_display_requests'))
 
     return render_template("admin_display_requests.html", requests=requests, initiate_request_form=initiate_request_form, finish_request_form=finish_request_form, hold_request_form=hold_request_form, resume_request_form=resume_request_form, drop_request_form=drop_request_form)
@@ -233,8 +244,10 @@ def add_request():
             valid, output = chaincode(
                 ["addRequest", description, session['type']])
             if valid:
-                flash("Request Added Successfully", "success")
-                return redirect(url_for('add_request'))
+                if output.get('message') == 'success':
+                    flash("Request Added Successfully", "success")
+                else:
+                    flash(f"{output.get('error')}", "danger")
             else:
                 flash("Something went wrong. Please try again.", "danger")
                 return redirect(url_for('add_request'))
@@ -278,8 +291,10 @@ def confirm_request():
             valid, output = chaincode(
                 ["confirmRequest", request_id, email_id, name])
             if valid:
-                flash("Request Confirmed!", "success")
-                return redirect(url_for('display_requests'))
+                if output.get('message') == 'success':
+                    flash("Request Confirmed!", "success")
+                else:
+                    flash(f"{output.get('error')}", "danger")
             else:
                 flash("Something went wrong. Please try again.", "danger")
                 return redirect(url_for('display_requests'))
@@ -297,8 +312,8 @@ def view_history():
 
 @app.route("/admin_logout")
 def admin_logout():
-    if 'admin_password' in session:
-        session.pop('admin_password')
+    if 'admin_email' in session:
+        session.pop('admin_email')
         flash("Logged out successfully", "success")
         return redirect(url_for("home"))
     else:
@@ -309,6 +324,8 @@ def admin_logout():
 @app.route("/logout")
 @login_required
 def logout():
+    session.pop('email_id')
+    session.pop('type')
     logout_user()
     flash("You have been logged out.", "success")
     return redirect(url_for('home'))
