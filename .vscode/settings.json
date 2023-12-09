@@ -41,8 +41,14 @@
     ],
     "cSpell.words": [
         "abhimanyu",
+        "ADMINPW",
+        "CAINFO",
+        "CCPPATH",
         "chaincode",
-        "hyperledger"
+        "enrollment",
+        "hyperledger",
+        "mychannel",
+        "WALLETPATH"
     ],
     "css.lint.duplicateProperties": "error",
     "css.lint.emptyRules": "ignore",

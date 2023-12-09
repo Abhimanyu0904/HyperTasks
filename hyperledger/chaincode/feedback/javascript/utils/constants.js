@@ -1,4 +1,4 @@
-module.exports.ADMIN_KEY_IDENTIFIER = "U";
+module.exports.UNIVERSITY_KEY_IDENTIFIER = "U";
 module.exports.FACULTY_KEY_IDENTIFIER = "F";
 module.exports.STUDENT_KEY_IDENTIFIER = "S";
 module.exports.REQUEST_KEY_IDENTIFIER = "R";
@@ -6,7 +6,8 @@ module.exports.START_KEY = "1";
 module.exports.END_KEY = "999999";
 module.exports.STUDENT_TYPE = "student";
 module.exports.FACULTY_TYPE = "faculty";
-module.exports.ADMIN_TYPE = "admin";
+module.exports.UNIVERSITY_TYPE = "university";
+module.exports.REQUEST_TYPE = "request";
 module.exports.SUCCESS_MSG = "success";
 module.exports.FAILURE_MSG = "failure";
 module.exports.NOT_STARTED = "not started";
