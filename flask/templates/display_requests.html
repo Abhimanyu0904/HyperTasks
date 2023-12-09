@@ -22,6 +22,24 @@
                     </a>
                 </div>
                 <br>
+                <br>
+                <br>
+                <div class="d-flex justify-content-center">
+                    <a href="{{ url_for('display_requests') }}">
+                      <button type="button" class="btn btn-dark btn-lg me-2">All</button>
+                    </a>
+                    <form method="post" action="{{url_for('display_requests')}}">
+                      {{filter_confirmed_requests_form.csrf_token}}
+                      {{filter_confirmed_requests_form.confirmed_requests(class="btn btn-success btn-lg")}}
+                    </form>
+                    <form method="post" action="{{url_for('display_requests')}}">
+                        {{filter_unconfirmed_requests_form.csrf_token}}
+                        {{filter_unconfirmed_requests_form.unconfirmed_requests(class="btn btn-success btn-lg")}}
+                      </form>
+                  </div>
+
+                <br>
+                <br>
 
                 {% for request in requests %}
                 <div class="card mb-4">
@@ -69,8 +87,8 @@
                                             <form method="post"
                                                 action="{{url_for('confirm_request')}}">
                                                 {{confirm_request_form.csrf_token}}
-                                                {{confirm_request_form.request_id(value
-                                                = request.id)}}
+                                                {{confirm_request_form.request_key(value
+                                                = request.key)}}
                                                 {{confirm_request_form.confirm(class="btn
                                                 btn-success")}}
                                             </form>

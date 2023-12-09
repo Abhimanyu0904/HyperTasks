@@ -15,13 +15,6 @@
                 </div>
                 <br>
                 <br>
-                <div class="d-flex justify-content-center">
-                    <a href="{{ url_for('add_request') }}">
-                        <button type="button" class="btn btn-dark btn-lg me-2">Add
-                            New Request</button>
-                    </a>
-                </div>
-                <br>
 
                 {% for request in requests %}
                 <div class="card mb-4">
@@ -69,8 +62,8 @@
                                             <form method="post"
                                                 action="{{url_for('user_registration_requests')}}">
                                                 {{accept_user_registration_request_form.csrf_token}}
-                                                {{accept_user_registration_request_form.email_id(value
-                                                = request.id)}}
+                                                {{accept_user_registration_request_form.email_key(value
+                                                = request.key)}}
                                                 {{accept_user_registration_request_form.accept(class="btn
                                                 btn-success")}}
                                             </form>
@@ -80,7 +73,7 @@
                                     <form method="post"
                                         action="{{url_for('user_registration_requests')}}">
                                         {{reject_user_registration_request_form.csrf_token}}
-                                        {{reject_user_registration_request_form.email_id(value= request.email_id)}}
+                                        {{reject_user_registration_request_form.email_key(value= request.email_key)}}
                                         {{reject_user_registration_request_form.reject(class="btn
                                         btn-danger")}}
                                     </form>
