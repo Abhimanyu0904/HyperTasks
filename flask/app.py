@@ -108,7 +108,9 @@ def base():
     filter_faculty_requests_form = FilterFacultyRequestsForm()
     filter_student_registration_requests_form = FilterStudentRegistrationRequestsForm()
     filter_faculty_registration_requests_form = FilterFacultyRegistrationRequestsForm()
-    return dict(filter_student_requests_form=filter_student_requests_form, filter_faculty_requests_form=filter_faculty_requests_form, filter_student_registration_requests_form=filter_student_registration_requests_form, filter_faculty_registration_requests_form=filter_faculty_registration_requests_form)
+    filter_confirmed_requests_form = FilterConfirmedRequestsForm()
+    filter_unconfirmed_requests_form = FilterUnconfirmedRequestsForm()
+    return dict(filter_student_requests_form=filter_student_requests_form, filter_faculty_requests_form=filter_faculty_requests_form, filter_student_registration_requests_form=filter_student_registration_requests_form, filter_faculty_registration_requests_form=filter_faculty_registration_requests_form, filter_confirmed_requests_form = filter_confirmed_requests_form, filter_unconfirmed_requests_form = filter_unconfirmed_requests_form)
 
 
 @app.route("/")
@@ -271,6 +273,8 @@ def user_registration_requests():
                 else:
                     flash("Something went wrong. Please try again.", "danger")
                 return redirect(url_for('user_registration_requests'))
+            else:
+                print(filter_student_registration_requests_form.errors)
 
         if request.method == 'POST' and 'faculty_registration_requests' in request.form:
             if filter_faculty_registration_requests_form.validate_on_submit():
@@ -286,11 +290,13 @@ def user_registration_requests():
                 else:
                     flash("Something went wrong. Please try again.", "danger")
                 return redirect(url_for('user_registration_requests'))
+            else:
+                print(filter_faculty_registration_requests_form.errors)
 
         # which function to use to get registration requests
         valid, output = chaincode(
             ['queryUnverifiedUsers', 'admin@ashoka.edu.in', 'student'])
-        reg_requests = ""
+        # reg_requests = ""
         if valid:
             if output.get('message') == 'success':
                 reg_requests = output.get('response')
