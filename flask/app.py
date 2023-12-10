@@ -384,7 +384,15 @@ def add_request():
                 ["addRequest", session['email_id'], description, session['type']])
             if valid:
                 if output.get('message') == 'success':
-                    flash("Request Added Successfully", "success")
+                    request_key = output.get('response')
+                    valid2, output2 = chaincode(['confirmRequest', session['email_id'], request_key])
+                    if valid2:
+                        if output2.get('message') == 'success':
+                            flash("Request Added Successfully", "success")
+                        else:
+                            flash(f"{output2.get('error')}", "danger")
+                    else:
+                        flash("Something went wrong. Please try again.", "danger")
                 else:
                     flash(f"{output.get('error')}", "danger")
             else:
@@ -446,10 +454,9 @@ def confirm_request():
     confirm_request_form = ConfirmRequestForm()
     if request.method == 'POST' and 'confirm' in request.form:
         if confirm_request_form.validate_on_submit():
-            email_id = confirm_request_form.email_id.data
             request_key = confirm_request_form.request_key.data
             valid, output = chaincode(
-                ["confirmRequest", session['email_id'], request_key, email_id])
+                ["confirmRequest", session['email_id'], request_key])
             if valid:
                 if output.get('message') == 'success':
                     flash("Request Confirmed!", "success")
