@@ -34,7 +34,7 @@ async function resolveIterator(iterator){
         if (res.value && res.value.value.toString()) {
             try {
                 const asset = JSON.parse(res.value.value.toString("utf8"));
-                console.log(`asset: ${asset}`);
+                console.log(`asset: ${JSON.stringify(asset), null, 2}`);
                 console.log(`asset key: ${res.value.key}`);
 
                 switch (asset.type){
@@ -137,7 +137,7 @@ class Feedback extends Contract {
                 type: UNIVERSITY_TYPE,
                 verified: true,
             };
-            console.log(`ashoka asset: ${ashoka}`);
+            console.log(`ashoka asset: ${JSON.stringify(ashoka, null, 2)}`);
             await ctx.stub.putState(key, Buffer.from(JSON.stringify(ashoka)));
             users.university = true;
             console.log("university asset created");
@@ -217,7 +217,7 @@ class Feedback extends Contract {
             type: user_type,
             verified: false,
         };
-        console.log(`user asset: ${user}`);
+        console.log(`user asset: ${JSON.stringify(user), null, 2}`);
         console.log(`key: ${key}`);
         // add user to the ledger
         await ctx.stub.putState(key, Buffer.from(JSON.stringify(user)));
@@ -279,7 +279,7 @@ class Feedback extends Contract {
                 updated_at: now,
                 user_type,
             };
-        console.log(`request asset: ${request}`);
+        console.log(`request asset: ${JSON.stringify(request), null, 2}`);
 
         await ctx.stub.putState(key, Buffer.from(JSON.stringify(request)));
         ret.message = SUCCESS_MSG;
@@ -318,7 +318,7 @@ class Feedback extends Contract {
             if (res.value && res.value.value.toString()) {
                 try {
                     const request = JSON.parse(res.value.value.toString("utf8"));
-                    console.log(`request: ${request}`);
+                    console.log(`request: ${JSON.stringify(request), null, 2}`);
                     if (request.confirmed === confirmed) {
                         ret.response.push(request);
                     }
@@ -362,7 +362,7 @@ class Feedback extends Contract {
             return Buffer.from(JSON.stringify(ret));
         }
         const request = JSON.parse(requestAsBytes.toString());
-        console.log(`request: ${request}`);
+        console.log(`request: ${JSON.stringify(request), null, 2}`);
 
         // check if user has already confirmed
         if (Object.hasOwn(request.confirmed_by, identifier)) {
@@ -409,7 +409,7 @@ class Feedback extends Contract {
             return Buffer.from(JSON.stringify(ret));
         }
         const request = JSON.parse(requestAsBytes.toString());
-        console.log(`original request: ${request}`);
+        console.log(`original request: ${JSON.stringify(request), null, 2}`);
 
         if (notes !== "")
             request.university_notes = notes;
@@ -434,7 +434,7 @@ class Feedback extends Contract {
         request.status = status;
         request.update_type = STATUS;
         request.updated_at = new Date().getTime();
-        console.log(`updated request: ${request}`);
+        console.log(`updated request: ${JSON.stringify(request), null, 2}`);
 
         await ctx.stub.putState(key, Buffer.from(JSON.stringify(request)));
         ret.message = SUCCESS_MSG;
@@ -460,7 +460,7 @@ class Feedback extends Contract {
             if (res.value && res.value.value.toString()) {
                 try {
                     const request = JSON.parse(res.value.value.toString("utf8"));
-                    console.log(`request: ${request}`);
+                    console.log(`request: ${JSON.stringify(request), null, 2}`);
                     if (request.update_type !== CONFIRMATION) // filter out confirmation updates
                         ret.response.unshift(request); // have a list starting from oldest to latest update
                 } catch (err) {
@@ -512,7 +512,7 @@ class Feedback extends Contract {
             if (res.value && res.value.value.toString()) {
                 try {
                     const u = JSON.parse(res.value.value.toString("utf8"));
-                    console.log(`user: ${u}`);
+                    console.log(`user: ${JSON.stringify(u), null, 2}`);
                     if (u.email === email){
                         key = res.value.key;
                         user = u;
@@ -530,7 +530,7 @@ class Feedback extends Contract {
         }
 
         user.verified = true;
-        console.log(`verified user: ${user}`);
+        console.log(`verified user: ${JSON.stringify(user), null, 2}`);
         console.log(`user key: ${key}`);
 
         await ctx.stub.putState(key, Buffer.from(JSON.stringify(user)));
@@ -571,7 +571,7 @@ class Feedback extends Contract {
                 try {
                     // TODO: check if user verified
                     const user = JSON.parse(res.value.value.toString("utf8"));
-                    console.log(`user: ${user}`);
+                    console.log(`user: ${JSON.stringify(user), null, 2}`);
                     if (user.email === email &&
                         user.password === crypto
                             .createHash(HASH)
@@ -637,7 +637,7 @@ class Feedback extends Contract {
             if (res.value && res.value.value.toString()) {
                 try {
                     const user = JSON.parse(res.value.value.toString("utf8"));
-                    console.log(`user: ${user}`);
+                    console.log(`user: ${JSON.stringify(user), null, 2}`);
                     if (user.verified === false)
                         ret.response.push(user);
                 } catch (err) {
@@ -687,7 +687,7 @@ class Feedback extends Contract {
             if (res.value && res.value.value.toString()) {
                 try {
                     const user = JSON.parse(res.value.value.toString("utf8"));
-                    console.log(`user: ${user}`);
+                    console.log(`user: ${JSON.stringify(user), null, 2}`);
                     if (user.email === user_email)
                         await ctx.stub.deleteState(res.value.key);
                 } catch (err) {
