@@ -224,8 +224,11 @@ def user_registration_requests():
                     ["validateUser", 'admin@ashoka.edu.in', email, type])
                 if valid:
                     if output.get('message') == "success":
-
-                        flash("Request Accepted!", "success")
+                        valid2 = send_email(email, True)
+                        if valid2:
+                            flash("Registration Request Accepted! Email Sent Successfully", "success")
+                        else:
+                            flash("Registration Request Accepted but some issue in sending the email!", 'danger')
                     else:
                         flash(f"{output.get('error')}", "danger")
                 else:
@@ -239,7 +242,11 @@ def user_registration_requests():
                     ["deleteUser", 'admin@ashoka.edu.in', email, type])
                 if valid:
                     if output.get('message') == "success":
-                        flash("Request Rejected!", "success")
+                        valid2 = send_email(email, False)
+                        if valid2:
+                            flash("Registration Request Rejected! Email Sent Successfully", "success")
+                        else:
+                            flash("Registration Request Rejected but some issue in sending the email!", 'danger')
                     else:
                         flash(f"{output.get('error')}", "danger")
                 else:
