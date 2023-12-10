@@ -10,6 +10,7 @@ watchdog = "*"
 flask-login = "*"
 wtforms = "*"
 flask-wtf = "*"
+email-validator = "*"
 
 [dev-packages]
 pylint-flask = "*"
