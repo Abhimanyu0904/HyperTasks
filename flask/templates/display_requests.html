@@ -49,18 +49,23 @@
                 <div class="card mb-4">
                     <div class="card-text p-4">
                         <div class="row align-items-center">
-                            <div class="col-md-2">
-                                <div class="text-center">
-                                    <span>something</span>
-                                    <br><br>
-                                    <span class="fs-4 fw-bold"></span>
-                                </div>
-                            </div>
-                            <div class="col-md-2">
+
+                            <div class="col-md-2 d-flex justify-content-center">
                                 <div class="text-center">
                                     <span>Description</span>
                                     <br><br>
                                     <span class="fs-4 fw-bold">{{request.get('description')}}</span>
+                                </div>
+                            </div>
+                            <div class="col-md-2 d-flex justify-content-center">
+                                <div class="text-center">
+                                    <span>Confirmation Status</span>
+                                    <br><br>
+                                    {%if request.get('confirmed') == 'true'%}
+                                    <span class="fs-4 fw-bold">Confirmed</span>
+                                    {%else%}
+                                    <span class="fs-4 fw-bold">Unconfirmed</span>
+                                    {%endif%}
                                 </div>
                             </div>
                             <div class="col-md-2 d-flex justify-content-center">
