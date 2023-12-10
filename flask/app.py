@@ -149,7 +149,7 @@ def admin_dashboard():
 @app.route("/admin_login", methods=['GET', 'POST'])
 def admin_login():
     admin_login_form = AdminLoginForm()
-    if 'admin_password' in session:
+    if 'admin_email' in session:
         if request.method == 'POST':
             if admin_login_form.validate_on_submit():
                 password = admin_login_form.password.data
