@@ -22,6 +22,7 @@ class RegistrationForm(FlaskForm):
 class LoginForm(FlaskForm):
     email_id = StringField('Email', validators=[DataRequired(), Email(message='Please enter a valid email')], render_kw={"placeholder": "Enter email"})
     password = PasswordField('Password', validators= [DataRequired()], render_kw={"placeholder": "Password"})
+    type = SelectField('Type', choices=[('faculty', 'Faculty'), ('student', 'Student')], validators=[DataRequired()])
     login = SubmitField('Sign In!')
 
 class AddRequestForm(FlaskForm):

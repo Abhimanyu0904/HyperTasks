@@ -61,10 +61,11 @@ class User(UserMixin):
 
 
 @login_manager.user_loader
-def load_user(user_id, password):
-    valid, user_data = chaincode(["loginUser", user_id, password])
-    if valid and user_data.message == "success":
-        user_type = user_data.response.type
+def load_user(user_id, password, type):
+    valid, user_data = chaincode(["loginUser", user_id, password, type])
+    if valid and user_data.get('message') == "success":
+        response = user_data.get('response')
+        user_type = response.get('type')
         return User(user_id, password, user_type)
     return None
 
@@ -111,19 +112,25 @@ def login():
         if login_form.validate_on_submit():
             email_id = login_form.email_id.data
             password = login_form.password.data
-            valid, output = chaincode(["queryUser", email_id, password])
+            type = login_form.type.data
+            valid, output = chaincode(["loginUser", email_id, password, type])
             if valid:
                 # TODO: Parse Output after chaincode execution
-                session['email_id'] = email_id
-                session['password'] = password
-
-                # change this later when we know how output looks like
-                session['type'] = output.type
-                flash("Login Successful", "success")
-                return redirect(url_for('display_requests'))
+                if output.get('message') == "success":
+                    session['email_id'] = email_id
+                    response = output.get('response')
+                    session['type'] = type
+                    login_user()
+                    # session['type'] = response.get('type')
+                    flash("Login Successful", "success")
+                    return redirect(url_for('display_requests'))
+                else:
+                    flash(f"{output.get('error')}", "danger")
+                    print(output)
             else:
                 flash("Something went wrong. Please try again.", "danger")
-            return render_template("login.html", form=login_form)
+                print(valid, output)
+            return redirect(url_for('login'))
     return render_template("login.html", form=login_form)
 
 
@@ -139,13 +146,19 @@ def admin_login():
         if request.method == 'POST':
             if admin_login_form.validate_on_submit():
                 password = admin_login_form.password.data
-                valid, output = chaincode([password])
-                # Have to add code to validate admin login credentials
-
-                # if validated
-                session['admin_password'] = password
-
-                return render_template("admin_login.html", form=admin_login_form)
+                valid, output = chaincode(
+                    ['loginUser', 'admin@ashoka.edu.in', password, 'university'])
+                if valid:
+                    if output.get('message') == "success":
+                        session['admin_email'] = "admin@ashoka.edu.in"
+                        flash("Admin Logged in Successfully", "success")
+                        return redirect(url_for('admin_dashboard'))
+                    else:
+                        flash(f"{output.get('error')}", "danger")
+                        print(output)
+                else:
+                    flash("Something went wrong. Please try again.", "danger")
+                return redirect(url_for('admin_login'))
         return render_template("admin_login.html", form=admin_login_form)
     else:
         flash("You have to be an admin to access this page. Please login first", "danger")
@@ -154,9 +167,45 @@ def admin_login():
 
 @app.route("/user_registration_requests", methods=['GET', 'POST'])
 def user_registration_requests():
-    accept_user_registration_request_form = AcceptUserRegistrationRequestForm()
-    reject_user_registration_request_form = RejectUserRegistrationRequestForm()
-    return render_template("user_registration_requests.html", accept_user_registration_request_form=accept_user_registration_request_form, reject_user_registration_request_form=reject_user_registration_request_form)
+    if 'admin_email' in session:
+        accept_user_registration_request_form = AcceptUserRegistrationRequestForm()
+        reject_user_registration_request_form = RejectUserRegistrationRequestForm()
+        if request.method == 'POST' and 'accept' in request.form:
+            if accept_user_registration_request_form.validate_on_submit():
+                request_key = accept_user_registration_request_form.request_key.data
+                valid, output = chaincode(
+                    ["validateUser", session['email_id'], request_key])
+                if valid:
+                    if output.get('message') == "success":
+                        
+                        flash("Request Accepted!", "success")
+                    else:
+                        flash(f"{output.get('error')}", "danger")
+                else:
+                    flash("Something went wrong. Please try again.", "danger")
+                return redirect(url_for('user_registration_requests'))
+        if request.method == 'POST' and 'reject' in request.form:
+            if reject_user_registration_request_form.validate_on_submit():
+                request_key = reject_user_registration_request_form.request_key.data
+                valid, output = chaincode(
+                    ["deleteUser", session['email_id'], request_key])
+                if valid:
+                    if output.get('message') == "success":
+                        flash("Request Rejected!", "success")
+                    else:
+                        flash(f"{output.get('error')}", "danger")
+                else:
+                    flash("Something went wrong. Please try again.", "danger")
+                return redirect(url_for('user_registration_requests'))
+        #which function to use to get registration requests
+        valid, output = chaincode(['queryUnverifiedUsers', 'admin@ashoka.edu.in', 'university'])
+        if valid:
+            if output.get('message') == 'success':
+                reg_requests = output.get('response')
+        return render_template("user_registration_requests.html", reg_requests = reg_requests, accept_user_registration_request_form=accept_user_registration_request_form, reject_user_registration_request_form=reject_user_registration_request_form)
+    else:
+        flash("You have to be an admin to access this page. Please login first", "danger")
+        return redirect(url_for('admin_login'))
 
 
 @app.route("/admin_display_requests", methods=['GET', 'POST'])
