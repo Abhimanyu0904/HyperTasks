@@ -20,9 +20,9 @@
                 {% if request.get('confirmations') >=
                 request.get('required_confirmations') %}
                 {%if request.get('status') == 'implemented'%}
-                <div class="card mb-4">
-                {%else%}
                 <div class="card mb-4 disabled">
+                {%else%}
+                <div class="card mb-4">
                 {%endif%}
                     <div class="card-text p-4">
                         <div class="row align-items-center">

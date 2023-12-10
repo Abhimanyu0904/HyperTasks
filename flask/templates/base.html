@@ -88,9 +88,9 @@
                                         method="post"
                                         action="{{url_for('user_registration_requests')}}"
                                     >
-                                        {{filter_student_requests_form.csrf_token}}
-                                        {{filter_student_requests_form.filter(value = 'Student')}}
-                                        {{filter_student_requests_form.student_requests(class="dropdown-item")}}
+                                        {{filter_student_registration_requests_form.csrf_token}}
+                                        {{filter_student_registration_requests_form.filter(value = 'Student')}}
+                                        {{filter_student_registration_requests_form.student_registration_requests(class="dropdown-item")}}
                                     </form>
                                 </li>
                                 <li>
@@ -98,9 +98,9 @@
                                         method="post"
                                         action="{{url_for('user_registration_requests')}}"
                                     >
-                                        {{filter_faculty_requests_form.csrf_token}}
-                                        {{filter_faculty_requests_form.filter(value = 'Faculty')}}
-                                        {{filter_faculty_requests_form.faculty_requests(class="dropdown-item")}}
+                                        {{filter_faculty_registration_requests_form.csrf_token}}
+                                        {{filter_faculty_registration_requests_form.filter(value = 'Faculty')}}
+                                        {{filter_faculty_registration_requests_form.faculty_registration_requests(class="dropdown-item")}}
                                     </form>
                                 </li>
                             </ul>

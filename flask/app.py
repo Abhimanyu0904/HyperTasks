@@ -180,7 +180,11 @@ def login():
 
 @app.route("/admin_dashboard")
 def admin_dashboard():
-    return render_template("admin_dashboard.html")
+    if 'admin_email' in session:
+        return render_template("admin_dashboard.html")
+    else:
+        flash("You have to be an admin to access this page. Please login first", "danger")
+        return redirect(url_for('admin_login'))
 
 
 @app.route("/admin_login", methods=['GET', 'POST'])

@@ -107,8 +107,13 @@
                                     <form method="post"
                                         action="{{url_for('view_history')}}">
                                         {{view_history_form.csrf_token}}
+                                        {% if request.get('confirmed') == 'true' %}
                                         {{view_history_form.view_history(class="btn
                                         btn-danger")}}
+                                        {%else%}
+                                        {{view_history_form.view_history(class="btn
+                                        btn-danger disabled")}}
+                                        {%endif%}
                                     </form>
                                 </div>
                             </div>
