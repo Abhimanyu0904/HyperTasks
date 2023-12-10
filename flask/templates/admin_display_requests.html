@@ -19,17 +19,21 @@
                 {% for request in requests %}
                 {% if request.get('confirmations') >=
                 request.get('required_confirmations') %}
+                {%if request.get('status') == 'implemented'%}
                 <div class="card mb-4">
+                {%else%}
+                <div class="card mb-4 disabled">
+                {%endif%}
                     <div class="card-text p-4">
                         <div class="row align-items-center">
-                            <div class="col-md-2">
+                            <div class="col-md-2 d-flex justify-content-center">
                                 <div class="text-center">
-                                    <span>something</span>
+                                    <span>Request ID</span>
                                     <br><br>
-                                    <span class="fs-4 fw-bold"></span>
+                                    <span class="fs-4 fw-bold">request.get('key')</span>
                                 </div>
                             </div>
-                            <div class="col-md-2">
+                            <div class="col-md-2 d-flex justify-content-center">
                                 <div class="text-center">
                                     <span>Description</span>
                                     <br><br>
@@ -43,7 +47,7 @@
                                     <span class="fs-4 fw-bold">{{request.get('status')}}</span>
                                 </div>
                             </div>
-                            <div class="col-2 d-flex justify-content-center">
+                            <div class="col-md-2 d-flex justify-content-center">
                                 <div class="text-center">
                                     <span>No. of Confirmations</span>
                                     <br><br>
@@ -61,14 +65,22 @@
                                 <div class="text-center">
                                     <div class="container">
                                         <div class="row">
+                                            
                                             <form method="post"
                                                 action="{{url_for('admin_display_requests')}}">
                                                 {{initiate_request_form.csrf_token}}
                                                 {{initiate_request_form.request_key(value
                                                 = request.key)}}
+                                                {%if request.get('status') == 'not
+                                            started'%}
                                                 {{initiate_request_form.initiate(class="btn
                                                 btn-success")}}
+                                                {%else%}
+                                                {{initiate_request_form.initiate(class="btn
+                                                btn-danger")}}
+                                                {%endif%}
                                             </form>
+                                            
                                         </div>
                                     </div>
                                     <br>
@@ -80,7 +92,7 @@
                                         {{hold_request_form.request_key(value
                                         = request.get('key'))}}
                                         {{hold_request_form.put_on_hold(class="btn
-                                        btn-danger")}}
+                                        btn-warning")}}
                                     </form>
 
                                     {% elif request.get('status') == "on hold"
@@ -92,18 +104,25 @@
                                         {{resume_request_form.request_key(value
                                         = request.get('key'))}}
                                         {{resume_request_form.resume(class="btn
-                                        btn-danger")}}
+                                        btn-warning")}}
                                     </form>
                                     {%endif%}
                                     <br>
+                                    {%if request.get('status') == "in progress"}
                                     <form method="post"
                                         action="{{url_for('admin_display_requests')}}">
                                         {{finish_request_form.csrf_token}}
                                         {{finish_request_form.request_key(value
                                         = request.get('key'))}}
+                                        {%if request.get('status') == "in progress"%}
                                         {{finish_request_form.finish(class="btn
                                         btn-danger")}}
+                                        {%else%}
+                                        {{finish_request_form.finish(class="btn
+                                        btn-danger disabled")}}
+                                        {%endif%}
                                     </form>
+                                    
                                 </div>
                             </div>
                         </div>
