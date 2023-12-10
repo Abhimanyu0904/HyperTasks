@@ -56,28 +56,28 @@
                                 <div class="text-center">
                                     <span>Description</span>
                                     <br><br>
-                                    <span class="fs-4 fw-bold">{{request.description}}</span>
+                                    <span class="fs-4 fw-bold">{{request.get('description')}}</span>
                                 </div>
                             </div>
                             <div class="col-md-2 d-flex justify-content-center">
                                 <div class="text-center">
                                     <span>Status</span>
                                     <br><br>
-                                    <span class="fs-4 fw-bold">{{request.status}}</span>
+                                    <span class="fs-4 fw-bold">{{request.get('status')}}</span>
                                 </div>
                             </div>
                             <div class="col-2 d-flex justify-content-center">
                                 <div class="text-center">
                                     <span>No. of Confirmations</span>
                                     <br><br>
-                                    <span class="fs-4 fw-bold">{{request.confirmations}}</span>
+                                    <span class="fs-4 fw-bold">{{request.get('confirmations')}}</span>
                                 </div>
                             </div>
                             <div class="col-md-2 d-flex justify-content-center">
                                 <div class="text-center">
                                     <span>Date Created</span>
                                     <br><br>
-                                    <span class="fs-4 fw-bold">{{request.updated_at}}</span>
+                                    <span class="fs-4 fw-bold">{{request.get('created_at')}}</span>
                                 </div>
                             </div>
                             <div class="col-md-2 d-flex justify-content-center">
@@ -88,7 +88,7 @@
                                                 action="{{url_for('confirm_request')}}">
                                                 {{confirm_request_form.csrf_token}}
                                                 {{confirm_request_form.request_key(value
-                                                = request.key)}}
+                                                = request.get('key'))}}
                                                 {{confirm_request_form.confirm(class="btn
                                                 btn-success")}}
                                             </form>

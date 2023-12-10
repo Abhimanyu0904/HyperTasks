@@ -1,7 +1,7 @@
 {% extends "base.html" %} {% block content %}
 
 <div class="content-section d-flex justify-content-center">
-    <form method="post" class="px-4">
+    <form method="post" action = "{{ url_for('register') }}" class="px-4">
         {{ form.csrf_token }}
         <fieldset class="border p-4">
             <legend class="text-center">Register</legend>
