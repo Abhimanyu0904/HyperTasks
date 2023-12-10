@@ -413,7 +413,12 @@ class Feedback extends Contract {
             console.error(ret.error);
             return Buffer.from(JSON.stringify(ret));
         }
-        if (![IN_PROGRESS, ON_HOLD, IMPLEMENTED, DROPPED].includes(status)){
+        if (![
+            IN_PROGRESS,
+            ON_HOLD,
+            IMPLEMENTED,
+            DROPPED,
+        ].includes(status)){
             ret.error = `Unknown status: ${status}`;
             ret.message = FAILURE_MSG;
             console.error(ret.error);
@@ -477,14 +482,13 @@ class Feedback extends Contract {
         console.info("=============== START : validateUser ===============");
         let iterator_flag = true,
             user = {};
-        const ret = {};
+        const ret = {message: FAILURE_MSG};
 
         if (![
             FACULTY_TYPE,
             STUDENT_TYPE,
         ].includes(user_type)){
-            ret.error = `unknown user type: ${user_type}`;
-            ret.message = FAILURE_MSG;
+            ret.error = `invalid user type: ${user_type}`;
             console.error(ret.error);
             return Buffer.from(JSON.stringify(ret));
         }
@@ -537,7 +541,7 @@ class Feedback extends Contract {
             STUDENT_TYPE,
             UNIVERSITY_TYPE,
         ].includes(user_type)){
-            ret.error = `unknown user type: ${user_type}`;
+            ret.error = `invalid user type: ${user_type}`;
             console.error(ret.error);
             return Buffer.from(JSON.stringify(ret));
         }
@@ -574,9 +578,102 @@ class Feedback extends Contract {
         return Buffer.from(JSON.stringify(ret));
     }
 
-    async queryUnverifiedUsers(ctx, user_type){}
+    /**
+     * Queries unverified users based on the given user type.
+     * @param {Context} ctx - The context object.
+     * @param {string} user_type - The type of user to query (faculty, student, or university).
+     * @returns {Promise<Buffer>} The serialized JSON object containing the query result.
+     */
+    async queryUnverifiedUsers(ctx, user_type){
+        console.info("=============== START : queryUnverifiedUsers ===============");
+        const ret = {message: FAILURE_MSG, response: []};
+        let iterator_flag = true;
 
-    async deleteUser(ctx, user_type, user_email){}
+        if (![
+            FACULTY_TYPE,
+            STUDENT_TYPE,
+        ].includes(user_type)){
+            ret.error = `invalid user type: ${user_type}`;
+            console.error(ret.error);
+            return Buffer.from(JSON.stringify(ret));
+        }
+        const objectType = user_type === FACULTY_TYPE ? FACULTY_KEY_IDENTIFIER : STUDENT_KEY_IDENTIFIER;
+        const iterator = await ctx.stub.getStateByPartialCompositeKey(objectType, []);
+
+        while (iterator_flag) {
+            const res = await iterator.next();
+
+            if (res.value && res.value.value.toString()) {
+                try {
+                    const user = JSON.parse(res.value.value.toString("utf8"));
+                    if (user.verified === false) {
+                        ret.message = SUCCESS_MSG;
+                        ret.response.push(user);
+                    }
+                } catch (err) {
+                    console.error(err);
+                    console.error(res.value.value.toString("utf8"));
+                }
+            }
+
+            if (res.done) {
+                await iterator.close();
+                iterator_flag = false;
+            }
+        }
+
+        console.info("=============== END : queryUnverifiedUsers ===============");
+        return Buffer.from(JSON.stringify(ret));
+    }
+
+    /**
+     * Deletes a user.
+     * @param {Context} ctx - The context object.
+     * @param {string} user_type - The type of user.
+     * @param {string} user_email - The email of the user.
+     * @returns {Promise<Buffer>} ret - The result object containing the message.
+     */
+    async deleteUser(ctx, user_type, user_email){
+        console.info("=============== START : deleteUser ===============");
+        const ret = {message: FAILURE_MSG};
+        let iterator_flag = true;
+
+        if (![
+            FACULTY_TYPE,
+            STUDENT_TYPE,
+        ].includes(user_type)){
+            ret.error = `invalid user type: ${user_type}`;
+            console.error(ret.error);
+            return Buffer.from(JSON.stringify(ret));
+        }
+        const objectType = user_type === FACULTY_TYPE ? FACULTY_KEY_IDENTIFIER : STUDENT_KEY_IDENTIFIER;
+        const iterator = await ctx.stub.getStateByPartialCompositeKey(objectType, [user_email]);
+
+        while (iterator_flag) {
+            const res = await iterator.next();
+
+            if (res.value && res.value.value.toString()) {
+                try {
+                    const user = JSON.parse(res.value.value.toString("utf8"));
+                    if (user.email === user_email) {
+                        ret.message = SUCCESS_MSG;
+                        await ctx.stub.deleteState(res.value.key);
+                    }
+                } catch (err) {
+                    console.error(err);
+                    console.error(res.value.value.toString("utf8"));
+                }
+            }
+
+            if (res.done) {
+                await iterator.close();
+                iterator_flag = false;
+            }
+        }
+
+        console.info("=============== END : deleteUser ===============");
+        return Buffer.from(JSON.stringify(ret));
+    }
 }
 
 module.exports = Feedback;

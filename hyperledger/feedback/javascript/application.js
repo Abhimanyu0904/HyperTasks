@@ -242,6 +242,27 @@ async function executeChaincode() {
                         .toString()), null, 2));
             break;
 
+        case "queryUnverifiedUsers":
+            user_type = process.argv[4];
+            response = await contract.evaluateTransaction("queryUnverifiedUsers", user_type);
+            console.log(JSON
+                .stringify(JSON
+                    .parse(Buffer
+                        .from(JSON.parse(response.toString()).data)
+                        .toString()), null, 2));
+            break;
+
+        case "deleteUser":
+            user_type = process.argv[4];
+            var email_to_delete = process.argv[5];
+            response = await contract.submitTransaction("deleteUser", user_type, email_to_delete);
+            console.log(JSON
+                .stringify(JSON
+                    .parse(Buffer
+                        .from(JSON.parse(response.toString()).data)
+                        .toString()), null, 2));
+            break;
+
         default:
             console.error(`unknown function: ${func}`);
             process.exit(1);
