@@ -47,12 +47,39 @@
                   <form method="post"
                   action="{{url_for('admin_display_requests')}}">
                   {{filter_faculty_requests_form.csrf_token}}
-                  {{filter_student_requests_form.filter(value
+                  {{filter_faculty_requests_form.filter(value
                     = 'Faculty')}}
                   {{filter_faculty_requests_form.faculty_requests(class="dropdown-item")}}
               </form></li>
               </ul>
             </li>
+
+
+            <li class="nav-item dropdown">
+              <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                Pending User Registrations
+              </a>
+              <ul class="dropdown-menu">
+                <li>                    
+                  <form method="post"
+                  action="{{url_for('user_registration_requests')')}}">
+                  {{filter_student_requests_form.csrf_token}}
+                  {{filter_student_requests_form.filter(value
+                    = 'Student')}}
+                  {{filter_student_requests_form.student_requests(class="dropdown-item")}}
+              </form></li>
+                <li>                    
+                  <form method="post"
+                  action="{{url_for('user_registration_requests')')}}">
+                  {{filter_faculty_requests_form.csrf_token}}
+                  {{filter_faculty_requests_form.filter(value
+                    = 'Faculty')}}
+                  {{filter_faculty_requests_form.faculty_requests(class="dropdown-item")}}
+              </form></li>
+              </ul>
+            </li>
+
+
             <li class="nav-item">
               <a
                 class="nav-link active"

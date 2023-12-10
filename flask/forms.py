@@ -74,3 +74,11 @@ class FilterStudentRequestsForm(FlaskForm):
 class FilterFacultyRequestsForm(FlaskForm):
     filter = HiddenField("Filter")
     faculty_requests = SubmitField('Faculty Requests')
+
+class FilterStudentRegistrationRequestsForm(FlaskForm):
+    filter = HiddenField("Filter")
+    student_registration_requests = SubmitField('Student Registration Requests')
+
+class FilterFacultyRegistrationRequestsForm(FlaskForm):
+    filter = HiddenField("Filter")
+    faculty_registration_requests = SubmitField('Faculty Registration Requests')

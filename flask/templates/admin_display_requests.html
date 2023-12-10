@@ -15,28 +15,6 @@
                 <br>
                 <br>
                 <br>
-                <div class="d-flex justify-content-center">
-                    <form method="post"
-                        action="{{url_for('admin_display_requests')}}">
-                        {{filter_student_requests_form.csrf_token}}
-                        {{filter_student_requests_form.filter(value
-                            = 'Student')}}
-                        {{filter_student_requests_form.student_requests(class="btn
-                        btn-success btn-lg")}}
-                    </form>
-                    <form method="post"
-                        action="{{url_for('admin_display_requests')}}">
-                        {{filter_faculty_requests_form.csrf_token}}
-                        {{filter_faculty_requests_form.filter(value
-                            = 'Faculty')}}
-                        {{filter_faculty_requests_form.faculty_requests(class="btn
-                        btn-success btn-lg")}}
-                    </form>
-                </div>
-
-
-                <br>
-                <br>
 
                 {% for request in requests %}
                 {% if request.get('confirmations') >=
