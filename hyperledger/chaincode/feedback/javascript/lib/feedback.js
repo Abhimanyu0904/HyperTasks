@@ -573,6 +573,10 @@ class Feedback extends Contract {
         console.info("=============== END : loginUser ===============");
         return Buffer.from(JSON.stringify(ret));
     }
+
+    async queryUnverifiedUsers(ctx, user_type){}
+
+    async deleteUser(ctx, user_type, user_email){}
 }
 
 module.exports = Feedback;
