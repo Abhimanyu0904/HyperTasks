@@ -5,12 +5,10 @@
             <div class="col">
                 <div class="text-center">
                     <br>
-                    {% if filter == "All" %}
-                    <h1> All {{session['type']}} requests </h1>
-                    {%elif filter == 'student' %}
+                    {%if filter == 'student' %}
                     <h1> Student requests </h1>
                     {%else%}
-                    <h1> Confirmed {{session['type']}} requests </h1>
+                    <h1> Faculty requests </h1>
                     {%endif%}
                 </div>
 
@@ -18,13 +16,13 @@
                 <br>
                 <br>
                 <div class="d-flex justify-content-center">
-                    <form method="post" action="{{url_for('display_requests')}}">
-                      {{filter_confirmed_requests_form.csrf_token}}
-                      {{filter_confirmed_requests_form.confirmed_requests(class="btn btn-success btn-lg")}}
+                    <form method="post" action="{{url_for('admin_display_requests')}}">
+                      {{filter_student_requests_form.csrf_token}}
+                      {{filter_student_requests_form.student_requests(class="btn btn-success btn-lg")}}
                     </form>
-                    <form method="post" action="{{url_for('display_requests')}}">
-                        {{filter_unconfirmed_requests_form.csrf_token}}
-                        {{filter_unconfirmed_requests_form.unconfirmed_requests(class="btn btn-success btn-lg")}}
+                    <form method="post" action="{{url_for('admin_display_requests')}}">
+                        {{filter_faculty_requests_form.csrf_token}}
+                        {{filter_faculty_requests_form.faculty_requests(class="btn btn-success btn-lg")}}
                       </form>
                   </div>
 
@@ -47,28 +45,28 @@
                                 <div class="text-center">
                                     <span>Description</span>
                                     <br><br>
-                                    <span class="fs-4 fw-bold">{{request.description}}</span>
+                                    <span class="fs-4 fw-bold">{{request.get('description')}}</span>
                                 </div>
                             </div>
                             <div class="col-md-2 d-flex justify-content-center">
                                 <div class="text-center">
                                     <span>Status</span>
                                     <br><br>
-                                    <span class="fs-4 fw-bold">{{request.status}}</span>
+                                    <span class="fs-4 fw-bold">{{request.get('status')}}</span>
                                 </div>
                             </div>
                             <div class="col-2 d-flex justify-content-center">
                                 <div class="text-center">
                                     <span>No. of Confirmations</span>
                                     <br><br>
-                                    <span class="fs-4 fw-bold">{{request.confirmations}}</span>
+                                    <span class="fs-4 fw-bold">{{request.get('confirmations')}}</span>
                                 </div>
                             </div>
                             <div class="col-md-2 d-flex justify-content-center">
                                 <div class="text-center">
                                     <span>Date Created</span>
                                     <br><br>
-                                    <span class="fs-4 fw-bold">{{request.updated_at}}</span>
+                                    <span class="fs-4 fw-bold">{{request.get('created_at')}}</span>
                                 </div>
                             </div>
                             <div class="col-md-2 d-flex justify-content-center">
@@ -86,23 +84,23 @@
                                         </div>
                                     </div>
                                     <br>
-                                    {%if request.status == 'in progress'%}
+                                    {%if request.get('status') == 'in progress'%}
                                     <form method="post"
                                         action="{{url_for('admin_display_requests')}}">
                                         {{hold_request_form.csrf_token}}
                                         {{hold_request_form.request_key(value
-                                            = request.key)}}
+                                            = request.get('key'))}}
                                         {{hold_request_form.put_on_hold(class="btn
                                         btn-danger")}}
                                     </form>
 
-                                    {% elif request.status == "on hold" %}
+                                    {% elif request.get('status') == "on hold" %}
 
                                     <form method="post"
                                     action="{{url_for('admin_display_requests')}}">
                                     {{resume_request_form.csrf_token}}
                                     {{resume_request_form.request_key(value
-                                        = request.key)}}
+                                        = request.get('key'))}}
                                     {{resume_request_form.resume(class="btn
                                     btn-danger")}}
                                 </form>
@@ -111,7 +109,7 @@
                                     <form method="post"
                                         action="{{url_for('admin_display_requests')}}">
                                         {{finish_request_form.csrf_token}}
-                                        {{finish_request_form.request_key(value = request.key)}}
+                                        {{finish_request_form.request_key(value = request.get('key'))}}
                                         {{finish_request_form.finish(class="btn
                                         btn-danger")}}
                                     </form>

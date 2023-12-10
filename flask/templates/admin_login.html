@@ -2,7 +2,7 @@
 
 
 <div class="d-flex justify-content-center">
-  <form method=post>
+  <form method=post action="{{ url_for('admin_login') }}">
     {{ form.csrf_token }}
     <fieldset class="border p-4">
       <legend class="text-center">Admin Login</legend>
