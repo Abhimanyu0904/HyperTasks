@@ -152,27 +152,27 @@ def admin_dashboard():
 @app.route("/admin_login", methods=['GET', 'POST'])
 def admin_login():
     admin_login_form = AdminLoginForm()
-    if 'admin_email' in session:
-        if request.method == 'POST':
-            if admin_login_form.validate_on_submit():
-                password = admin_login_form.password.data
-                valid, output = chaincode(
-                    ['loginUser', 'admin@ashoka.edu.in', password, 'university'])
-                if valid:
-                    if output.get('message') == "success":
-                        session['admin_email'] = "admin@ashoka.edu.in"
-                        flash("Admin Logged in Successfully", "success")
-                        return redirect(url_for('admin_dashboard'))
-                    else:
-                        flash(f"{output.get('error')}", "danger")
-                        print(output)
+    # if 'admin_email' in session:
+    if request.method == 'POST':
+        if admin_login_form.validate_on_submit():
+            password = admin_login_form.password.data
+            valid, output = chaincode(
+                ['loginUser', 'admin@ashoka.edu.in', password, 'university'])
+            if valid:
+                if output.get('message') == "success":
+                    session['admin_email'] = "admin@ashoka.edu.in"
+                    flash("Admin Logged in Successfully", "success")
+                    return redirect(url_for('admin_dashboard'))
                 else:
-                    flash("Something went wrong. Please try again.", "danger")
-                return redirect(url_for('admin_login'))
-        return render_template("admin_login.html", form=admin_login_form)
-    else:
-        flash("You have to be an admin to access this page. Please login first", "danger")
-        return redirect(url_for('admin_login'))
+                    flash(f"{output.get('error')}", "danger")
+                    print(output)
+            else:
+                flash("Something went wrong. Please try again.", "danger")
+            return redirect(url_for('admin_login'))
+    return render_template("admin_login.html", form=admin_login_form)
+    # else:
+    #     flash("You have to be an admin to access this page. Please login first", "danger")
+    #     return redirect(url_for('admin_login'))
 
 
 @app.route("/user_registration_requests", methods=['GET', 'POST'])
