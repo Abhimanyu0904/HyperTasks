@@ -529,12 +529,13 @@ class Feedback extends Contract {
         if (![
             FACULTY_TYPE,
             STUDENT_TYPE,
+            UNIVERSITY_TYPE,
         ].includes(user_type)){
             ret.error = `unknown user type: ${user_type}`;
             console.error(ret.error);
             return Buffer.from(JSON.stringify(ret));
         }
-        const objectType = user_type === FACULTY_TYPE ? FACULTY_KEY_IDENTIFIER : STUDENT_KEY_IDENTIFIER;
+        const objectType = user_type === FACULTY_TYPE ? FACULTY_KEY_IDENTIFIER : user_type === UNIVERSITY_TYPE ? UNIVERSITY_KEY_IDENTIFIER : STUDENT_KEY_IDENTIFIER;
         const iterator = await ctx.stub.getStateByPartialCompositeKey(objectType, [email]);
 
         while (iterator_flag) {
