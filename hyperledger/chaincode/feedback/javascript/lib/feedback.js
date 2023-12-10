@@ -34,6 +34,8 @@ async function resolveIterator(iterator){
         if (res.value && res.value.value.toString()) {
             try {
                 const asset = JSON.parse(res.value.value.toString("utf8"));
+                console.log(`asset: ${asset}`);
+                console.log(`asset key: ${res.value.key}`);
 
                 switch (asset.type){
                 case STUDENT_TYPE:
@@ -115,7 +117,6 @@ class Feedback extends Contract {
             resolveIterator(student_iterator),
             resolveIterator(university_iterator),
         ]);
-        console.log("iterators resolved");
 
         if (!users.university) {
             console.log("creating university asset");
@@ -123,6 +124,7 @@ class Feedback extends Contract {
                 "1",
                 ADMIN_EMAIL,
             ]);
+            console.log(`key: ${key}`);
 
             const ashoka = {
                 ashoka_id: "0000000000",
@@ -135,6 +137,7 @@ class Feedback extends Contract {
                 type: UNIVERSITY_TYPE,
                 verified: true,
             };
+            console.log(`ashoka asset: ${ashoka}`);
             await ctx.stub.putState(key, Buffer.from(JSON.stringify(ashoka)));
             users.university = true;
             console.log("university asset created");
@@ -160,7 +163,8 @@ class Feedback extends Contract {
                 .createHash(HASH)
                 .update(email)
                 .digest(HASH_ENCODING),
-            ret = {};
+            ret = {message: FAILURE_MSG};
+        console.log(`function arguments: name: ${name}, email: ${email}, ashoka_id: ${ashoka_id}, password: ${password}, user_type: ${user_type}`);
 
         switch (user_type){
         case FACULTY_TYPE:
@@ -171,7 +175,6 @@ class Feedback extends Contract {
             ]);
             if (Object.hasOwn(users.faculties, identifier)) {
                 ret.error= "faculty already exists";
-                ret.message= FAILURE_MSG;
                 console.error(ret.error);
                 return Buffer.from(JSON.stringify(ret));
             }
@@ -188,7 +191,6 @@ class Feedback extends Contract {
             ]);
             if (Object.hasOwn(users.students, identifier)) {
                 ret.error= "student already exists";
-                ret.message= FAILURE_MSG;
                 console.error(ret.error);
                 return Buffer.from(JSON.stringify(ret));
             }
@@ -198,8 +200,7 @@ class Feedback extends Contract {
             break;
 
         default:
-            ret.error= `unknown user type: ${user_type}`;
-            ret.message= FAILURE_MSG;
+            ret.error= `invalid user type: ${user_type}`;
             console.error(ret.error);
             return Buffer.from(JSON.stringify(ret));
         }
@@ -216,6 +217,8 @@ class Feedback extends Contract {
             type: user_type,
             verified: false,
         };
+        console.log(`user asset: ${user}`);
+        console.log(`key: ${key}`);
         // add user to the ledger
         await ctx.stub.putState(key, Buffer.from(JSON.stringify(user)));
         ret.message = SUCCESS_MSG;
@@ -234,13 +237,15 @@ class Feedback extends Contract {
     async addRequest(ctx, description, user_type) {
         console.info("=============== START : addRequest ===============");
         let required_confirmations = 0;
-        const ret = {};
+        const ret = {message: FAILURE_MSG};
+        console.log(`function arguments: description: ${description}, user_type: ${user_type}`);
 
         ++requestCounter;
         const key = ctx.stub.createCompositeKey(REQUEST_KEY_IDENTIFIER, [
             requestCounter,
             user_type,
         ]);
+        console.log(`key: ${key}`);
 
         switch (user_type){
         case FACULTY_TYPE:
@@ -253,7 +258,6 @@ class Feedback extends Contract {
 
         default:
             ret.error = `unknown user type: ${user_type}`;
-            ret.message = FAILURE_MSG;
             console.error(ret.error);
             return Buffer.from(JSON.stringify(ret));
         }
@@ -275,6 +279,7 @@ class Feedback extends Contract {
                 updated_at: now,
                 user_type,
             };
+        console.log(`request asset: ${request}`);
 
         await ctx.stub.putState(key, Buffer.from(JSON.stringify(request)));
         ret.message = SUCCESS_MSG;
@@ -291,17 +296,16 @@ class Feedback extends Contract {
      */
     async queryRequests(ctx, user_type, confirmed) {
         console.info("=============== START : queryRequests ===============");
+        console.log(`function arguments: user_type: ${user_type}, confirmed: ${confirmed}`);
 
         let iterator_flag = true;
-        const requests = [],
-            ret = {};
+        const ret = {message: FAILURE_MSG, response: []};
 
         if (![
             FACULTY_TYPE,
             STUDENT_TYPE,
         ].includes(user_type)){
-            ret.error = `unknown user type: ${user_type}`;
-            ret.message = FAILURE_MSG;
+            ret.error = `invalid user type: ${user_type}`;
             console.error(ret.error);
             return Buffer.from(JSON.stringify(ret));
         }
@@ -314,8 +318,9 @@ class Feedback extends Contract {
             if (res.value && res.value.value.toString()) {
                 try {
                     const request = JSON.parse(res.value.value.toString("utf8"));
+                    console.log(`request: ${request}`);
                     if (request.confirmed === confirmed) {
-                        requests.push(request);
+                        ret.response.push(request);
                     }
                 } catch (err) {
                     console.error(err);
@@ -323,13 +328,14 @@ class Feedback extends Contract {
                 }
             }
             if (res.done) {
+                ret.message = SUCCESS_MSG;
                 await iterator.close();
                 iterator_flag = false;
             }
         }
 
         console.info("=============== END : queryRequests ===============");
-        return Buffer.from(JSON.stringify({message: SUCCESS_MSG, response: requests}));
+        return Buffer.from(JSON.stringify(ret));
     }
 
     /**
@@ -341,26 +347,26 @@ class Feedback extends Contract {
      */
     async confirmRequest(ctx, key, email) {
         console.info("=============== START : confirmRequest ===============");
+        console.log(`function arguments: key: ${key}, email: ${email}`);
         const identifier = crypto
                 .createHash(HASH)
                 .update(email)
                 .digest(HASH_ENCODING),
-            ret = {};
+            ret = {message: FAILURE_MSG};
 
         // retrieve the request from the ledger
         const requestAsBytes = await ctx.stub.getState(key);
         if (!requestAsBytes || requestAsBytes.length === 0) {
             ret.error = `Request with ID ${key} does not exist.`;
-            ret.message = FAILURE_MSG;
             console.error(ret.error);
             return Buffer.from(JSON.stringify(ret));
         }
         const request = JSON.parse(requestAsBytes.toString());
+        console.log(`request: ${request}`);
 
         // check if user has already confirmed
         if (Object.hasOwn(request.confirmed_by, identifier)) {
             ret.error = "User has already confirmed this feedback.";
-            ret.message = FAILURE_MSG;
             console.error(ret.error);
             return Buffer.from(JSON.stringify(ret));
         }
@@ -393,16 +399,17 @@ class Feedback extends Contract {
      */
     async updateRequest(ctx, key, notes, status) {
         console.info("=============== START : updateRequest ===============");
+        console.log(`function arguments: key: ${key}, notes: ${notes}, status: ${status}`);
         const requestAsBytes = await ctx.stub.getState(key),
-            ret = {};
+            ret = {message: FAILURE_MSG};
 
         if (!requestAsBytes || requestAsBytes.length === 0) {
             ret.error = `Request with ID ${key} does not exist.`;
-            ret.message = FAILURE_MSG;
             console.error(ret.error);
             return Buffer.from(JSON.stringify(ret));
         }
         const request = JSON.parse(requestAsBytes.toString());
+        console.log(`original request: ${request}`);
 
         if (notes !== "")
             request.university_notes = notes;
@@ -419,8 +426,7 @@ class Feedback extends Contract {
             IMPLEMENTED,
             DROPPED,
         ].includes(status)){
-            ret.error = `Unknown status: ${status}`;
-            ret.message = FAILURE_MSG;
+            ret.error = `Invalid status: ${status}`;
             console.error(ret.error);
             return Buffer.from(JSON.stringify(ret));
         }
@@ -428,6 +434,7 @@ class Feedback extends Contract {
         request.status = status;
         request.update_type = STATUS;
         request.updated_at = new Date().getTime();
+        console.log(`updated request: ${request}`);
 
         await ctx.stub.putState(key, Buffer.from(JSON.stringify(request)));
         ret.message = SUCCESS_MSG;
@@ -443,9 +450,9 @@ class Feedback extends Contract {
      */
     async queryRequestHistory(ctx, key) {
         console.info("=============== START : queryRequestHistory ===============");
-
+        console.log(`function arguments: key: ${key}`);
         const iterator = await ctx.stub.getHistoryForKey(key),
-            requests = [];
+            ret = {message: FAILURE_MSG, response: []};
         let iterator_flag = true;
 
         while (iterator_flag) {
@@ -453,8 +460,9 @@ class Feedback extends Contract {
             if (res.value && res.value.value.toString()) {
                 try {
                     const request = JSON.parse(res.value.value.toString("utf8"));
+                    console.log(`request: ${request}`);
                     if (request.update_type !== CONFIRMATION) // filter out confirmation updates
-                        requests.unshift(request); // have a list starting from oldest to latest update
+                        ret.response.unshift(request); // have a list starting from oldest to latest update
                 } catch (err) {
                     console.error(err);
                     console.error(res.value.value.toString("utf8"));
@@ -462,13 +470,14 @@ class Feedback extends Contract {
             }
 
             if (res.done) {
+                ret.message = SUCCESS_MSG;
                 await iterator.close();
                 iterator_flag = false;
             }
         }
 
         console.info("=============== END : queryRequestHistory ===============");
-        return Buffer.from(JSON.stringify({message: SUCCESS_MSG, response: requests}));
+        return Buffer.from(JSON.stringify(ret));
     }
 
     /**
@@ -480,7 +489,9 @@ class Feedback extends Contract {
      */
     async validateUser(ctx, user_type, email){
         console.info("=============== START : validateUser ===============");
+        console.log(`function arguments: user_type: ${user_type}, email: ${email}`);
         let iterator_flag = true,
+            key = "",
             user = {};
         const ret = {message: FAILURE_MSG};
 
@@ -501,7 +512,9 @@ class Feedback extends Contract {
             if (res.value && res.value.value.toString()) {
                 try {
                     const u = JSON.parse(res.value.value.toString("utf8"));
-                    if (u.email === email) {
+                    console.log(`user: ${u}`);
+                    if (u.email === email){
+                        key = res.value.key;
                         user = u;
                     }
                 } catch (err) {
@@ -510,15 +523,17 @@ class Feedback extends Contract {
                 }
             }
             if (res.done) {
+                ret.message = SUCCESS_MSG;
                 await iterator.close();
                 iterator_flag = false;
             }
         }
 
-        user.verified= true;
+        user.verified = true;
+        console.log(`verified user: ${user}`);
+        console.log(`user key: ${key}`);
 
-        await ctx.stub.putState(user.key, Buffer.from(JSON.stringify(user)));
-        ret.message = SUCCESS_MSG;
+        await ctx.stub.putState(key, Buffer.from(JSON.stringify(user)));
         console.info("=============== END : validateUser ===============");
         return Buffer.from(JSON.stringify(ret));
     }
@@ -533,6 +548,7 @@ class Feedback extends Contract {
      */
     async loginUser(ctx, user_type, email, password) {
         console.info("=============== START : loginUser ===============");
+        console.log(`function arguments: user_type: ${user_type}, email: ${email}, password: ${password}`);
         const ret = {message: FAILURE_MSG, response: {}};
         let iterator_flag = true;
 
@@ -553,15 +569,15 @@ class Feedback extends Contract {
 
             if (res.value && res.value.value.toString()) {
                 try {
+                    // TODO: check if user verified
                     const user = JSON.parse(res.value.value.toString("utf8"));
+                    console.log(`user: ${user}`);
                     if (user.email === email &&
                         user.password === crypto
                             .createHash(HASH)
                             .update(password)
-                            .digest(HASH_ENCODING)) {
-                        ret.message = SUCCESS_MSG;
+                            .digest(HASH_ENCODING))
                         ret.response = user;
-                    }
                 } catch (err) {
                     console.error(err);
                     console.error(res.value.value.toString("utf8"));
@@ -569,9 +585,23 @@ class Feedback extends Contract {
             }
 
             if (res.done) {
+                ret.message = SUCCESS_MSG;
                 await iterator.close();
                 iterator_flag = false;
             }
+        }
+
+        if (Object.keys(ret.response).length === 0) {
+            ret.message = FAILURE_MSG;
+            ret.error = "invalid credentials";
+            console.error(ret.error);
+            return Buffer.from(JSON.stringify(ret));
+        }
+        if (!ret.response.verified) {
+            ret.message = FAILURE_MSG;
+            ret.error = "user not verified";
+            console.error(ret.error);
+            return Buffer.from(JSON.stringify(ret));
         }
 
         console.info("=============== END : loginUser ===============");
@@ -586,6 +616,7 @@ class Feedback extends Contract {
      */
     async queryUnverifiedUsers(ctx, user_type){
         console.info("=============== START : queryUnverifiedUsers ===============");
+        console.log(`function arguments: user_type: ${user_type}`);
         const ret = {message: FAILURE_MSG, response: []};
         let iterator_flag = true;
 
@@ -606,10 +637,9 @@ class Feedback extends Contract {
             if (res.value && res.value.value.toString()) {
                 try {
                     const user = JSON.parse(res.value.value.toString("utf8"));
-                    if (user.verified === false) {
-                        ret.message = SUCCESS_MSG;
+                    console.log(`user: ${user}`);
+                    if (user.verified === false)
                         ret.response.push(user);
-                    }
                 } catch (err) {
                     console.error(err);
                     console.error(res.value.value.toString("utf8"));
@@ -617,6 +647,7 @@ class Feedback extends Contract {
             }
 
             if (res.done) {
+                ret.message = SUCCESS_MSG;
                 await iterator.close();
                 iterator_flag = false;
             }
@@ -635,6 +666,7 @@ class Feedback extends Contract {
      */
     async deleteUser(ctx, user_type, user_email){
         console.info("=============== START : deleteUser ===============");
+        console.log(`function arguments: user_type: ${user_type}, user_email: ${user_email}`);
         const ret = {message: FAILURE_MSG};
         let iterator_flag = true;
 
@@ -655,10 +687,9 @@ class Feedback extends Contract {
             if (res.value && res.value.value.toString()) {
                 try {
                     const user = JSON.parse(res.value.value.toString("utf8"));
-                    if (user.email === user_email) {
-                        ret.message = SUCCESS_MSG;
+                    console.log(`user: ${user}`);
+                    if (user.email === user_email)
                         await ctx.stub.deleteState(res.value.key);
-                    }
                 } catch (err) {
                     console.error(err);
                     console.error(res.value.value.toString("utf8"));
@@ -666,6 +697,7 @@ class Feedback extends Contract {
             }
 
             if (res.done) {
+                ret.message = SUCCESS_MSG;
                 await iterator.close();
                 iterator_flag = false;
             }
