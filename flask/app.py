@@ -7,6 +7,9 @@ import os
 import secrets
 import subprocess
 from typing import List
+import smtplib
+import ssl
+from email.message import EmailMessage
 
 from flask_login import (LoginManager, UserMixin, login_required, login_user,
                          logout_user)
@@ -47,6 +50,41 @@ def chaincode(args: List[str]) -> tuple[bool, dict]:
         valid = False
 
     return valid, out
+
+def send_email(to: str, accepted: bool) -> bool:
+    sender = "my_hyperledger_21@hotmail.com"
+    password = "tudxim-mIbmew-barzo4"
+    subject = ""
+    message = ""
+    valid = True
+
+    if accepted:
+        subject = "User Verified"
+        message = "Your credentials were approved! You can now log in to the website and add your requests!"
+    else:
+        subject = "User Rejected"
+        message = "Your credentials were not approved. Please try registering again with the proper credentials. If you think your credentials are correct, you can reply to this mail and we will get back to you at our earliest. Thank you!"
+
+    email = EmailMessage()
+    email["From"] = sender
+    email["To"] = to
+    email["Subject"] = subject
+    email.set_content(message)
+
+    try:
+        server = smtplib.SMTP("smtp-mail.outlook.com", 587)
+        # Secure the connection
+        server.starttls(context=ssl.create_default_context())
+        server.login(sender, password)
+        server.sendmail(sender, to, email.as_string())
+    except Exception as e:
+        valid = False
+        print(e)
+
+    finally:
+        server.quit()
+
+    return valid
 
 
 class User(UserMixin):
