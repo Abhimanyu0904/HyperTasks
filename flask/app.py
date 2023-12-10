@@ -50,22 +50,17 @@ def chaincode(args: List[str]) -> tuple[bool, dict]:
 
 
 class User(UserMixin):
-    def __init__(self, email, password, user_type):
+    def __init__(self, email):
         self.id = email
-        self.password = password
-        self.user_type = user_type
-
-# Not sure about its working
-
+        # self.password = password
+        # self.user_type = user_type
 
 @login_manager.user_loader
-def load_user(user_id, password, type):
-    valid, user_data = chaincode(["loginUser", user_id, password, type])
-    if valid and user_data.get('message') == "success":
-        response = user_data.get('response')
-        user_type = response.get('type')
-        return User(user_id, password, user_type)
-    return None
+def load_user(user_id):
+    # valid, user_data = chaincode(["loginUser", user_id, password, type])
+    # if valid and user_data.get('message') == "success":
+    return User(user_id)
+    # return None
 
 
 @app.context_processor
@@ -130,7 +125,7 @@ def login():
                     session['email_id'] = email_id
                     response = output.get('response')
                     session['type'] = type
-                    login_user()
+                    login_user('email_id')
                     # session['type'] = response.get('type')
                     flash("Login Successful", "success")
                     return redirect(url_for('display_requests'))
