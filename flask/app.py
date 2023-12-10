@@ -69,10 +69,17 @@ def load_user(user_id, password, type):
         return User(user_id, password, user_type)
     return None
 
+@app.context_processor
+def base():
+    filter_student_requests_form = FilterStudentRequestsForm()
+    filter_faculty_requests_form = FilterFacultyRequestsForm()
+    return dict(filter_student_requests_form = filter_student_requests_form, filter_faculty_requests_form = filter_faculty_requests_form)
 
 @app.route("/")
 @app.route("/home")
 def home():
+    session['admin_email'] = 'test'
+    # session.pop('admin_email')
     return render_template('home.html')
 
 
@@ -173,9 +180,9 @@ def user_registration_requests():
         reject_user_registration_request_form = RejectUserRegistrationRequestForm()
         if request.method == 'POST' and 'accept' in request.form:
             if accept_user_registration_request_form.validate_on_submit():
-                request_key = accept_user_registration_request_form.request_key.data
+                email = accept_user_registration_request_form.email_id.data
                 valid, output = chaincode(
-                    ["validateUser", session['email_id'], request_key])
+                    ["validateUser", 'admin@ashoka.edu.in', email, 'university'])
                 if valid:
                     if output.get('message') == "success":
                         
@@ -187,9 +194,9 @@ def user_registration_requests():
                 return redirect(url_for('user_registration_requests'))
         if request.method == 'POST' and 'reject' in request.form:
             if reject_user_registration_request_form.validate_on_submit():
-                request_key = reject_user_registration_request_form.request_key.data
+                email = reject_user_registration_request_form.email.data
                 valid, output = chaincode(
-                    ["deleteUser", session['email_id'], request_key])
+                    ["deleteUser", 'admin@ashoka.edu.in', email, 'university'])
                 if valid:
                     if output.get('message') == "success":
                         flash("Request Rejected!", "success")
@@ -289,10 +296,11 @@ def admin_display_requests():
         
         elif request.method == 'POST' and 'student' in request.form:
             if filter_student_requests_form.validate_on_submit():
+                filter = filter_student_requests_form.filter.data
                 valid, output = chaincode(['queryRequests', 'admin@ashoka.edu.in', 'false', 'student'])
                 if valid:
                     if output.get('message') == 'success':
-                        return render_template("admin_display_requests.html", requests=output.get('response'), initiate_request_form=initiate_request_form, finish_request_form=finish_request_form, hold_request_form=hold_request_form, resume_request_form=resume_request_form, drop_request_form=drop_request_form, filter_student_requests_form = filter_student_requests_form, filter_faculty_requests_form = filter_faculty_requests_form, filter = 'student')
+                        return render_template("admin_display_requests.html", requests=output.get('response'), initiate_request_form=initiate_request_form, finish_request_form=finish_request_form, hold_request_form=hold_request_form, resume_request_form=resume_request_form, drop_request_form=drop_request_form, filter_student_requests_form = filter_student_requests_form, filter_faculty_requests_form = filter_faculty_requests_form, filter = filter)
                     else:
                         flash(f"{output.get('error')}", "danger")
                 else:
@@ -300,10 +308,11 @@ def admin_display_requests():
                 return redirect(url_for('admin_display_requests'))
         elif request.method == 'POST' and 'faculty' in request.form:
             if filter_faculty_requests_form.validate_on_submit():
+                filter = filter_student_requests_form.filter.data
                 valid, output = chaincode(['queryRequests', 'admin@ashoka.edu.in', 'false', 'faculty'])
                 if valid:
                     if output.get('message') == 'success':
-                        return render_template("admin_display_requests.html", requests=output.get('response'), initiate_request_form=initiate_request_form, finish_request_form=finish_request_form, hold_request_form=hold_request_form, resume_request_form=resume_request_form, drop_request_form=drop_request_form, filter_student_requests_form = filter_student_requests_form, filter_faculty_requests_form = filter_faculty_requests_form,filter = 'faculty')
+                        return render_template("admin_display_requests.html", requests=output.get('response'), initiate_request_form=initiate_request_form, finish_request_form=finish_request_form, hold_request_form=hold_request_form, resume_request_form=resume_request_form, drop_request_form=drop_request_form, filter_student_requests_form = filter_student_requests_form, filter_faculty_requests_form = filter_faculty_requests_form,filter = filter)
                     else:
                         flash(f"{output.get('error')}", "danger")
                 else:

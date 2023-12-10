@@ -16,21 +16,31 @@
                 <br>
                 <br>
                 <div class="d-flex justify-content-center">
-                    <form method="post" action="{{url_for('admin_display_requests')}}">
-                      {{filter_student_requests_form.csrf_token}}
-                      {{filter_student_requests_form.student_requests(class="btn btn-success btn-lg")}}
+                    <form method="post"
+                        action="{{url_for('admin_display_requests')}}">
+                        {{filter_student_requests_form.csrf_token}}
+                        {{filter_student_requests_form.filter(value
+                            = 'Student')}}
+                        {{filter_student_requests_form.student_requests(class="btn
+                        btn-success btn-lg")}}
                     </form>
-                    <form method="post" action="{{url_for('admin_display_requests')}}">
+                    <form method="post"
+                        action="{{url_for('admin_display_requests')}}">
                         {{filter_faculty_requests_form.csrf_token}}
-                        {{filter_faculty_requests_form.faculty_requests(class="btn btn-success btn-lg")}}
-                      </form>
-                  </div>
+                        {{filter_faculty_requests_form.filter(value
+                            = 'Faculty')}}
+                        {{filter_faculty_requests_form.faculty_requests(class="btn
+                        btn-success btn-lg")}}
+                    </form>
+                </div>
 
 
                 <br>
                 <br>
 
                 {% for request in requests %}
+                {% if request.get('confirmations') >=
+                request.get('required_confirmations') %}
                 <div class="card mb-4">
                     <div class="card-text p-4">
                         <div class="row align-items-center">
@@ -84,32 +94,35 @@
                                         </div>
                                     </div>
                                     <br>
-                                    {%if request.get('status') == 'in progress'%}
+                                    {%if request.get('status') == 'in
+                                    progress'%}
                                     <form method="post"
                                         action="{{url_for('admin_display_requests')}}">
                                         {{hold_request_form.csrf_token}}
                                         {{hold_request_form.request_key(value
-                                            = request.get('key'))}}
+                                        = request.get('key'))}}
                                         {{hold_request_form.put_on_hold(class="btn
                                         btn-danger")}}
                                     </form>
 
-                                    {% elif request.get('status') == "on hold" %}
+                                    {% elif request.get('status') == "on hold"
+                                    %}
 
                                     <form method="post"
-                                    action="{{url_for('admin_display_requests')}}">
-                                    {{resume_request_form.csrf_token}}
-                                    {{resume_request_form.request_key(value
+                                        action="{{url_for('admin_display_requests')}}">
+                                        {{resume_request_form.csrf_token}}
+                                        {{resume_request_form.request_key(value
                                         = request.get('key'))}}
-                                    {{resume_request_form.resume(class="btn
-                                    btn-danger")}}
-                                </form>
+                                        {{resume_request_form.resume(class="btn
+                                        btn-danger")}}
+                                    </form>
                                     {%endif%}
                                     <br>
                                     <form method="post"
                                         action="{{url_for('admin_display_requests')}}">
                                         {{finish_request_form.csrf_token}}
-                                        {{finish_request_form.request_key(value = request.get('key'))}}
+                                        {{finish_request_form.request_key(value
+                                        = request.get('key'))}}
                                         {{finish_request_form.finish(class="btn
                                         btn-danger")}}
                                     </form>
@@ -118,6 +131,7 @@
                         </div>
                     </div>
                 </div>
+                {%endif%}
                 {% endfor %}
             </div>
         </div>

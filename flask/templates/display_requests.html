@@ -26,17 +26,21 @@
                 <br>
                 <div class="d-flex justify-content-center">
                     <a href="{{ url_for('display_requests') }}">
-                      <button type="button" class="btn btn-dark btn-lg me-2">All</button>
+                        <button type="button" class="btn btn-dark btn-lg me-2">All</button>
                     </a>
-                    <form method="post" action="{{url_for('display_requests')}}">
-                      {{filter_confirmed_requests_form.csrf_token}}
-                      {{filter_confirmed_requests_form.confirmed_requests(class="btn btn-success btn-lg")}}
+                    <form method="post"
+                        action="{{url_for('display_requests')}}">
+                        {{filter_confirmed_requests_form.csrf_token}}
+                        {{filter_confirmed_requests_form.confirmed_requests(class="btn
+                        btn-success btn-lg")}}
                     </form>
-                    <form method="post" action="{{url_for('display_requests')}}">
+                    <form method="post"
+                        action="{{url_for('display_requests')}}">
                         {{filter_unconfirmed_requests_form.csrf_token}}
-                        {{filter_unconfirmed_requests_form.unconfirmed_requests(class="btn btn-success btn-lg")}}
-                      </form>
-                  </div>
+                        {{filter_unconfirmed_requests_form.unconfirmed_requests(class="btn
+                        btn-success btn-lg")}}
+                    </form>
+                </div>
 
                 <br>
                 <br>

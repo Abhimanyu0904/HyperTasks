@@ -5,65 +5,59 @@
             <div class="col">
                 <div class="text-center">
                     <br>
-                    {% if filter == "All" %}
-                    <h1> All {{session['type']}} requests </h1>
-                    {%elif filter == 'Unconfirmed' %}
-                    <h1> Unconfirmed {{session['type']}} requests </h1>
+                    {%if filter == 'student' %}
+                    <h1> Student registration requests </h1>
                     {%else%}
-                    <h1> Confirmed {{session['type']}} requests </h1>
+                    <h1> Faculty registration requests </h1>
                     {%endif%}
                 </div>
                 <br>
                 <br>
 
-                {% for request in requests %}
+                {% for reg_request in reg_requests %}
                 <div class="card mb-4">
                     <div class="card-text p-4">
                         <div class="row align-items-center">
-                            <div class="col-md-2">
+                            <div class="col-md-2.4">
                                 <div class="text-center">
-                                    <span>something</span>
+                                    <span>Name</span>
                                     <br><br>
-                                    <span class="fs-4 fw-bold"></span>
+                                    <span class="fs-4 fw-bold">{{reg_request.get('name')}}</span>
                                 </div>
                             </div>
-                            <div class="col-md-2">
+                            <div class="col-md-2.4">
                                 <div class="text-center">
-                                    <span>Description</span>
+                                    <span>Email</span>
                                     <br><br>
-                                    <span class="fs-4 fw-bold">{{request.description}}</span>
+                                    <span class="fs-4 fw-bold">{{reg_request.get('email')}}</span>
                                 </div>
                             </div>
-                            <div class="col-md-2 d-flex justify-content-center">
+                            <div class="col-md-2.4 d-flex
+                                justify-content-center">
                                 <div class="text-center">
-                                    <span>Status</span>
+                                    <span>Ashoka ID</span>
                                     <br><br>
-                                    <span class="fs-4 fw-bold">{{request.status}}</span>
+                                    <span class="fs-4 fw-bold">{{reg_request.get('ashoka_id')}}</span>
                                 </div>
                             </div>
-                            <div class="col-2 d-flex justify-content-center">
+                            <div class="col-md-2.4 d-flex
+                                justify-content-center">
                                 <div class="text-center">
-                                    <span>No. of Confirmations</span>
+                                    <span>Type</span>
                                     <br><br>
-                                    <span class="fs-4 fw-bold">{{request.confirmations}}</span>
+                                    <span class="fs-4 fw-bold">{{reg_request.get('type')}}</span>
                                 </div>
                             </div>
-                            <div class="col-md-2 d-flex justify-content-center">
-                                <div class="text-center">
-                                    <span>Date Created</span>
-                                    <br><br>
-                                    <span class="fs-4 fw-bold">{{request.updated_at}}</span>
-                                </div>
-                            </div>
-                            <div class="col-md-2 d-flex justify-content-center">
+                            <div class="col-md-2.4 d-flex
+                                justify-content-center">
                                 <div class="text-center">
                                     <div class="container">
                                         <div class="row">
                                             <form method="post"
                                                 action="{{url_for('user_registration_requests')}}">
                                                 {{accept_user_registration_request_form.csrf_token}}
-                                                {{accept_user_registration_request_form.email_key(value
-                                                = request.key)}}
+                                                {{accept_user_registration_request_form.email_id(value
+                                                = reg_request.get('email'))}}
                                                 {{accept_user_registration_request_form.accept(class="btn
                                                 btn-success")}}
                                             </form>
@@ -73,7 +67,8 @@
                                     <form method="post"
                                         action="{{url_for('user_registration_requests')}}">
                                         {{reject_user_registration_request_form.csrf_token}}
-                                        {{reject_user_registration_request_form.email_key(value= request.email_key)}}
+                                        {{reject_user_registration_request_form.email_id(value=
+                                        reg_request.get('email'))}}
                                         {{reject_user_registration_request_form.reject(class="btn
                                         btn-danger")}}
                                     </form>
