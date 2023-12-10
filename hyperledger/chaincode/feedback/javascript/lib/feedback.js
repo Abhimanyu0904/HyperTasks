@@ -245,7 +245,7 @@ class Feedback extends Contract {
             user_type,
             requestCounter.toString(),
         ]);
-        ret.response = key;
+        ret.response = key.replace(/\0/g, ""); // remove null bytes
         console.log(`key: ${key}`);
 
         switch (user_type){
@@ -263,7 +263,7 @@ class Feedback extends Contract {
             return Buffer.from(JSON.stringify(ret));
         }
 
-        const now = new Date().getTime(),
+        const now = ctx.stub.getDateTimestamp().getTime(),
             // create a new request asset
             request = {
                 confirmations: 0,
@@ -271,7 +271,8 @@ class Feedback extends Contract {
                 confirmed_by: {},
                 created_at: now,
                 description,
-                key,
+                // remove null bytes from key
+                key: key.replace(/\0/g, ""),
                 required_confirmations,
                 status: NOT_STARTED,
                 type: REQUEST_TYPE,
@@ -284,7 +285,7 @@ class Feedback extends Contract {
 
         await ctx.stub.putState(key, Buffer.from(JSON.stringify(request)));
         ret.message = SUCCESS_MSG;
-        console.info("=============== END : addFeedback ===============");
+        console.info("=============== END : addRequest ===============");
         return Buffer.from(JSON.stringify(ret));
     }
 
@@ -355,6 +356,8 @@ class Feedback extends Contract {
                 .update(email)
                 .digest(HASH_ENCODING),
             ret = {message: FAILURE_MSG};
+        // reintroduce the null bytes
+        key = "\u0000" + key[0] + "\u0000" + key.slice(1, 8) + "\u0000" + key.slice(8) + "\u0000";
 
         // retrieve the request from the ledger
         const requestAsBytes = await ctx.stub.getState(key);
@@ -382,7 +385,7 @@ class Feedback extends Contract {
             request.update_type = CONFIRMED;
             console.log(`request confirmed at ${request.confirmations}. required: ${request.required_confirmations}`);
         }
-        request.updated_at = new Date().getTime();
+        request.updated_at = ctx.stub.getDateTimestamp().getTime();
 
         // update request in the ledger
         await ctx.stub.putState(key, Buffer.from(JSON.stringify(request)));
@@ -404,6 +407,9 @@ class Feedback extends Contract {
         console.log(`function arguments: key: ${key}, notes: ${notes}, status: ${status}`);
         const requestAsBytes = await ctx.stub.getState(key),
             ret = {message: FAILURE_MSG};
+
+        // reintroduce the null bytes
+        key = "\u0000" + key[0] + "\u0000" + key.slice(1, 8) + "\u0000" + key.slice(8) + "\u0000";
 
         if (!requestAsBytes || requestAsBytes.length === 0) {
             ret.error = `Request with ID ${key} does not exist.`;
@@ -435,7 +441,7 @@ class Feedback extends Contract {
 
         request.status = status;
         request.update_type = STATUS;
-        request.updated_at = new Date().getTime();
+        request.updated_at = ctx.stub.getDateTimestamp().getTime();
         console.log(`updated request: ${JSON.stringify(request, null, 2)}`);
 
         await ctx.stub.putState(key, Buffer.from(JSON.stringify(request)));
@@ -453,6 +459,9 @@ class Feedback extends Contract {
     async queryRequestHistory(ctx, key) {
         console.info("=============== START : queryRequestHistory ===============");
         console.log(`function arguments: key: ${key}`);
+        // reintroduce the null bytes
+        key = "\u0000" + key[0] + "\u0000" + key.slice(1, 8) + "\u0000" + key.slice(8) + "\u0000";
+
         const iterator = await ctx.stub.getHistoryForKey(key),
             ret = {message: FAILURE_MSG, response: []};
         let iterator_flag = true;
