@@ -7,7 +7,7 @@
 
 const {Contract, Context} = require("fabric-contract-api"),
     {Iterators} = require("fabric-shim"),
-    {UNIVERSITY_TYPE, STUDENT_KEY_IDENTIFIER, FACULTY_KEY_IDENTIFIER, STUDENT_TYPE, FACULTY_TYPE, SUCCESS_MSG, FAILURE_MSG, REQUEST_KEY_IDENTIFIER, NOT_STARTED, UNIVERSITY_KEY_IDENTIFIER, HASH, HASH_ENCODING, CREATION, CONFIRMATION, STATUS, CONFIRMED, REQUEST_TYPE, ADMIN_EMAIL} = require("../utils/constants"),
+    {UNIVERSITY_TYPE, STUDENT_KEY_IDENTIFIER, FACULTY_KEY_IDENTIFIER, STUDENT_TYPE, FACULTY_TYPE, SUCCESS_MSG, FAILURE_MSG, REQUEST_KEY_IDENTIFIER, NOT_STARTED, UNIVERSITY_KEY_IDENTIFIER, HASH, HASH_ENCODING, CREATION, CONFIRMATION, STATUS, CONFIRMED, REQUEST_TYPE, ADMIN_EMAIL, IN_PROGRESS, ON_HOLD, IMPLEMENTED, DROPPED} = require("../utils/constants"),
     crypto = require("crypto");
 
 // global variables
@@ -413,6 +413,12 @@ class Feedback extends Contract {
             console.error(ret.error);
             return Buffer.from(JSON.stringify(ret));
         }
+        if (![IN_PROGRESS, ON_HOLD, IMPLEMENTED, DROPPED].includes(status)){
+            ret.error = `Unknown status: ${status}`;
+            ret.message = FAILURE_MSG;
+            console.error(ret.error);
+            return Buffer.from(JSON.stringify(ret));
+        }
 
         request.status = status;
         request.update_type = STATUS;
@@ -529,12 +535,13 @@ class Feedback extends Contract {
         if (![
             FACULTY_TYPE,
             STUDENT_TYPE,
+            UNIVERSITY_TYPE,
         ].includes(user_type)){
             ret.error = `unknown user type: ${user_type}`;
             console.error(ret.error);
             return Buffer.from(JSON.stringify(ret));
         }
-        const objectType = user_type === FACULTY_TYPE ? FACULTY_KEY_IDENTIFIER : STUDENT_KEY_IDENTIFIER;
+        const objectType = user_type === FACULTY_TYPE ? FACULTY_KEY_IDENTIFIER : user_type === UNIVERSITY_TYPE ? UNIVERSITY_KEY_IDENTIFIER : STUDENT_KEY_IDENTIFIER;
         const iterator = await ctx.stub.getStateByPartialCompositeKey(objectType, [email]);
 
         while (iterator_flag) {
@@ -566,6 +573,10 @@ class Feedback extends Contract {
         console.info("=============== END : loginUser ===============");
         return Buffer.from(JSON.stringify(ret));
     }
+
+    async queryUnverifiedUsers(ctx, user_type){}
+
+    async deleteUser(ctx, user_type, user_email){}
 }
 
 module.exports = Feedback;

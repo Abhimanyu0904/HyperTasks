@@ -13,13 +13,6 @@ module.exports.IN_PROGRESS = "in progress";
 module.exports.ON_HOLD = "on hold";
 module.exports.IMPLEMENTED = "implemented";
 module.exports.DROPPED = "dropped";
-module.exports.STATUSES = [
-    "not started",
-    "in progress",
-    "on hold",
-    "implemented",
-    "dropped",
-];
 module.exports.STATUS = "status";
 module.exports.CREATION = "creation";
 module.exports.CONFIRMATION = "confirmation";
