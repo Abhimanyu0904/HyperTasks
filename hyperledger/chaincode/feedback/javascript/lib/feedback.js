@@ -569,7 +569,6 @@ class Feedback extends Contract {
 
             if (res.value && res.value.value.toString()) {
                 try {
-                    // TODO: check if user verified
                     const user = JSON.parse(res.value.value.toString("utf8"));
                     console.log(`user: ${JSON.stringify(user), null, 2}`);
                     if (user.email === email &&
@@ -585,6 +584,7 @@ class Feedback extends Contract {
             }
 
             if (res.done) {
+                console.log("done");
                 ret.message = SUCCESS_MSG;
                 await iterator.close();
                 iterator_flag = false;
