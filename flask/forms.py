@@ -41,10 +41,12 @@ class ViewHistoryForm(FlaskForm):
 
 class AcceptUserRegistrationRequestForm(FlaskForm):
     email_id = HiddenField("Email Id", validators=[DataRequired()])
+    type = HiddenField("Type", validators=[DataRequired()])
     accept = SubmitField('Accept')
 
 class RejectUserRegistrationRequestForm(FlaskForm):
     email_id = HiddenField("Email Id", validators=[DataRequired()])
+    type = HiddenField("Type", validators=[DataRequired()])
     reject = SubmitField('Reject')
 
 class InitiateRequestForm(FlaskForm):

@@ -185,8 +185,9 @@ def user_registration_requests():
         if request.method == 'POST' and 'accept' in request.form:
             if accept_user_registration_request_form.validate_on_submit():
                 email = accept_user_registration_request_form.email_id.data
+                type = accept_user_registration_request_form.type.data
                 valid, output = chaincode(
-                    ["validateUser", 'admin@ashoka.edu.in', email, 'university'])
+                    ["validateUser", 'admin@ashoka.edu.in', email, type])
                 if valid:
                     if output.get('message') == "success":
 
@@ -199,8 +200,9 @@ def user_registration_requests():
         if request.method == 'POST' and 'reject' in request.form:
             if reject_user_registration_request_form.validate_on_submit():
                 email = reject_user_registration_request_form.email.data
+                type = reject_user_registration_request_form.type.data
                 valid, output = chaincode(
-                    ["deleteUser", 'admin@ashoka.edu.in', email, 'university'])
+                    ["deleteUser", 'admin@ashoka.edu.in', email, type])
                 if valid:
                     if output.get('message') == "success":
                         flash("Request Rejected!", "success")

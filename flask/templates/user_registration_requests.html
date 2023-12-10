@@ -58,6 +58,8 @@
                                                 {{accept_user_registration_request_form.csrf_token}}
                                                 {{accept_user_registration_request_form.email_id(value
                                                 = reg_request.get('email'))}}
+                                                {{accept_user_registration_request_form.type(value=
+                                                reg_request.get('type'))}}
                                                 {{accept_user_registration_request_form.accept(class="btn
                                                 btn-success")}}
                                             </form>
@@ -69,6 +71,8 @@
                                         {{reject_user_registration_request_form.csrf_token}}
                                         {{reject_user_registration_request_form.email_id(value=
                                         reg_request.get('email'))}}
+                                        {{reject_user_registration_request_form.type(value=
+                                        reg_request.get('type'))}}
                                         {{reject_user_registration_request_form.reject(class="btn
                                         btn-danger")}}
                                     </form>
