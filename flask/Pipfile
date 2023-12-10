@@ -7,6 +7,9 @@ name = "pypi"
 flask = "*"
 python-dotenv = "*"
 watchdog = "*"
+flask-login = "*"
+wtforms = "*"
+flask-wtf = "*"
 
 [dev-packages]
 pylint-flask = "*"
