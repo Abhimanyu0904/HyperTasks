@@ -74,7 +74,7 @@ def base():
     filter_faculty_requests_form = FilterFacultyRequestsForm()
     filter_student_registration_requests_form = FilterStudentRegistrationRequestsForm()
     filter_faculty_registration_requests_form = FilterFacultyRegistrationRequestsForm()
-    return dict(filter_student_requests_form=filter_student_requests_form, filter_faculty_requests_form=filter_faculty_requests_form, filter_student_registration_requests_form = filter_student_registration_requests_form, filter_faculty_registration_requests_form = filter_faculty_registration_requests_form)
+    return dict(filter_student_requests_form=filter_student_requests_form, filter_faculty_requests_form=filter_faculty_requests_form, filter_student_registration_requests_form=filter_student_registration_requests_form, filter_faculty_registration_requests_form=filter_faculty_registration_requests_form)
 
 
 @app.route("/")
@@ -209,7 +209,7 @@ def user_registration_requests():
                 else:
                     flash("Something went wrong. Please try again.", "danger")
                 return redirect(url_for('user_registration_requests'))
-        
+
         if request.method == 'POST' and 'student_registration_requests' in request.form:
             if filter_student_registration_requests_form.validate_on_submit():
                 filter = filter_student_registration_requests_form.filter.data
@@ -218,13 +218,13 @@ def user_registration_requests():
                 if valid:
                     if output.get('message') == "success":
                         reg_requests = output.get('response')
-                        return render_template("user_registration_requests.html", reg_requests=reg_requests, accept_user_registration_request_form=accept_user_registration_request_form, reject_user_registration_request_form=reject_user_registration_request_form, filter = filter)
+                        return render_template("user_registration_requests.html", reg_requests=reg_requests, accept_user_registration_request_form=accept_user_registration_request_form, reject_user_registration_request_form=reject_user_registration_request_form, filter=filter)
                     else:
                         flash(f"{output.get('error')}", "danger")
                 else:
                     flash("Something went wrong. Please try again.", "danger")
                 return redirect(url_for('user_registration_requests'))
-        
+
         if request.method == 'POST' and 'faculty_registration_requests' in request.form:
             if filter_faculty_registration_requests_form.validate_on_submit():
                 filter = filter_faculty_registration_requests_form.filter.data
@@ -233,7 +233,7 @@ def user_registration_requests():
                 if valid:
                     if output.get('message') == "success":
                         reg_requests = output.get('response')
-                        return render_template("user_registration_requests.html", reg_requests=reg_requests, accept_user_registration_request_form=accept_user_registration_request_form, reject_user_registration_request_form=reject_user_registration_request_form, filter = filter)
+                        return render_template("user_registration_requests.html", reg_requests=reg_requests, accept_user_registration_request_form=accept_user_registration_request_form, reject_user_registration_request_form=reject_user_registration_request_form, filter=filter)
                     else:
                         flash(f"{output.get('error')}", "danger")
                 else:
@@ -247,7 +247,7 @@ def user_registration_requests():
         if valid:
             if output.get('message') == 'success':
                 reg_requests = output.get('response')
-        return render_template("user_registration_requests.html", reg_requests=reg_requests, accept_user_registration_request_form=accept_user_registration_request_form, reject_user_registration_request_form=reject_user_registration_request_form, filter = 'Student')
+        return render_template("user_registration_requests.html", reg_requests=reg_requests, accept_user_registration_request_form=accept_user_registration_request_form, reject_user_registration_request_form=reject_user_registration_request_form, filter='Student')
     else:
         flash("You have to be an admin to access this page. Please login first", "danger")
         return redirect(url_for('admin_login'))
@@ -369,8 +369,7 @@ def admin_display_requests():
             flash(f"{output.get('error')}", "danger")
             return redirect(url_for('admin_display_requests'))
 
-
-        return render_template("admin_display_requests.html", requests=output.get('response'), initiate_request_form=initiate_request_form, finish_request_form=finish_request_form, hold_request_form=hold_request_form, resume_request_form=resume_request_form, drop_request_form=drop_request_form, filter = 'Student')
+        return render_template("admin_display_requests.html", requests=output.get('response'), initiate_request_form=initiate_request_form, finish_request_form=finish_request_form, hold_request_form=hold_request_form, resume_request_form=resume_request_form, drop_request_form=drop_request_form, filter='Student')
     else:
         flash("You have to be an admin to access this page. Please login first", "danger")
         return redirect(url_for('admin_login'))
