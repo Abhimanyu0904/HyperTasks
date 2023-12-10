@@ -4,6 +4,7 @@ Application code
 ########## IMPORTS ##########
 import json
 import os
+import secrets
 import subprocess
 from typing import List
 
@@ -16,7 +17,7 @@ from flask import (Flask, flash, redirect, render_template, request, session,
 
 ########## GLOBAL VARIABLES ##########
 app = Flask(__name__)
-app.secret_key = "92d47ced4f25b3b20367b1b90c3d3cbfb004d69a1159e95d037cda9b474df815"
+app.secret_key = secrets.token_hex()  # generate new secret for every run
 
 login_manager = LoginManager()
 login_manager.init_app(app)
