@@ -104,8 +104,8 @@ class Feedback extends Contract {
             ctx.stub.getStateByPartialCompositeKey(REQUEST_KEY_IDENTIFIER, []),
             ctx.stub.getStateByPartialCompositeKey(STUDENT_KEY_IDENTIFIER, []),
             ctx.stub.getStateByPartialCompositeKey(UNIVERSITY_KEY_IDENTIFIER, [
-                "1",
                 ADMIN_EMAIL,
+                "1",
             ]),
         ]);
         console.log("iterators fetched");
@@ -121,8 +121,8 @@ class Feedback extends Contract {
         if (!users.university) {
             console.log("creating university asset");
             const key = ctx.stub.createCompositeKey(UNIVERSITY_KEY_IDENTIFIER, [
-                "1",
                 ADMIN_EMAIL,
+                "1",
             ]);
             console.log(`key: ${key}`);
 
@@ -170,8 +170,8 @@ class Feedback extends Contract {
         case FACULTY_TYPE:
             ++facultyCounter;
             key = ctx.stub.createCompositeKey(FACULTY_KEY_IDENTIFIER, [
-                facultyCounter.toString(),
                 email,
+                facultyCounter.toString(),
             ]);
             if (Object.hasOwn(users.faculties, identifier)) {
                 ret.error= "faculty already exists";
@@ -186,8 +186,8 @@ class Feedback extends Contract {
         case STUDENT_TYPE:
             ++studentCounter;
             key = ctx.stub.createCompositeKey(STUDENT_KEY_IDENTIFIER, [
-                studentCounter.toString(),
                 email,
+                studentCounter.toString(),
             ]);
             if (Object.hasOwn(users.students, identifier)) {
                 ret.error= "student already exists";
@@ -242,8 +242,8 @@ class Feedback extends Contract {
 
         ++requestCounter;
         const key = ctx.stub.createCompositeKey(REQUEST_KEY_IDENTIFIER, [
-            requestCounter,
             user_type,
+            requestCounter,
         ]);
         console.log(`key: ${key}`);
 
@@ -584,7 +584,6 @@ class Feedback extends Contract {
             }
 
             if (res.done) {
-                console.log("done");
                 ret.message = SUCCESS_MSG;
                 await iterator.close();
                 iterator_flag = false;
