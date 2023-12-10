@@ -82,5 +82,6 @@
     "[python]": {
         "editor.defaultFormatter": "ms-python.autopep8",
     },
-    "vs-code-prettier-eslint.prettierLast": false
+    "vs-code-prettier-eslint.prettierLast": false,
+    "workbench.colorTheme": "Material Theme Ocean High Contrast"
 }

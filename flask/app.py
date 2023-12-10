@@ -207,6 +207,7 @@ def user_registration_requests():
         # which function to use to get registration requests
         valid, output = chaincode(
             ['queryUnverifiedUsers', 'admin@ashoka.edu.in', 'university'])
+        reg_requests = ""
         if valid:
             if output.get('message') == 'success':
                 reg_requests = output.get('response')
