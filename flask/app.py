@@ -55,6 +55,7 @@ class User(UserMixin):
         # self.password = password
         # self.user_type = user_type
 
+
 @login_manager.user_loader
 def load_user(user_id):
     # valid, user_data = chaincode(["loginUser", user_id, password, type])
@@ -125,7 +126,7 @@ def login():
                     session['email_id'] = email_id
                     response = output.get('response')
                     session['type'] = type
-                    login_user('email_id')
+                    login_user(User(email_id))
                     # session['type'] = response.get('type')
                     flash("Login Successful", "success")
                     return redirect(url_for('display_requests'))

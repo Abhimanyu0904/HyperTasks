@@ -237,14 +237,15 @@ class Feedback extends Contract {
     async addRequest(ctx, description, user_type) {
         console.info("=============== START : addRequest ===============");
         let required_confirmations = 0;
-        const ret = {message: FAILURE_MSG};
+        const ret = {message: FAILURE_MSG, response: ""};
         console.log(`function arguments: description: ${description}, user_type: ${user_type}`);
 
         ++requestCounter;
         const key = ctx.stub.createCompositeKey(REQUEST_KEY_IDENTIFIER, [
             user_type,
-            requestCounter,
+            requestCounter.toString(),
         ]);
+        ret.response = key;
         console.log(`key: ${key}`);
 
         switch (user_type){
