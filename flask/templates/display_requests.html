@@ -61,7 +61,7 @@
                                 <div class="text-center">
                                     <span>Confirmation Status</span>
                                     <br><br>
-                                    {%if request.get('confirmed') == 'true'%}
+                                    {%if request.get('confirmed') == True%}
                                     <span class="fs-4 fw-bold">Confirmed</span>
                                     {%else%}
                                     <span class="fs-4 fw-bold">Unconfirmed</span>
@@ -107,7 +107,7 @@
                                     <form method="post"
                                         action="{{url_for('view_history')}}">
                                         {{view_history_form.csrf_token}}
-                                        {% if request.get('confirmed') == 'true' %}
+                                        {% if request.get('confirmed') == True %}
                                         {{view_history_form.view_history(class="btn
                                         btn-danger")}}
                                         {%else%}
