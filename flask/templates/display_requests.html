@@ -78,7 +78,7 @@
                                                 {{confirm_request_form.csrf_token}}
                                                 {{confirm_request_form.request_key(value
                                                 = request.get('key'))}}
-                                                {% if request.get('status') == 'implemented') or request.get('status') == 'dropped') %}
+                                                {% if (request.get('status') == 'implemented') or (request.get('status') == 'dropped') %}
                                                 {{confirm_request_form.confirm(class="btn
                                                 btn-success disabled")}}
                                                 {%else%}
