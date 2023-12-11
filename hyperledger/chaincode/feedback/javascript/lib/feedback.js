@@ -136,6 +136,7 @@ class Feedback extends Contract {
 
             const ashoka = {
                 ashoka_id: "0000000000",
+                deleted: false,
                 email: ADMIN_EMAIL,
                 name: "ashoka",
                 password: crypto
