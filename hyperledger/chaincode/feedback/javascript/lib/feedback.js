@@ -263,7 +263,10 @@ class Feedback extends Contract {
             return Buffer.from(JSON.stringify(ret));
         }
 
-        const now = ctx.stub.getDateTimestamp().getTime(),
+        const now = ctx.stub
+                .getDateTimestamp()
+                .getTime()
+                .toLocaleString(LOCALE, DATE_OPTIONS),
             // create a new request asset
             request = {
                 confirmations: 0,
@@ -321,17 +324,10 @@ class Feedback extends Contract {
                 try {
                     const request = JSON.parse(res.value.value.toString("utf8"));
                     console.log(`request: ${JSON.stringify(request, null, 2)}`);
-                    if (confirmed === "all"){
-                        // convert epoch in ms to IST
-                        request.created_at = new Date(request.created_at).toLocaleString(LOCALE, DATE_OPTIONS);
-                        request.updated_at = new Date(request.updated_at).toLocaleString(LOCALE, DATE_OPTIONS);
+                    if (confirmed === "all")
                         ret.response.push(request);
-                    } else if (`${request.confirmed}` === confirmed){
-                        // convert epoch in ms to IST
-                        request.created_at = new Date(request.created_at).toLocaleString(LOCALE, DATE_OPTIONS);
-                        request.updated_at = new Date(request.updated_at).toLocaleString(LOCALE, DATE_OPTIONS);
+                    else if (`${request.confirmed}` === confirmed)
                         ret.response.push(request);
-                    }
                 } catch (err) {
                     console.error(err);
                     console.error(res.value.value.toString("utf8"));
@@ -392,7 +388,10 @@ class Feedback extends Contract {
             request.update_type = CONFIRMED;
             console.log(`request confirmed at ${request.confirmations}. required: ${request.required_confirmations}`);
         }
-        request.updated_at = ctx.stub.getDateTimestamp().getTime();
+        request.updated_at = ctx.stub
+            .getDateTimestamp()
+            .getTime()
+            .toLocaleString(LOCALE, DATE_OPTIONS);
         console.log(`updated request: ${JSON.stringify(request, null, 2)}`);
 
         // update request in the ledger
@@ -449,7 +448,10 @@ class Feedback extends Contract {
 
         request.status = status;
         request.update_type = STATUS;
-        request.updated_at = ctx.stub.getDateTimestamp().getTime();
+        request.updated_at = ctx.stub
+            .getDateTimestamp()
+            .getTime()
+            .toLocaleString(LOCALE, DATE_OPTIONS);
         console.log(`updated request: ${JSON.stringify(request, null, 2)}`);
 
         await ctx.stub.putState(key, Buffer.from(JSON.stringify(request)));
