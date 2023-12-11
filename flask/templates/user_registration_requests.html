@@ -7,9 +7,9 @@
                 <div class="text-center">
                     <br>
                     {% if filter == 'Student' %}
-                    <h1> Student registration requests </h1>
+                    <h1 class="display-5 fw-bold"> Student registration requests </h1>
                     {% else %}
-                    <h1> Faculty registration requests </h1>
+                    <h1 class="display-5 fw-bold"> Faculty registration requests </h1>
                     {% endif %}
                 </div>
                 <br><br>
@@ -18,35 +18,34 @@
                 <div class="card mb-4">
                     <div class="card-text p-4">
                         <div class="row align-items-center">
-                            <!-- Adjust the grid system to use whole numbers -->
                             <div class="col-md-2 text-center">
-                                <span>Name</span><br><br>
-                                <span class="fs-4 fw-bold">{{ reg_request.get('name') }}</span>
+                                <span class="fw-bold">Name</span><br><br>
+                                <span class="small">{{ reg_request.get('name') }}</span>
                             </div>
                             <div class="col-md-4 text-center">
-                                <span>Email</span><br><br>
-                                <span class="fs-4 fw-bold">{{ reg_request.get('email') }}</span>
+                                <span class="fw-bold">Email</span><br><br>
+                                <span class="small">{{ reg_request.get('email') }}</span>
                             </div>
                             <div class="col-md-2 text-center">
-                                <span>Ashoka ID</span><br><br>
-                                <span class="fs-4 fw-bold">{{ reg_request.get('ashoka_id') }}</span>
+                                <span class="fw-bold">Ashoka ID</span><br><br>
+                                <span class="small">{{ reg_request.get('ashoka_id') }}</span>
                             </div>
                             <div class="col-md-2 text-center">
-                                <span>Type</span><br><br>
-                                <span class="fs-4 fw-bold">{{ reg_request.get('type') }}</span>
+                                <span class="fw-bold">Type</span><br><br>
+                                <span class="small">{{ reg_request.get('type') }}</span>
                             </div>
                             <div class="col-md-2 text-center">
                                 <form method="post" action="{{ url_for('user_registration_requests') }}" class="mb-2">
                                     {{ accept_user_registration_request_form.csrf_token }}
                                     {{ accept_user_registration_request_form.email_id(value=reg_request.get('email')) }}
                                     {{ accept_user_registration_request_form.type(value=reg_request.get('type')) }}
-                                    {{ accept_user_registration_request_form.accept(class="btn btn-success") }}
+                                    <button type="submit" class="btn btn-success">{{ accept_user_registration_request_form.accept.label }}</button>
                                 </form>
                                 <form method="post" action="{{ url_for('user_registration_requests') }}">
                                     {{ reject_user_registration_request_form.csrf_token }}
                                     {{ reject_user_registration_request_form.email_id(value=reg_request.get('email')) }}
                                     {{ reject_user_registration_request_form.type(value=reg_request.get('type')) }}
-                                    {{ reject_user_registration_request_form.reject(class="btn btn-danger") }}
+                                    <button type="submit" class="btn btn-danger">{{ reject_user_registration_request_form.reject.label }}</button>
                                 </form>
                             </div>
                         </div>

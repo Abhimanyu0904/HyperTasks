@@ -335,6 +335,7 @@ def user_registration_requests():
 @app.route("/admin_display_requests", methods=['GET', 'POST'])
 def admin_display_requests():
     if 'admin_email' in session:
+        status = 'All'
         initiate_request_form = InitiateRequestForm()
         hold_request_form = HoldRequestForm()
         resume_request_form = ResumeRequestForm()
@@ -360,7 +361,8 @@ def admin_display_requests():
                 if valid:
                     if output.get('message') == "success":
                         flash("Request Initiated!", "success")
-                        return render_template("admin_display_requests.html", requests=output.get('response'), initiate_request_form=initiate_request_form, finish_request_form=finish_request_form, hold_request_form=hold_request_form, resume_request_form=resume_request_form, drop_request_form=drop_request_form, filter_student_requests_form=filter_student_requests_form, filter_faculty_requests_form=filter_faculty_requests_form)
+                        return redirect(request.referrer)
+                        # return render_template("admin_display_requests.html", requests=output.get('response'), status = status, initiate_request_form=initiate_request_form, finish_request_form=finish_request_form, hold_request_form=hold_request_form, resume_request_form=resume_request_form, drop_request_form=drop_request_form, filter_student_requests_form=filter_student_requests_form, filter_faculty_requests_form=filter_faculty_requests_form)
                     else:
                         flash(f"{output.get('error')}", "danger")
                 else:
@@ -374,7 +376,8 @@ def admin_display_requests():
                 if valid:
                     if output.get('message') == 'success':
                         flash("Request Completed!", "success")
-                        return render_template("admin_display_requests.html", requests=output.get('response'), initiate_request_form=initiate_request_form, finish_request_form=finish_request_form, hold_request_form=hold_request_form, resume_request_form=resume_request_form, drop_request_form=drop_request_form, filter_student_requests_form=filter_student_requests_form, filter_faculty_requests_form=filter_faculty_requests_form)
+                        return redirect(request.referrer)
+                        # return render_template("admin_display_requests.html", requests=output.get('response'), status = status, initiate_request_form=initiate_request_form, finish_request_form=finish_request_form, hold_request_form=hold_request_form, resume_request_form=resume_request_form, drop_request_form=drop_request_form, filter_student_requests_form=filter_student_requests_form, filter_faculty_requests_form=filter_faculty_requests_form)
                     else:
                         flash(f"{output.get('error')}", "danger")
                 else:
@@ -388,7 +391,8 @@ def admin_display_requests():
                 if valid:
                     if output.get('message') == 'success':
                         flash("Request On Hold!", "success")
-                        return render_template("admin_display_requests.html", requests=output.get('response'), initiate_request_form=initiate_request_form, finish_request_form=finish_request_form, hold_request_form=hold_request_form, resume_request_form=resume_request_form, drop_request_form=drop_request_form, filter_student_requests_form=filter_student_requests_form, filter_faculty_requests_form=filter_faculty_requests_form)
+                        return redirect(request.referrer)
+                        # return render_template("admin_display_requests.html", requests=output.get('response'), status = status, initiate_request_form=initiate_request_form, finish_request_form=finish_request_form, hold_request_form=hold_request_form, resume_request_form=resume_request_form, drop_request_form=drop_request_form, filter_student_requests_form=filter_student_requests_form, filter_faculty_requests_form=filter_faculty_requests_form)
                     else:
                         flash(f"{output.get('error')}", "danger")
                 else:
@@ -402,7 +406,8 @@ def admin_display_requests():
                 if valid:
                     if output.get('message') == 'success':
                         flash("Request Resumed!", "success")
-                        return render_template("admin_display_requests.html", requests=output.get('response'), initiate_request_form=initiate_request_form, finish_request_form=finish_request_form, hold_request_form=hold_request_form, resume_request_form=resume_request_form, drop_request_form=drop_request_form, filter_student_requests_form=filter_student_requests_form, filter_faculty_requests_form=filter_faculty_requests_form)
+                        return redirect(request.referrer)
+                        # return render_template("admin_display_requests.html", requests=output.get('response'), initiate_request_form=initiate_request_form, finish_request_form=finish_request_form, hold_request_form=hold_request_form, resume_request_form=resume_request_form, drop_request_form=drop_request_form, filter_student_requests_form=filter_student_requests_form, filter_faculty_requests_form=filter_faculty_requests_form)
                     else:
                         flash(f"{output.get('error')}", "danger")
                 else:
@@ -416,7 +421,8 @@ def admin_display_requests():
                 if valid:
                     if output.get('message') == 'success':
                         flash("Request Dropped!", "success")
-                        return render_template("admin_display_requests.html", requests=output.get('response'), initiate_request_form=initiate_request_form, finish_request_form=finish_request_form, hold_request_form=hold_request_form, resume_request_form=resume_request_form, drop_request_form=drop_request_form, filter_student_requests_form=filter_student_requests_form, filter_faculty_requests_form=filter_faculty_requests_form)
+                        return redirect(request.referrer)
+                        # return render_template("admin_display_requests.html", requests=output.get('response'), initiate_request_form=initiate_request_form, finish_request_form=finish_request_form, hold_request_form=hold_request_form, resume_request_form=resume_request_form, drop_request_form=drop_request_form, filter_student_requests_form=filter_student_requests_form, filter_faculty_requests_form=filter_faculty_requests_form)
                     else:
                         flash(f"{output.get('error')}", "danger")
                 else:

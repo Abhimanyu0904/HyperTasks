@@ -38,37 +38,7 @@
                                 >Admin Dashboard</a
                             >
                         </li>
-                        <li class="nav-item dropdown">
-                            <a
-                                class="nav-link dropdown-toggle"
-                                href="#"
-                                role="button"
-                                data-bs-toggle="dropdown"
-                                aria-expanded="false"
-                            >
-                                Requests
-                            </a>
-                            <ul class="dropdown-menu">
-                                <li>
-                                    <form
-                                        method="post"
-                                        action="{{url_for('admin_display_requests')}}"
-                                    >
-                                        {{filter_student_requests_form.csrf_token}}
-                                        {{filter_student_requests_form.student_requests(class="dropdown-item")}}
-                                    </form>
-                                </li>
-                                <li>
-                                    <form
-                                        method="post"
-                                        action="{{url_for('admin_display_requests')}}"
-                                    >
-                                        {{filter_faculty_requests_form.csrf_token}}
-                                        {{filter_faculty_requests_form.faculty_requests(class="dropdown-item")}}
-                                    </form>
-                                </li>
-                            </ul>
-                        </li>
+
 
                         <li class="nav-item dropdown">
                             <a
@@ -102,6 +72,38 @@
                             </ul>
                         </li>
 
+                        <li class="nav-item dropdown">
+                          <a
+                              class="nav-link dropdown-toggle"
+                              href="#"
+                              role="button"
+                              data-bs-toggle="dropdown"
+                              aria-expanded="false"
+                          >
+                              All Requests
+                          </a>
+                          <ul class="dropdown-menu">
+                              <li>
+                                  <form
+                                      method="post"
+                                      action="{{url_for('admin_display_requests')}}"
+                                  >
+                                      {{filter_student_requests_form.csrf_token}}
+                                      {{filter_student_requests_form.student_requests(class="dropdown-item")}}
+                                  </form>
+                              </li>
+                              <li>
+                                  <form
+                                      method="post"
+                                      action="{{url_for('admin_display_requests')}}"
+                                  >
+                                      {{filter_faculty_requests_form.csrf_token}}
+                                      {{filter_faculty_requests_form.faculty_requests(class="dropdown-item")}}
+                                  </form>
+                              </li>
+                          </ul>
+                      </li>
+
 
                         <li class="nav-item dropdown">
                           <a
@@ -111,7 +113,7 @@
                               data-bs-toggle="dropdown"
                               aria-expanded="false"
                           >
-                              Requests Not Started
+                              Not Started
                           </a>
                           <ul class="dropdown-menu">
                               <li>
@@ -145,7 +147,7 @@
                               data-bs-toggle="dropdown"
                               aria-expanded="false"
                           >
-                              Dropped Requests
+                              Dropped
                           </a>
                           <ul class="dropdown-menu">
                               <li>
@@ -178,7 +180,7 @@
                             data-bs-toggle="dropdown"
                             aria-expanded="false"
                         >
-                            Implemented Requests
+                            Implemented
                         </a>
                         <ul class="dropdown-menu">
                             <li>
@@ -212,7 +214,7 @@
                           data-bs-toggle="dropdown"
                           aria-expanded="false"
                       >
-                          Requests In Progress
+                          In Progress
                       </a>
                       <ul class="dropdown-menu">
                           <li>
@@ -247,7 +249,7 @@
                         data-bs-toggle="dropdown"
                         aria-expanded="false"
                     >
-                        Requests On Hold
+                        On Hold
                     </a>
                     <ul class="dropdown-menu">
                         <li>
@@ -255,8 +257,8 @@
                                 method="post"
                                 action="{{url_for('admin_display_requests')}}"
                             >
-                                {{filter_dropped_student_requests_form.csrf_token}}
-                                {{filter_dropped_student_requests_form.dropped_student_requests(class="dropdown-item")}}
+                                {{filter_on_hold_student_requests_form.csrf_token}}
+                                {{filter_on_hold_student_requests_form.on_hold_student_requests(class="dropdown-item")}}
                             </form>
                         </li>
                         <li>
@@ -264,8 +266,8 @@
                                 method="post"
                                 action="{{url_for('admin_display_requests')}}"
                             >
-                                {{filter_faculty_requests_form.csrf_token}}
-                                {{filter_faculty_requests_form.droppedfaculty_requests(class="dropdown-item")}}
+                                {{filter_on_hold_faculty_requests_form.csrf_token}}
+                                {{filter_on_hold_faculty_requests_form.on_hold_faculty_requests(class="dropdown-item")}}
                             </form>
                         </li>
                     </ul>

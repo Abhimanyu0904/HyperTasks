@@ -1,18 +1,17 @@
-{% extends "base.html" %} {% block content %}
+{% extends "base.html" %} 
+{% block content %}
 <section class="vh-100 mb-8">
     <div class="container h-100">
         <div class="row d-flex justify-content-center h-100">
             <div class="col">
                 <div class="text-center">
                     <br>
-                    <h1> History for Request ID: {{key}} </h1>
-
-                <br>
+                    <h1 class="display-5 fw-bold"> History for Request ID: {{ key }} </h1>
+                </div>
                 <br>
                 <div class="d-flex justify-content-center">
                     <a href="{{ url_for('display_requests') }}">
-                        <button type="button" class="btn btn-dark btn-lg me-2">Go Back
-                            </button>
+                        <button type="button" class="btn btn-dark btn-lg me-2">Go Back</button>
                     </a>
                 </div>
                 <br>
@@ -21,44 +20,38 @@
                 <div class="card mb-4">
                     <div class="card-text p-4">
                         <div class="row align-items-center">
-    
                             <div class="col-md-4 d-flex justify-content-center">
                                 <div class="text-center">
-                                    <span>Description</span>
-                                    <br><br>
-                                    <span class="fs-4 fw-bold">{{hist.description}}</span>
+                                    <span class="fw-bold">Description</span><br><br>
+                                    <span class="small">{{ hist.description }}</span>
                                 </div>
                             </div>
                             <div class="col-md-2 d-flex justify-content-center">
                                 <div class="text-center">
-                                    <span>Confirmation Status</span>
-                                    <br><br>
-                                    {%if hist.get('confirmed') == True%}
-                                    <span class="fs-4 fw-bold">Confirmed</span>
-                                    {%else%}
-                                    <span class="fs-4 fw-bold">Unconfirmed</span>
-                                    {%endif%}
+                                    <span class="fw-bold">Confirmation Status</span><br><br>
+                                    {% if hist.get('confirmed') %}
+                                    <span class="small">Confirmed</span>
+                                    {% else %}
+                                    <span class="small">Unconfirmed</span>
+                                    {% endif %}
                                 </div>
                             </div>
                             <div class="col-md-2 d-flex justify-content-center">
                                 <div class="text-center">
-                                    <span>Status</span>
-                                    <br><br>
-                                    <span class="fs-4 fw-bold">{{hist.get('status')}}</span>
+                                    <span class="fw-bold">Status</span><br><br>
+                                    <span class="small">{{ hist.get('status') }}</span>
                                 </div>
                             </div>
                             <div class="col-2 d-flex justify-content-center">
                                 <div class="text-center">
-                                    <span>No. of Confirmations</span>
-                                    <br><br>
-                                    <span class="fs-4 fw-bold">{{hist.get('confirmations')}}</span>
+                                    <span class="fw-bold">No. of Confirmations</span><br><br>
+                                    <span class="small">{{ hist.get('confirmations') }}</span>
                                 </div>
                             </div>
                             <div class="col-md-2 d-flex justify-content-center">
                                 <div class="text-center">
-                                    <span>Date Updated</span>
-                                    <br><br>
-                                    <span class="fs-4 fw-bold">{{hist.get('updated_at')}}</span>
+                                    <span class="fw-bold">Date Updated</span><br><br>
+                                    <span class="small">{{ hist.get('updated_at') }}</span>
                                 </div>
                             </div>
                         </div>
@@ -67,5 +60,6 @@
                 {% endfor %}
             </div>
         </div>
-    </section>
-    {%endblock content%}
+    </div>
+</section>
+{% endblock content %}

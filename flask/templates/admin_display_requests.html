@@ -5,10 +5,11 @@
             <div class="col">
                 <div class="text-center">
                     <br>
+                    
                     {%if filter == 'Student' %}
-                    <h1> Student requests </h1>
+                    <h1> {{status.title()}} Student requests </h1>
                     {%else%}
-                    <h1> Faculty requests </h1>
+                    <h1> {{status.title()}} Faculty requests </h1>
                     {%endif%}
                 </div>
 
@@ -37,41 +38,41 @@
                                 <div class="col-md-2 d-flex
                                     justify-content-center">
                                     <div class="text-center">
-                                        <span>Request ID</span>
+                                        <span class="fw-bold">Request ID</span>
                                         <br><br>
-                                        <span class="fs-4 fw-bold">{{request.get('key')}}</span>
+                                        <span class="small">{{request.get('key')}}</span>
                                     </div>
                                 </div>
                                 <div class="col-md-2 d-flex
                                     justify-content-center">
                                     <div class="text-center">
-                                        <span>Description</span>
+                                        <span class="fw-bold">Description</span>
                                         <br><br>
-                                        <span class="fs-4 fw-bold">{{request.get('description')}}</span>
+                                        <span class="small">{{request.get('description')}}</span>
                                     </div>
                                 </div>
                                 <div class="col-md-2 d-flex
                                     justify-content-center">
                                     <div class="text-center">
-                                        <span>Status</span>
+                                        <span class="fw-bold">Status</span>
                                         <br><br>
-                                        <span class="fs-4 fw-bold">{{request.get('status')}}</span>
+                                        <span class="small">{{request.get('status')}}</span>
                                     </div>
                                 </div>
                                 <div class="col-md-2 d-flex
                                     justify-content-center">
                                     <div class="text-center">
-                                        <span>No. of Confirmations</span>
+                                        <span class="fw-bold">No. of Confirmations</span>
                                         <br><br>
-                                        <span class="fs-4 fw-bold">{{request.get('confirmations')}}</span>
+                                        <span class="small">{{request.get('confirmations')}}</span>
                                     </div>
                                 </div>
                                 <div class="col-md-2 d-flex
                                     justify-content-center">
                                     <div class="text-center">
-                                        <span>Date Created</span>
+                                        <span class="fw-bold">Date Created</span>
                                         <br><br>
-                                        <span class="fs-4 fw-bold">{{request.get('created_at')}}</span>
+                                        <span class="small">{{request.get('created_at')}}</span>
                                     </div>
                                 </div>
                                 <div class="col-md-2 d-flex
@@ -168,41 +169,41 @@
                                     <div class="col-md-2 d-flex
                                         justify-content-center">
                                         <div class="text-center">
-                                            <span>Request ID</span>
+                                            <span class="fw-bold">Request ID</span>
                                             <br><br>
-                                            <span class="fs-4 fw-bold">{{request.get('key')}}</span>
+                                            <span class="small">{{request.get('key')}}</span>
                                         </div>
                                     </div>
                                     <div class="col-md-2 d-flex
                                         justify-content-center">
                                         <div class="text-center">
-                                            <span>Description</span>
+                                            <span class="fw-bold">Description</span>
                                             <br><br>
-                                            <span class="fs-4 fw-bold">{{request.get('description')}}</span>
+                                            <span class="small">{{request.get('description')}}</span>
                                         </div>
                                     </div>
                                     <div class="col-md-2 d-flex
                                         justify-content-center">
                                         <div class="text-center">
-                                            <span>Status</span>
+                                            <span class="fw-bold">Status</span>
                                             <br><br>
-                                            <span class="fs-4 fw-bold">{{request.get('status')}}</span>
+                                            <span class="small">{{request.get('status')}}</span>
                                         </div>
                                     </div>
                                     <div class="col-md-2 d-flex
                                         justify-content-center">
                                         <div class="text-center">
-                                            <span>No. of Confirmations</span>
+                                            <span class="fw-bold">No. of Confirmations</span>
                                             <br><br>
-                                            <span class="fs-4 fw-bold">{{request.get('confirmations')}}</span>
+                                            <span class="small">{{request.get('confirmations')}}</span>
                                         </div>
                                     </div>
                                     <div class="col-md-2 d-flex
                                         justify-content-center">
                                         <div class="text-center">
-                                            <span>Date Created</span>
+                                            <span class="fw-bold">Date Created</span>
                                             <br><br>
-                                            <span class="fs-4 fw-bold">{{request.get('created_at')}}</span>
+                                            <span class="small">{{request.get('created_at')}}</span>
                                         </div>
                                     </div>
                                     <div class="col-md-2 d-flex

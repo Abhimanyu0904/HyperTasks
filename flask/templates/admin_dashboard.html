@@ -16,14 +16,12 @@
     <!-- Second Button (inside a form) -->
     <form method="post" action="{{ url_for('admin_display_requests') }}" style="margin: 0;">
         {{ filter_student_requests_form.csrf_token }}
-        {{ filter_student_requests_form.filter(value='Student') }}
         <button type="submit" class="btn btn-warning btn-lg" style="padding: 20px 40px; font-size: 24px;">{{ filter_student_requests_form.student_requests.label }}</button>
     </form>
 
     <!-- Third Button (inside another form) -->
     <form method="post" action="{{ url_for('admin_display_requests') }}" style="margin: 0;">
         {{ filter_faculty_requests_form.csrf_token }}
-        {{ filter_faculty_requests_form.filter(value='Faculty') }}
         <button type="submit" class="btn btn-danger btn-lg" style="padding: 20px 40px; font-size: 24px;">{{ filter_faculty_requests_form.faculty_requests.label }}</button>
     </form>
 

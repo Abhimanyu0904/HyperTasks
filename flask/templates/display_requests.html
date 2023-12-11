@@ -1,4 +1,5 @@
-{% extends "base.html" %} {% block content %}
+{% extends "base.html" %} 
+{% block content %}
 <section class="vh-100 mb-8">
     <div class="container h-100">
         <div class="row d-flex justify-content-center h-100">
@@ -6,102 +7,85 @@
                 <div class="text-center">
                     <br>
                     {% if filter == "All" %}
-                    <h1> All {{session['type']}} requests </h1>
-                    {%elif filter == 'Unconfirmed' %}
-                    <h1> Unconfirmed {{session['type']}} requests </h1>
-                    {%else%}
-                    <h1> Confirmed {{session['type']}} requests </h1>
-                    {%endif%}
+                    <h1 class="display-5 fw-bold"> All {{ session['type'] }} requests </h1>
+                    {% elif filter == 'Unconfirmed' %}
+                    <h1 class="display-5 fw-bold"> Unconfirmed {{ session['type'] }} requests </h1>
+                    {% else %}
+                    <h1 class="display-5 fw-bold"> Confirmed {{ session['type'] }} requests </h1>
+                    {% endif %}
                 </div>
-                <br>
                 <br>
                 <div class="d-flex justify-content-center">
                     <a href="{{ url_for('add_request') }}">
-                        <button type="button" class="btn btn-dark btn-lg me-2">Add
-                            New Request</button>
+                        <button type="button" class="btn btn-dark btn-lg me-2">Add New Request</button>
                     </a>
                 </div>
-                <br>
-                <br>
-                <br>
+                <br><br><br>
 
                 {% for request in requests %}
                 <div class="card mb-4">
                     <div class="card-text p-4">
                         <div class="row align-items-center">
-
                             <div class="col-md-2 d-flex justify-content-center">
                                 <div class="text-center">
-                                    <span>Description</span>
+                                    <span class="fw-bold">Description</span>
                                     <br><br>
-                                    <span class="fs-4 fw-bold">{{request.get('description')}}</span>
+                                    <span class="small">{{ request.get('description') }}</span>
                                 </div>
                             </div>
                             <div class="col-md-2 d-flex justify-content-center">
                                 <div class="text-center">
-                                    <span>Confirmation Status</span>
+                                    <span class="fw-bold">Confirmation Status</span>
                                     <br><br>
-                                    {%if request.get('confirmed') == True%}
-                                    <span class="fs-4 fw-bold">Confirmed</span>
-                                    {%else%}
-                                    <span class="fs-4 fw-bold">Unconfirmed</span>
-                                    {%endif%}
+                                    {% if request.get('confirmed') %}
+                                    <span class="small">Confirmed</span>
+                                    {% else %}
+                                    <span class="small">Unconfirmed</span>
+                                    {% endif %}
                                 </div>
                             </div>
                             <div class="col-md-2 d-flex justify-content-center">
                                 <div class="text-center">
-                                    <span>Status</span>
+                                    <span class="fw-bold">Status</span>
                                     <br><br>
-                                    <span class="fs-4 fw-bold">{{request.get('status')}}</span>
+                                    <span class="small">{{ request.get('status') }}</span>
                                 </div>
                             </div>
                             <div class="col-2 d-flex justify-content-center">
                                 <div class="text-center">
-                                    <span>No. of Confirmations</span>
+                                    <span class="fw-bold">No. of Confirmations</span>
                                     <br><br>
-                                    <span class="fs-4 fw-bold">{{request.get('confirmations')}}</span>
+                                    <span class="small">{{ request.get('confirmations') }}</span>
                                 </div>
                             </div>
                             <div class="col-md-2 d-flex justify-content-center">
                                 <div class="text-center">
-                                    <span>Date Created</span>
+                                    <span class="fw-bold">Date Created</span>
                                     <br><br>
-                                    <span class="fs-4 fw-bold">{{request.get('created_at')}}</span>
+                                    <span class="small">{{ request.get('created_at') }}</span>
                                 </div>
                             </div>
                             <div class="col-md-2 d-flex justify-content-center">
                                 <div class="text-center">
                                     <div class="container">
                                         <div class="row">
-                                            <form method="post"
-                                                action="{{url_for('confirm_request')}}">
-                                                {{confirm_request_form.csrf_token}}
-                                                {{confirm_request_form.request_key(value
-                                                = request.get('key'))}}
-                                                {% if (request.get('status') == 'implemented') or (request.get('status') == 'dropped') %}
-                                                {{confirm_request_form.confirm(class="btn
-                                                btn-success disabled")}}
-                                                {%else%}
-                                                {{confirm_request_form.confirm(class="btn
-                                                btn-success")}}
-                                                {%endif%}
+                                            <form method="post" action="{{ url_for('confirm_request') }}">
+                                                {{ confirm_request_form.csrf_token }}
+                                                {{ confirm_request_form.request_key(value=request.get('key')) }}
+                                                {% if request.get('status') == 'implemented' or request.get('status') == 'dropped' %}
+                                                <button type="submit" class="btn btn-success disabled">Confirm</button>
+                                                {% else %}
+                                                <button type="submit" class="btn btn-success">Confirm</button>
+                                                {% endif %}
                                             </form>
                                         </div>
                                     </div>
                                     <br>
-                                        {%if request.get('confirmed') == True%}
-                                        <a
-                                          class="btn btn-danger"
-                                          href="{{ url_for( 'view_history', key = request.get('key') ) }}">
-                                          View History
-                                        </a>
-                                        {%else%}
-                                        <a
-                                        class="btn btn-danger disabled"
-                                        href="{{ url_for( 'view_history', key = request.get('key') ) }}">
-                                        View History
-                                      </a>
-                                      {%endif%}
+                                    {% if request.get('confirmed') %}
+                                    <a class="btn btn-danger" href="{{ url_for('view_history', key=request.get('key')) }}">View History</a>
+                                    {% else %}
+                                    <a class="btn btn-danger disabled" href="{{ url_for('view_history', key=request.get('key')) }}">View History</a>
+                                    {% endif %}
                                 </div>
                             </div>
                         </div>
@@ -110,5 +94,6 @@
                 {% endfor %}
             </div>
         </div>
-    </section>
-    {%endblock content%}
+    </div>
+</section>
+{% endblock content %}
