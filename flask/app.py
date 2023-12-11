@@ -256,16 +256,16 @@ def user_registration_requests():
                     if output.get('message') == "success":
                         valid2 = send_email(email, True)
                         if valid2:
-                            flash(
-                                "Registration Request Accepted! Email Sent Successfully", "success")
+                            flash("Registration Request Accepted! Email Sent Successfully", "success")
+                            return redirect(url_for('user_registration_requests', type = type))
                         else:
-                            flash(
-                                "Registration Request Accepted but some issue in sending the email!", 'danger')
+                            flash("Registration Request Accepted but some issue in sending the email!", 'danger')
+                            return redirect(url_for('user_registration_requests', type = type))
                     else:
                         flash(f"{output.get('error')}", "danger")
                 else:
                     flash("Something went wrong. Please try again.", "danger")
-                return redirect(request.referrer)
+                return redirect(url_for('user_registration_requests', type = type))
         if request.method == 'POST' and 'reject' in request.form:
             if reject_user_registration_request_form.validate_on_submit():
                 email = reject_user_registration_request_form.email_id.data
@@ -276,15 +276,15 @@ def user_registration_requests():
                     if output.get('message') == "success":
                         valid2 = send_email(email, False)
                         if valid2:
-                            flash(
-                                "Registration Request Rejected! Email Sent Successfully", "success")
+                            flash("Registration Request Rejected! Email Sent Successfully", "success")
+                            return redirect(url_for('user_registration_requests'), type = type)
                         else:
-                            flash(
-                                "Registration Request Rejected but some issue in sending the email!", 'danger')
-                        return redirect(request.referrer)
+                            flash("Registration Request Rejected but some issue in sending the email!", 'danger')
+                            return redirect(url_for('user_registration_requests'), type = type)
+                        # return redirect(request.referrer)
                     else:
                         flash(f"{output.get('error')}", "danger")
-                        return redirect(request.referrer)
+                        return redirect(url_for('user_registration_requests'), type = type)
                 else:
                     flash("Something went wrong. Please try again.", "danger")
                 return redirect(request.referrer)
@@ -321,13 +321,14 @@ def user_registration_requests():
                     flash("Something went wrong. Please try again.", "danger")
                 return redirect(request.referrer)
 
+        type = request.args.get('type', 'student')
         valid, output = chaincode(
-            ['queryUnverifiedUsers', 'admin@ashoka.edu.in', 'student'])
+            ['queryUnverifiedUsers', 'admin@ashoka.edu.in', type])
 
         if valid:
             if output.get('message') == 'success':
                 reg_requests = output.get('response')
-        return render_template("user_registration_requests.html", reg_requests=reg_requests, accept_user_registration_request_form=accept_user_registration_request_form, reject_user_registration_request_form=reject_user_registration_request_form, filter='Student')
+        return render_template("user_registration_requests.html", reg_requests=reg_requests, accept_user_registration_request_form=accept_user_registration_request_form, reject_user_registration_request_form=reject_user_registration_request_form, filter=type.title())
     else:
         flash("You have to be an admin to access this page. Please login first", "danger")
         return redirect(url_for('admin_login'))
