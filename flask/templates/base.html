@@ -89,7 +89,8 @@
                                         action="{{url_for('user_registration_requests')}}"
                                     >
                                         {{filter_student_registration_requests_form.csrf_token}}
-                                        {{filter_student_registration_requests_form.filter(value = 'Student')}}
+                                        {{filter_student_registration_requests_form.filter(value =
+                                        'Student')}}
                                         {{filter_student_registration_requests_form.student_registration_requests(class="dropdown-item")}}
                                     </form>
                                 </li>
@@ -99,7 +100,8 @@
                                         action="{{url_for('user_registration_requests')}}"
                                     >
                                         {{filter_faculty_registration_requests_form.csrf_token}}
-                                        {{filter_faculty_registration_requests_form.filter(value = 'Faculty')}}
+                                        {{filter_faculty_registration_requests_form.filter(value =
+                                        'Faculty')}}
                                         {{filter_faculty_registration_requests_form.faculty_registration_requests(class="dropdown-item")}}
                                     </form>
                                 </li>
@@ -118,53 +120,54 @@
                         {%else%}
 
                         <li class="nav-item">
-                            <a class="nav-link active" aria-current="page" href="{{url_for('home')}}">Home</a>
+                            <a
+                                class="nav-link active"
+                                aria-current="page"
+                                href="{{url_for('home')}}"
+                                >Home</a
+                            >
                         </li>
 
-                        {%if session['email']%}
+                        {%if session['email_id']%}
                         <li class="nav-item dropdown">
-                          <a
-                              class="nav-link dropdown-toggle"
-                              href="#"
-                              role="button"
-                              data-bs-toggle="dropdown"
-                              aria-expanded="false"
-                          >
-                              Requests
-                          </a>
-                          <ul class="dropdown-menu">
-                            <li><a class="dropdown-item" href="{{url_for('display_requests')}}">All Requests</a></li>
-                              <li>
-                                  <form
-                                      method="post"
-                                      action="{{url_for('display_requests')}}"
-                                  >
-                                      {{filter_confirmed_requests_form.csrf_token}}
-                                      {{filter_confirmed_requests_form.confirmed_requests(class="dropdown-item")}}
-                                  </form>
-                              </li>
-                              <li>
-                                  <form
-                                      method="post"
-                                      action="{{url_for('display_requests')}}"
-                                  >
-                                      {{filter_unconfirmed_requests_form.csrf_token}}
-                                      {{filter_unconfirmed_requests_form.unconfirmed_requests(class="dropdown-item")}}
-                                  </form>
-                              </li>
-                          </ul>
-                      </li>
+                            <a
+                                class="nav-link dropdown-toggle"
+                                href="#"
+                                role="button"
+                                data-bs-toggle="dropdown"
+                                aria-expanded="false"
+                            >
+                                Requests
+                            </a>
+                            <ul class="dropdown-menu">
+                                <li>
+                                    <a class="dropdown-item" href="{{url_for('display_requests')}}"
+                                        >All Requests</a
+                                    >
+                                </li>
+                                <li>
+                                    <form method="post" action="{{url_for('display_requests')}}">
+                                        {{filter_confirmed_requests_form.csrf_token}}
+                                        {{filter_confirmed_requests_form.confirmed_requests(class="dropdown-item")}}
+                                    </form>
+                                </li>
+                                <li>
+                                    <form method="post" action="{{url_for('display_requests')}}">
+                                        {{filter_unconfirmed_requests_form.csrf_token}}
+                                        {{filter_unconfirmed_requests_form.unconfirmed_requests(class="dropdown-item")}}
+                                    </form>
+                                </li>
+                            </ul>
+                        </li>
                         <li class="nav-item">
-                          <a
-                              class="nav-link active"
-                              aria-current="page"
-                              href="{{ url_for('logout') }}"
-                              >Logout</a
-                          >
-                      </li>
-                      {%endif%}
-
-                        {%endif%}
+                            <a
+                                class="nav-link active"
+                                aria-current="page"
+                                href="{{ url_for('logout') }}"
+                                >Logout</a
+                            >
+                        </li>
+                        {%endif%} {%endif%}
                     </ul>
                 </div>
             </div>
