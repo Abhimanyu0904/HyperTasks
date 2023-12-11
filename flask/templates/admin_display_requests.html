@@ -17,9 +17,7 @@
                 <br>
                 <br>
 
-                {%if status == 'in progress' or status == 'implemented' or
-                status == 'dropped' or status == 'on hold' or status == 'not
-                started'%}
+                {%if status == 'in progress' or status == 'implemented' or status == 'dropped' or status == 'on hold' or status == 'not started'%}
 
 
                 {% for request in requests %}
@@ -87,7 +85,7 @@
                                                     {{initiate_request_form.request_key(value
                                                     = request.key)}}
                                                     {{initiate_request_form.type(value
-                                                        = request.get('type'))}}
+                                                        = request.get('user_type'))}}
                                                     {%if request.get('status')== 'not started'%}
                                                     {{initiate_request_form.initiate(class="btn
                                                     btn-success")}}
@@ -106,7 +104,7 @@
                                             {{hold_request_form.request_key(value
                                             = request.get('key'))}}
                                             {{hold_request_form.type(value
-                                                = request.get('type'))}}
+                                                = request.get('user_type'))}}
                                             {%if request.get('status') == 'in progress'%}
                                             {{hold_request_form.put_on_hold(class="btn
                                             btn-warning")}}
@@ -122,7 +120,7 @@
                                             {{resume_request_form.request_key(value
                                             = request.get('key'))}}
                                             {{resume_request_form.type(value
-                                                = request.get('type'))}}
+                                                = request.get('user_type'))}}
                                             {%if request.get('status') == 'on hold'%}
                                             {{resume_request_form.resume(class="btn
                                             btn-warning")}}
@@ -138,9 +136,8 @@
                                             {{finish_request_form.request_key(value
                                             = request.get('key'))}}
                                             {{finish_request_form.type(value
-                                                = request.get('type'))}}
-                                            {%if request.get('status') == "in
-                                            progress"%}
+                                                = request.get('user_type'))}}
+                                            {%if request.get('status') == "in progress"%}
                                             {{finish_request_form.finish(class="btn
                                             btn-danger")}}
                                             {%else%}
@@ -156,7 +153,7 @@
                                             {{drop_request_form.request_key(value
                                             = request.get('key'))}}
                                             {{drop_request_form.type(value
-                                                = request.get('type'))}}
+                                                = request.get('user_type'))}}
                                             {%if request.get('status') == "dropped"%}
                                             {{drop_request_form.drop(class="btn
                                             btn-danger disabled")}}
@@ -261,7 +258,7 @@
                                                 {{hold_request_form.request_key(value
                                                 = request.get('key'))}}
                                                 {{hold_request_form.type(value
-                                                    = request.get('type'))}}
+                                                    = request.get('user_type'))}}
                                                 {%if request.get('status') == 'in progress'%}
                                                 {{hold_request_form.put_on_hold(class="btn
                                                 btn-warning")}}
@@ -277,7 +274,7 @@
                                                 {{resume_request_form.request_key(value
                                                 = request.get('key'))}}
                                                 {{resume_request_form.type(value
-                                                    = request.get('type'))}}
+                                                    = request.get('user_type'))}}
                                                 {%if request.get('status') == 'on hold'%}
                                                 {{resume_request_form.resume(class="btn
                                                 btn-warning")}}
@@ -295,11 +292,9 @@
                                                 {{finish_request_form.request_key(value
                                                 = request.get('key'))}}
                                                 {{finish_request_form.type(value
-                                                    = request.get('type'))}}
-                                                {%if request.get('status') ==
-                                                "in progress"%}
-                                                {{finish_request_form.finish(class="btn
-                                                btn-danger")}}
+                                                    = request.get('user_type'))}}
+                                                {%if request.get('status') == "in progress"%}
+                                                {{finish_request_form.finish(class="btn btn-danger")}}
                                                 {%else%}
                                                 {{finish_request_form.finish(class="btn
                                                 btn-danger disabled")}}
@@ -314,7 +309,7 @@
                                                 {{drop_request_form.request_key(value
                                                 = request.get('key'))}}
                                                 {{drop_request_form.type(value
-                                                    = request.get('type'))}}
+                                                    = request.get('user_type'))}}
                                                 {%if request.get('status') == "dropped"%}
                                                 {{drop_request_form.drop(class="btn
                                                 btn-danger disabled")}}

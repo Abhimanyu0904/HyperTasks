@@ -246,7 +246,9 @@ def user_registration_requests():
             if accept_user_registration_request_form.validate_on_submit():
                 email = accept_user_registration_request_form.email_id.data
                 type = accept_user_registration_request_form.type.data
+                print("__________________________")
                 print(type)
+                print("__________________________")
                 valid, output = chaincode(
                     ["validateUser", 'admin@ashoka.edu.in', email, type])
                 print(output)
@@ -379,6 +381,9 @@ def admin_display_requests():
             if finish_request_form.validate_on_submit():
                 request_key = finish_request_form.request_key.data
                 type = initiate_request_form.type.data
+                print("__________________________")
+                print(type)
+                print("__________________________")
                 valid, output = chaincode(
                     ["updateRequest", session['admin_email'], "Request Implemented", "implemented", request_key])
                 if valid:
@@ -402,6 +407,9 @@ def admin_display_requests():
             if hold_request_form.validate_on_submit():
                 request_key = hold_request_form.request_key.data
                 type = initiate_request_form.type.data
+                print("__________________________")
+                print(type)
+                print("__________________________")
                 valid, output = chaincode(
                     ["updateRequest", session['admin_email'], "Request On Hold", "on hold", request_key])
                 if valid:
@@ -426,6 +434,9 @@ def admin_display_requests():
             if resume_request_form.validate_on_submit():
                 request_key = resume_request_form.request_key.data
                 type = initiate_request_form.type.data
+                print("__________________________")
+                print(type)
+                print("__________________________")
                 valid, output = chaincode(
                     ["updateRequest", session['admin_email'], "Request Resumed", "in progress", request_key])
                 if valid:
@@ -638,7 +649,9 @@ def admin_display_requests():
                 return redirect(url_for('admin_display_requests', type='faculty'))
         
         type = request.args.get('type', 'student')
+        print("__________________________")
         print(type)
+        print("__________________________")
 
         # by default student requests open first
         valid, output = chaincode(
