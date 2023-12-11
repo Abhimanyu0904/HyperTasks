@@ -21,6 +21,7 @@ Create a new user of a given type: student, faculty
 ```json
 {
     "ashoka_id": String, // Ashoka ID
+    "deleted": Boolean, // is a user deleted
     "email": String, // email id (should be Ashoka Email ID)
     "name": String, // user name
     "password": String, // hashed password of the user
