@@ -509,7 +509,7 @@ def display_requests():
         if output.get('message') == 'success':
             print('___________________________________________________________')
             print(output)
-            return render_template("display_requests.html", requests=output.get('response'), filter_confirmed_requests_form=filter_confirmed_requests_form, filter_unconfirmed_requests_form=filter_unconfirmed_requests_form, view_history_form=view_history_form, confirm_request_form=confirm_request_form)
+            return render_template("display_requests.html", requests=output.get('response'), filter_confirmed_requests_form=filter_confirmed_requests_form, filter_unconfirmed_requests_form=filter_unconfirmed_requests_form, view_history_form=view_history_form, confirm_request_form=confirm_request_form, filter = 'All')
         else:
             flash(f"{output.get('error')}", "danger")
     else:
