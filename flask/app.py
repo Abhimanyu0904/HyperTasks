@@ -277,14 +277,14 @@ def user_registration_requests():
                         valid2 = send_email(email, False)
                         if valid2:
                             flash("Registration Request Rejected! Email Sent Successfully", "success")
-                            return redirect(url_for('user_registration_requests'), type = type)
+                            return redirect(url_for('user_registration_requests', type = type))
                         else:
                             flash("Registration Request Rejected but some issue in sending the email!", 'danger')
-                            return redirect(url_for('user_registration_requests'), type = type)
+                            return redirect(url_for('user_registration_requests', type = type))
                         # return redirect(request.referrer)
                     else:
                         flash(f"{output.get('error')}", "danger")
-                        return redirect(url_for('user_registration_requests'), type = type)
+                        return redirect(url_for('user_registration_requests', type = type))
                 else:
                     flash("Something went wrong. Please try again.", "danger")
                 return redirect(request.referrer)
