@@ -261,7 +261,7 @@ def user_registration_requests():
                         flash(f"{output.get('error')}", "danger")
                 else:
                     flash("Something went wrong. Please try again.", "danger")
-                return redirect(url_for('user_registration_requests'))
+                return redirect(redirect.referrer)
         if request.method == 'POST' and 'reject' in request.form:
             if reject_user_registration_request_form.validate_on_submit():
                 email = reject_user_registration_request_form.email_id.data
@@ -315,14 +315,11 @@ def user_registration_requests():
                         flash(f"{output.get('error')}", "danger")
                 else:
                     flash("Something went wrong. Please try again.", "danger")
-                return redirect(url_for('user_registration_requests'))
-            else:
-                print(filter_faculty_registration_requests_form.errors)
+                return redirect(redirect.referrer)
 
-        # which function to use to get registration requests
         valid, output = chaincode(
             ['queryUnverifiedUsers', 'admin@ashoka.edu.in', 'student'])
-        # reg_requests = ""
+
         if valid:
             if output.get('message') == 'success':
                 reg_requests = output.get('response')
@@ -436,7 +433,7 @@ def admin_display_requests():
                     ['queryRequests', 'admin@ashoka.edu.in', 'true', filter.lower()])
                 if valid:
                     if output.get('message') == 'success':
-                        return render_template("admin_display_requests.html", requests=output.get('response'), initiate_request_form=initiate_request_form, finish_request_form=finish_request_form, hold_request_form=hold_request_form, resume_request_form=resume_request_form, drop_request_form=drop_request_form, filter_student_requests_form=filter_student_requests_form, filter_faculty_requests_form=filter_faculty_requests_form, filter=filter)
+                        return render_template("admin_display_requests.html", requests=output.get('response'), status = 'All',initiate_request_form=initiate_request_form, finish_request_form=finish_request_form, hold_request_form=hold_request_form, resume_request_form=resume_request_form, drop_request_form=drop_request_form, filter_student_requests_form=filter_student_requests_form, filter_faculty_requests_form=filter_faculty_requests_form, filter=filter)
                     else:
                         flash(f"{output.get('error')}", "danger")
                 else:
@@ -449,7 +446,7 @@ def admin_display_requests():
                     ['queryRequests', 'admin@ashoka.edu.in', 'true', filter.lower()])
                 if valid:
                     if output.get('message') == 'success':
-                        return render_template("admin_display_requests.html", requests=output.get('response'), initiate_request_form=initiate_request_form, finish_request_form=finish_request_form, hold_request_form=hold_request_form, resume_request_form=resume_request_form, drop_request_form=drop_request_form, filter_student_requests_form=filter_student_requests_form, filter_faculty_requests_form=filter_faculty_requests_form, filter=filter)
+                        return render_template("admin_display_requests.html", requests=output.get('response'), status = 'All',initiate_request_form=initiate_request_form, finish_request_form=finish_request_form, hold_request_form=hold_request_form, resume_request_form=resume_request_form, drop_request_form=drop_request_form, filter_student_requests_form=filter_student_requests_form, filter_faculty_requests_form=filter_faculty_requests_form, filter=filter)
                     else:
                         flash(f"{output.get('error')}", "danger")
                 else:
@@ -654,7 +651,7 @@ def display_requests():
                 if output.get('message') == 'success':
                     print('___________________________________________________________')
                     print(output)
-                    return render_template("display_requests.html", requests=output.get('response'), filter_confirmed_requests_form=filter_confirmed_requests_form, filter_unconfirmed_requests_form=filter_unconfirmed_requests_form, confirm_request_form=confirm_request_form)
+                    return render_template("display_requests.html", requests=output.get('response'), filter = 'Confirmed', filter_confirmed_requests_form=filter_confirmed_requests_form, filter_unconfirmed_requests_form=filter_unconfirmed_requests_form, confirm_request_form=confirm_request_form)
                 else:
                     flash(f"{output.get('error')}", "danger")
             else:
@@ -670,7 +667,7 @@ def display_requests():
                 if output.get('message') == 'success':
                     print('___________________________________________________________')
                     print(output)
-                    return render_template("display_requests.html", requests=output.get('response'), filter_confirmed_requests_form=filter_confirmed_requests_form, filter_unconfirmed_requests_form=filter_unconfirmed_requests_form, confirm_request_form=confirm_request_form)
+                    return render_template("display_requests.html", requests=output.get('response'), filter = 'Unconfirmed', filter_confirmed_requests_form=filter_confirmed_requests_form, filter_unconfirmed_requests_form=filter_unconfirmed_requests_form, confirm_request_form=confirm_request_form)
                 else:
                     flash(f"{output.get('error')}", "danger")
             else:
@@ -707,7 +704,7 @@ def confirm_request():
                     flash(f"{output.get('error')}", "danger")
             else:
                 flash("Something went wrong. Please try again.", "danger")
-            return redirect(url_for('display_requests'))
+            return redirect(request.referrer)
 
 
 @app.route('/view_history/<string:key>')
