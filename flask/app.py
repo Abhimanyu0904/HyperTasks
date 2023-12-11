@@ -102,7 +102,7 @@ def load_user(user_id):
     return User(user_id)
     # return None
 
-
+#All forms used in navbar
 @app.context_processor
 def base():
     filter_student_requests_form = FilterStudentRequestsForm()
@@ -111,7 +111,20 @@ def base():
     filter_faculty_registration_requests_form = FilterFacultyRegistrationRequestsForm()
     filter_confirmed_requests_form = FilterConfirmedRequestsForm()
     filter_unconfirmed_requests_form = FilterUnconfirmedRequestsForm()
-    return dict(filter_student_requests_form=filter_student_requests_form, filter_faculty_requests_form=filter_faculty_requests_form, filter_student_registration_requests_form=filter_student_registration_requests_form, filter_faculty_registration_requests_form=filter_faculty_registration_requests_form, filter_confirmed_requests_form=filter_confirmed_requests_form, filter_unconfirmed_requests_form=filter_unconfirmed_requests_form)
+    filter_dropped_student_requests_form = FilterDroppedStudentRequestsForm()
+    filter_dropped_faculty_requests_form = FilterDroppedFacultyRequestsForm()
+    filter_implemented_student_requests_form = FilterImplementedStudentRequestsForm()
+    filter_implemented_faculty_requests_form = FilterImplementedFacultyRequestsForm()
+    return dict(filter_student_requests_form=filter_student_requests_form,
+                filter_faculty_requests_form=filter_faculty_requests_form,
+                filter_student_registration_requests_form=filter_student_registration_requests_form,
+                filter_faculty_registration_requests_form=filter_faculty_registration_requests_form,
+                filter_confirmed_requests_form=filter_confirmed_requests_form,
+                filter_unconfirmed_requests_form=filter_unconfirmed_requests_form,
+                filter_dropped_student_requests_form=filter_dropped_student_requests_form,
+                filter_dropped_faculty_requests_form=filter_dropped_faculty_requests_form,
+                filter_implemented_student_requests_form=filter_implemented_student_requests_form,
+                filter_implemented_faculty_requests_form=filter_implemented_faculty_requests_form)
 
 
 @app.route("/")
@@ -223,6 +236,7 @@ def user_registration_requests():
         reject_user_registration_request_form = RejectUserRegistrationRequestForm()
         filter_student_registration_requests_form = FilterStudentRegistrationRequestsForm()
         filter_faculty_registration_requests_form = FilterFacultyRegistrationRequestsForm()
+
         if request.method == 'POST' and 'accept' in request.form:
             if accept_user_registration_request_form.validate_on_submit():
                 email = accept_user_registration_request_form.email_id.data
@@ -336,7 +350,7 @@ def admin_display_requests():
                         flash(f"{output.get('error')}", "danger")
                 else:
                     flash("Something went wrong. Please try again.", "danger")
-                return redirect(url_for('admin_display_requests'))
+                return redirect(request.referrer)
         elif request.method == "POST" and 'finish' in request.form:
             if finish_request_form.validate_on_submit():
                 request_key = finish_request_form.request_key.data
@@ -350,7 +364,7 @@ def admin_display_requests():
                         flash(f"{output.get('error')}", "danger")
                 else:
                     flash("Something went wrong. Please try again.", "danger")
-                return redirect(url_for('admin_display_requests'))
+                return redirect(request.referrer)
         elif request.method == "POST" and 'put_on_hold' in request.form:
             if hold_request_form.validate_on_submit():
                 request_key = hold_request_form.request_key.data
@@ -364,18 +378,21 @@ def admin_display_requests():
                         flash(f"{output.get('error')}", "danger")
                 else:
                     flash("Something went wrong. Please try again.", "danger")
-                return redirect(url_for('admin_display_requests'))
+                return redirect(request.referrer)
         elif request.method == "POST" and 'resume' in request.form:
             if resume_request_form.validate_on_submit():
                 request_key = resume_request_form.request_key.data
                 valid, output = chaincode(
                     ["updateRequest", session['admin_email'], "Request Resumed", "in progress", request_key])
                 if valid:
-                    flash("Request Resumed!", "success")
-                    return render_template("admin_display_requests.html", requests=output.get('response'), initiate_request_form=initiate_request_form, finish_request_form=finish_request_form, hold_request_form=hold_request_form, resume_request_form=resume_request_form, drop_request_form=drop_request_form, filter_student_requests_form=filter_student_requests_form, filter_faculty_requests_form=filter_faculty_requests_form)
+                    if output.get('message') == 'success':
+                        flash("Request Resumed!", "success")
+                        return render_template("admin_display_requests.html", requests=output.get('response'), initiate_request_form=initiate_request_form, finish_request_form=finish_request_form, hold_request_form=hold_request_form, resume_request_form=resume_request_form, drop_request_form=drop_request_form, filter_student_requests_form=filter_student_requests_form, filter_faculty_requests_form=filter_faculty_requests_form)
+                    else:
+                        flash(f"{output.get('error')}", "danger")
                 else:
                     flash("Something went wrong. Please try again.", "danger")
-                    return redirect(url_for('admin_display_requests'))
+                return redirect(request.referrer)
         elif request.method == "POST" and 'drop' in request.form:
             if drop_request_form.validate_on_submit():
                 request_key = drop_request_form.request_key.data
@@ -389,7 +406,7 @@ def admin_display_requests():
                         flash(f"{output.get('error')}", "danger")
                 else:
                     flash("Something went wrong. Please try again.", "danger")
-                return redirect(url_for('admin_display_requests'))
+                return redirect(request.referrer)
 
         elif request.method == 'POST' and 'student_requests' in request.form:
             if filter_student_requests_form.validate_on_submit():
@@ -416,7 +433,7 @@ def admin_display_requests():
                         flash(f"{output.get('error')}", "danger")
                 else:
                     flash("Something went wrong. Please try again.", "danger")
-                return redirect(url_for('admin_display_requests'))
+                return redirect(request.referrer)
 
         # by default student requests open first
         valid, output = chaincode(
