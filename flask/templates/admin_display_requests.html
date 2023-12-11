@@ -28,7 +28,7 @@
 
                 {% if request.get('status') == status %}
 
-                {%if request.get('status') == 'implemented'%}
+                {%if request.get('status') == 'implemented' or request.get('status') == 'dropped'%}
                 <div class="card mb-4 disabled">
                     {%else%}
                     <div class="card mb-4">
@@ -87,7 +87,7 @@
                                                     {{initiate_request_form.request_key(value
                                                     = request.key)}}
                                                     {{initiate_request_form.type(value
-                                                        = request.get('user_type'))}}
+                                                        = request.get('type'))}}
                                                     {%if request.get('status')
                                                     == 'not
                                                     started'%}
@@ -108,7 +108,7 @@
                                             {{hold_request_form.request_key(value
                                             = request.get('key'))}}
                                             {{hold_request_form.type(value
-                                                = request.get('user_type'))}}
+                                                = request.get('type'))}}
                                             {%if request.get('status') == 'in progress'%}
                                             {{hold_request_form.put_on_hold(class="btn
                                             btn-warning")}}
@@ -124,7 +124,7 @@
                                             {{resume_request_form.request_key(value
                                             = request.get('key'))}}
                                             {{resume_request_form.type(value
-                                                = request.get('user_type'))}}
+                                                = request.get('type'))}}
                                             {%if request.get('status') == 'on hold'%}
                                             {{resume_request_form.resume(class="btn
                                             btn-warning")}}
@@ -140,7 +140,7 @@
                                             {{finish_request_form.request_key(value
                                             = request.get('key'))}}
                                             {{finish_request_form.type(value
-                                                = request.get('user_type'))}}
+                                                = request.get('type'))}}
                                             {%if request.get('status') == "in
                                             progress"%}
                                             {{finish_request_form.finish(class="btn
@@ -148,6 +148,23 @@
                                             {%else%}
                                             {{finish_request_form.finish(class="btn
                                             btn-danger disabled")}}
+                                            {%endif%}
+                                        </form>
+
+                                        <br>
+                                        <form method="post"
+                                            action="{{url_for('admin_display_requests')}}">
+                                            {{drop_request_form.csrf_token}}
+                                            {{drop_request_form.request_key(value
+                                            = request.get('key'))}}
+                                            {{drop_request_form.type(value
+                                                = request.get('type'))}}
+                                            {%if request.get('status') == "dropped"%}
+                                            {{drop_request_form.drop(class="btn
+                                            btn-danger disabled")}}
+                                            {%else%}
+                                            {{drop_request_form.drop(class="btn
+                                            btn-danger")}}
                                             {%endif%}
                                         </form>
 
@@ -168,7 +185,7 @@
                     {% for request in requests %}
                     {% if request.get('confirmations') >=
                     request.get('required_confirmations') %}
-                    {%if request.get('status') == 'implemented'%}
+                    {%if request.get('status') == 'implemented' or request.get('status') == 'dropped'%}
                     <div class="card mb-4 disabled">
                         {%else%}
                         <div class="card mb-4">
@@ -227,7 +244,7 @@
                                                         {{initiate_request_form.request_key(value
                                                         = request.key)}}
                                                         {{initiate_request_form.type(value
-                                                            = request.user_type)}}
+                                                            = request.type)}}
                                                         {%if
                                                         request.get('status') ==
                                                         'not
@@ -249,7 +266,7 @@
                                                 {{hold_request_form.request_key(value
                                                 = request.get('key'))}}
                                                 {{hold_request_form.type(value
-                                                    = request.get('user_type'))}}
+                                                    = request.get('type'))}}
                                                 {{hold_request_form.put_on_hold(class="btn
                                                 btn-warning")}}
                                             </form>
@@ -260,7 +277,7 @@
                                                 {{resume_request_form.request_key(value
                                                 = request.get('key'))}}
                                                 {{resume_request_form.type(value
-                                                    = request.get('user_type'))}}
+                                                    = request.get('type'))}}
                                                 {{resume_request_form.resume(class="btn
                                                 btn-warning")}}
                                             </form>
@@ -272,7 +289,7 @@
                                                 {{finish_request_form.request_key(value
                                                 = request.get('key'))}}
                                                 {{finish_request_form.type(value
-                                                    = request.get('user_type'))}}
+                                                    = request.get('type'))}}
                                                 {%if request.get('status') ==
                                                 "in progress"%}
                                                 {{finish_request_form.finish(class="btn
@@ -283,6 +300,23 @@
                                                 {%endif%}
                                             </form>
 
+
+                                            <br>
+                                            <form method="post"
+                                                action="{{url_for('admin_display_requests')}}">
+                                                {{drop_request_form.csrf_token}}
+                                                {{drop_request_form.request_key(value
+                                                = request.get('key'))}}
+                                                {{drop_request_form.type(value
+                                                    = request.get('type'))}}
+                                                {%if request.get('status') == "dropped"%}
+                                                {{drop_request_form.drop(class="btn
+                                                btn-danger disabled")}}
+                                                {%else%}
+                                                {{drop_request_form.drop(class="btn
+                                                btn-danger")}}
+                                                {%endif%}
+                                            </form>
                                         </div>
                                     </div>
                                 </div>

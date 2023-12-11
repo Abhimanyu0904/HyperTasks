@@ -246,8 +246,10 @@ def user_registration_requests():
             if accept_user_registration_request_form.validate_on_submit():
                 email = accept_user_registration_request_form.email_id.data
                 type = accept_user_registration_request_form.type.data
+                print(type)
                 valid, output = chaincode(
                     ["validateUser", 'admin@ashoka.edu.in', email, type])
+                print(output)
                 if valid:
                     if output.get('message') == "success":
                         valid2 = send_email(email, True)
@@ -261,7 +263,7 @@ def user_registration_requests():
                         flash(f"{output.get('error')}", "danger")
                 else:
                     flash("Something went wrong. Please try again.", "danger")
-                return redirect(redirect.referrer)
+                return redirect(request.referrer)
         if request.method == 'POST' and 'reject' in request.form:
             if reject_user_registration_request_form.validate_on_submit():
                 email = reject_user_registration_request_form.email_id.data
@@ -315,7 +317,7 @@ def user_registration_requests():
                         flash(f"{output.get('error')}", "danger")
                 else:
                     flash("Something went wrong. Please try again.", "danger")
-                return redirect(redirect.referrer)
+                return redirect(request.referrer)
 
         valid, output = chaincode(
             ['queryUnverifiedUsers', 'admin@ashoka.edu.in', 'student'])
@@ -367,15 +369,12 @@ def admin_display_requests():
                                 flash(f"{output2.get('error')}", "danger")
                         else:
                             flash("Something went wrong. Please try again.", "danger")
-                        return(redirect(url_for('admin_display_requests')))
-
-                        # return render_template("admin_display_requests.html", requests=output.get('response'), status = 'in progress', initiate_request_form=initiate_request_form, finish_request_form=finish_request_form, hold_request_form=hold_request_form, resume_request_form=resume_request_form, drop_request_form=drop_request_form, filter_student_requests_form=filter_student_requests_form, filter_faculty_requests_form=filter_faculty_requests_form)
+                        return redirect(url_for('admin_display_requests', type=type))
                     else:
                         flash(f"{output.get('error')}", "danger")
                 else:
                     flash("Something went wrong. Please try again.", "danger")
-                return redirect(url_for('admin_display_requests'))
-                # return redirect(request.referrer)
+                return redirect(url_for('admin_display_requests', type=type))
         elif request.method == "POST" and 'finish' in request.form:
             if finish_request_form.validate_on_submit():
                 request_key = finish_request_form.request_key.data
@@ -393,13 +392,12 @@ def admin_display_requests():
                                 flash(f"{output2.get('error')}", "danger")
                         else:
                             flash("Something went wrong. Please try again.", "danger")
-                        return(redirect(url_for('admin_display_requests')))
+                        return redirect(url_for('admin_display_requests', type=type))
                     else:
                         flash(f"{output.get('error')}", "danger")
                 else:
                     flash("Something went wrong. Please try again.", "danger")
-                return redirect(url_for('admin_display_requests'))
-                # return redirect(request.referrer)
+                return redirect(url_for('admin_display_requests', type=type))
         elif request.method == "POST" and 'put_on_hold' in request.form:
             if hold_request_form.validate_on_submit():
                 request_key = hold_request_form.request_key.data
@@ -417,13 +415,13 @@ def admin_display_requests():
                                 flash(f"{output2.get('error')}", "danger")
                         else:
                             flash("Something went wrong. Please try again.", "danger")
-                        return(redirect(url_for('admin_display_requests')))                    
-                        # return redirect(request.referrer)
+                        return redirect(url_for('admin_display_requests', type=type))
                     else:
                         flash(f"{output.get('error')}", "danger")
                 else:
                     flash("Something went wrong. Please try again.", "danger")
-                # return redirect(request.referrer)
+                return redirect(url_for('admin_display_requests', type=type))
+            
         elif request.method == "POST" and 'resume' in request.form:
             if resume_request_form.validate_on_submit():
                 request_key = resume_request_form.request_key.data
@@ -441,16 +439,12 @@ def admin_display_requests():
                                 flash(f"{output2.get('error')}", "danger")
                         else:
                             flash("Something went wrong. Please try again.", "danger")
-                        return(redirect(url_for('admin_display_requests')))
-                        return redirect(request.referrer)
-                        # return redirect(request.referrer)
-                        # return render_template("admin_display_requests.html", requests=output.get('response'), initiate_request_form=initiate_request_form, finish_request_form=finish_request_form, hold_request_form=hold_request_form, resume_request_form=resume_request_form, drop_request_form=drop_request_form, filter_student_requests_form=filter_student_requests_form, filter_faculty_requests_form=filter_faculty_requests_form)
+                        return redirect(url_for('admin_display_requests', type=type))
                     else:
                         flash(f"{output.get('error')}", "danger")
                 else:
                     flash("Something went wrong. Please try again.", "danger")
-                # return redirect(request.referrer)
-                return redirect(url_for('admin_display_requests'))
+                return redirect(url_for('admin_display_requests'), type = type)
 
         elif request.method == "POST" and 'drop' in request.form:
             if drop_request_form.validate_on_submit():
@@ -469,16 +463,12 @@ def admin_display_requests():
                                 flash(f"{output2.get('error')}", "danger")
                         else:
                             flash("Something went wrong. Please try again.", "danger")
-                        return(redirect(url_for('admin_display_requests')))
-                        return redirect(request.referrer)
-                        # return redirect(request.referrer)
-                        # return render_template("admin_display_requests.html", requests=output.get('response'), initiate_request_form=initiate_request_form, finish_request_form=finish_request_form, hold_request_form=hold_request_form, resume_request_form=resume_request_form, drop_request_form=drop_request_form, filter_student_requests_form=filter_student_requests_form, filter_faculty_requests_form=filter_faculty_requests_form)
+                        return redirect(url_for('admin_display_requests', type=type))
                     else:
                         flash(f"{output.get('error')}", "danger")
                 else:
                     flash("Something went wrong. Please try again.", "danger")
-                # return redirect(request.referrer)
-                return redirect(request.referrer)
+                return redirect(url_for('admin_display_requests', type=type))
 
 
         elif request.method == 'POST' and 'student_requests' in request.form:
@@ -493,7 +483,8 @@ def admin_display_requests():
                         flash(f"{output.get('error')}", "danger")
                 else:
                     flash("Something went wrong. Please try again.", "danger")
-                return redirect(url_for('admin_display_requests'))
+                return redirect(url_for('admin_display_requests', type='student'))
+            
         elif request.method == 'POST' and 'faculty_requests' in request.form:
             if filter_faculty_requests_form.validate_on_submit():
                 filter = "Faculty"
@@ -506,8 +497,8 @@ def admin_display_requests():
                         flash(f"{output.get('error')}", "danger")
                 else:
                     flash("Something went wrong. Please try again.", "danger")
-                return redirect(request.referrer)
-            
+                return redirect(url_for('admin_display_requests', type='faculty'))          
+              
         elif request.method == 'POST' and 'dropped_student_requests' in request.form:
             if filter_dropped_student_requests_form.validate_on_submit():
                 filter = "Student"
@@ -520,7 +511,8 @@ def admin_display_requests():
                         flash(f"{output.get('error')}", "danger")
                 else:
                     flash("Something went wrong. Please try again.", "danger")
-                return redirect(url_for('admin_display_requests'))
+                return redirect(url_for('admin_display_requests', type='student'))
+            
         elif request.method == 'POST' and 'dropped_faculty_requests' in request.form:
             if filter_dropped_faculty_requests_form.validate_on_submit():
                 filter = "Faculty"
@@ -533,7 +525,7 @@ def admin_display_requests():
                         flash(f"{output.get('error')}", "danger")
                 else:
                     flash("Something went wrong. Please try again.", "danger")
-                return redirect(request.referrer)
+                return redirect(url_for('admin_display_requests', type='faculty'))
 
         elif request.method == 'POST' and 'implemented_student_requests' in request.form:
             if filter_implemented_student_requests_form.validate_on_submit():
@@ -547,7 +539,8 @@ def admin_display_requests():
                         flash(f"{output.get('error')}", "danger")
                 else:
                     flash("Something went wrong. Please try again.", "danger")
-                return redirect(url_for('admin_display_requests'))
+                return redirect(url_for('admin_display_requests', type='student'))
+            
         elif request.method == 'POST' and 'implemented_faculty_requests' in request.form:
             if filter_implemented_faculty_requests_form.validate_on_submit():
                 filter = "Faculty"
@@ -560,7 +553,7 @@ def admin_display_requests():
                         flash(f"{output.get('error')}", "danger")
                 else:
                     flash("Something went wrong. Please try again.", "danger")
-                return redirect(request.referrer)      
+                return redirect(url_for('admin_display_requests', type='faculty'))
 
         elif request.method == 'POST' and 'on_hold_student_requests' in request.form:
             if filter_on_hold_student_requests_form.validate_on_submit():
@@ -574,7 +567,7 @@ def admin_display_requests():
                         flash(f"{output.get('error')}", "danger")
                 else:
                     flash("Something went wrong. Please try again.", "danger")
-                return redirect(url_for('admin_display_requests'))
+                return redirect(url_for('admin_display_requests', type='student'))
         elif request.method == 'POST' and 'on_hold_faculty_requests' in request.form:
             if filter_on_hold_faculty_requests_form.validate_on_submit():
                 filter = "Faculty"
@@ -587,7 +580,7 @@ def admin_display_requests():
                         flash(f"{output.get('error')}", "danger")
                 else:
                     flash("Something went wrong. Please try again.", "danger")
-                return redirect(request.referrer)     
+                return redirect(url_for('admin_display_requests', type='faculty'))
 
         elif request.method == 'POST' and 'in_progress_student_requests' in request.form:
             if filter_in_progress_student_requests_form.validate_on_submit():
@@ -601,7 +594,8 @@ def admin_display_requests():
                         flash(f"{output.get('error')}", "danger")
                 else:
                     flash("Something went wrong. Please try again.", "danger")
-                return redirect(url_for('admin_display_requests'))
+                return redirect(url_for('admin_display_requests', type='student'))
+            
         elif request.method == 'POST' and 'in_progress_faculty_requests' in request.form:
             if filter_in_progress_faculty_requests_form.validate_on_submit():
                 filter = "Faculty"
@@ -614,7 +608,7 @@ def admin_display_requests():
                         flash(f"{output.get('error')}", "danger")
                 else:
                     flash("Something went wrong. Please try again.", "danger")
-                return redirect(request.referrer)   
+                return redirect(url_for('admin_display_requests', type='faculty'))
 
         elif request.method == 'POST' and 'not_started_student_requests' in request.form:
             if filter_not_started_student_requests_form.validate_on_submit():
@@ -628,7 +622,7 @@ def admin_display_requests():
                         flash(f"{output.get('error')}", "danger")
                 else:
                     flash("Something went wrong. Please try again.", "danger")
-                return redirect(url_for('admin_display_requests'))
+                return redirect(url_for('admin_display_requests', type='student'))
         elif request.method == 'POST' and 'not_started_faculty_requests' in request.form:
             if filter_not_started_faculty_requests_form.validate_on_submit():
                 filter = "Faculty"
@@ -641,11 +635,13 @@ def admin_display_requests():
                         flash(f"{output.get('error')}", "danger")
                 else:
                     flash("Something went wrong. Please try again.", "danger")
-                return redirect(request.referrer)          
+                return redirect(url_for('admin_display_requests', type='faculty'))
         
+        type = request.args.get('type', 'student')
+
         # by default student requests open first
         valid, output = chaincode(
-            ['queryRequests', 'admin@ashoka.edu.in', 'false', 'student'])
+            ['queryRequests', 'admin@ashoka.edu.in', 'false', type])
         if not valid:
             flash("Something went wrong. Please try again.", "danger")
             return redirect(url_for('admin_display_requests'))
@@ -654,7 +650,7 @@ def admin_display_requests():
             flash(f"{output.get('error')}", "danger")
             return redirect(url_for('admin_display_requests'))
 
-        return render_template("admin_display_requests.html", requests=output.get('response'), status = 'All',initiate_request_form=initiate_request_form, finish_request_form=finish_request_form, hold_request_form=hold_request_form, resume_request_form=resume_request_form, drop_request_form=drop_request_form, filter='Student')
+        return render_template("admin_display_requests.html", requests=output.get('response'), status = 'All',initiate_request_form=initiate_request_form, finish_request_form=finish_request_form, hold_request_form=hold_request_form, resume_request_form=resume_request_form, drop_request_form=drop_request_form, filter=type.title())
     else:
         flash("You have to be an admin to access this page. Please login first", "danger")
         return redirect(url_for('admin_login'))
