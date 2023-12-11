@@ -48,6 +48,7 @@
         "enrollment",
         "hyperledger",
         "mychannel",
+        "permissioned",
         "WALLETPATH"
     ],
     "css.lint.duplicateProperties": "error",

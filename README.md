@@ -9,8 +9,8 @@ security, and efficiency of the feature-request and implementation process.
 
 ### Requirements
 
-1. Hyperledger Fabric: https://hyperledger-fabric.readthedocs.io/en/release-2.5/
-2. Pipenv: https://pypi.org/project/pipenv/
+1. Hyperledger Fabric: <https://hyperledger-fabric.readthedocs.io/en/release-2.5/>
+2. Pipenv: <https://pypi.org/project/pipenv/>
 
 ### Setup Network and Application
 
