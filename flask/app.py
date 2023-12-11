@@ -325,7 +325,7 @@ def admin_display_requests():
             if initiate_request_form.validate_on_submit():
                 request_key = initiate_request_form.request_key.data
                 valid, output = chaincode(
-                    ["updateRequest", session['email_id'], "Initiating Request", "in progress", request_key])
+                    ["updateRequest", session['admin_email'], "Initiating Request", "in progress", request_key])
                 if valid:
                     if output.get('message') == "success":
                         flash("Request Initiated!", "success")
@@ -339,7 +339,7 @@ def admin_display_requests():
             if finish_request_form.validate_on_submit():
                 request_key = finish_request_form.request_key.data
                 valid, output = chaincode(
-                    ["updateRequest", session['email_id'], "Request Implemented", "implemented", request_key])
+                    ["updateRequest", session['admin_email'], "Request Implemented", "implemented", request_key])
                 if valid:
                     if output.get('message') == 'success':
                         flash("Request Completed!", "success")
@@ -353,7 +353,7 @@ def admin_display_requests():
             if hold_request_form.validate_on_submit():
                 request_key = hold_request_form.request_key.data
                 valid, output = chaincode(
-                    ["updateRequest", session['email_id'], "Request On Hold", "on hold", request_key])
+                    ["updateRequest", session['admin_email'], "Request On Hold", "on hold", request_key])
                 if valid:
                     if output.get('message') == 'success':
                         flash("Request On Hold!", "success")
@@ -367,7 +367,7 @@ def admin_display_requests():
             if resume_request_form.validate_on_submit():
                 request_key = resume_request_form.request_key.data
                 valid, output = chaincode(
-                    ["updateRequest", session['email_id'], "Request Resumed", "in progress", request_key])
+                    ["updateRequest", session['admin_email'], "Request Resumed", "in progress", request_key])
                 if valid:
                     flash("Request Resumed!", "success")
                     return render_template("admin_display_requests.html", requests=output.get('response'), initiate_request_form=initiate_request_form, finish_request_form=finish_request_form, hold_request_form=hold_request_form, resume_request_form=resume_request_form, drop_request_form=drop_request_form, filter_student_requests_form=filter_student_requests_form, filter_faculty_requests_form=filter_faculty_requests_form)
@@ -378,7 +378,7 @@ def admin_display_requests():
             if drop_request_form.validate_on_submit():
                 request_key = drop_request_form.request_key.data
                 valid, output = chaincode(
-                    ["updateRequest", session['email_id'], "Request Dropped", "dropped", request_key])
+                    ["updateRequest", session['admin_email'], "Request Dropped", "dropped", request_key])
                 if valid:
                     if output.get('message') == 'success':
                         flash("Request Dropped!", "success")
@@ -393,7 +393,7 @@ def admin_display_requests():
             if filter_student_requests_form.validate_on_submit():
                 filter = filter_student_requests_form.filter.data
                 valid, output = chaincode(
-                    ['queryRequests', 'admin@ashoka.edu.in', 'false', filter.lower()])
+                    ['queryRequests', 'admin@ashoka.edu.in', 'true', filter.lower()])
                 if valid:
                     if output.get('message') == 'success':
                         return render_template("admin_display_requests.html", requests=output.get('response'), initiate_request_form=initiate_request_form, finish_request_form=finish_request_form, hold_request_form=hold_request_form, resume_request_form=resume_request_form, drop_request_form=drop_request_form, filter_student_requests_form=filter_student_requests_form, filter_faculty_requests_form=filter_faculty_requests_form, filter=filter)
@@ -406,7 +406,7 @@ def admin_display_requests():
             if filter_faculty_requests_form.validate_on_submit():
                 filter = filter_student_requests_form.filter.data
                 valid, output = chaincode(
-                    ['queryRequests', 'admin@ashoka.edu.in', 'false', filter.lower()])
+                    ['queryRequests', 'admin@ashoka.edu.in', 'true', filter.lower()])
                 if valid:
                     if output.get('message') == 'success':
                         return render_template("admin_display_requests.html", requests=output.get('response'), initiate_request_form=initiate_request_form, finish_request_form=finish_request_form, hold_request_form=hold_request_form, resume_request_form=resume_request_form, drop_request_form=drop_request_form, filter_student_requests_form=filter_student_requests_form, filter_faculty_requests_form=filter_faculty_requests_form, filter=filter)
@@ -538,10 +538,11 @@ def confirm_request():
 @app.route('/view_history/<string:key>')
 @login_required
 def view_history(key):
-    valid, output = chaincode(['queryRequestHistory', session['email_id'], key])
+    valid, output = chaincode(
+        ['queryRequestHistory', session['email_id'], key])
     if valid:
         if output.get('message') == 'success':
-            return render_template("view_history.html", history=output.get('response'), key = key)
+            return render_template("view_history.html", history=output.get('response'), key=key)
         else:
             flash(f"{output.get('error')}", "danger")
     else:

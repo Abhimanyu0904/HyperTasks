@@ -7,7 +7,7 @@
 
 const {Contract, Context} = require("fabric-contract-api"),
     {Iterators} = require("fabric-shim"),
-    {UNIVERSITY_TYPE, STUDENT_KEY_IDENTIFIER, FACULTY_KEY_IDENTIFIER, STUDENT_TYPE, FACULTY_TYPE, SUCCESS_MSG, FAILURE_MSG, REQUEST_KEY_IDENTIFIER, NOT_STARTED, UNIVERSITY_KEY_IDENTIFIER, HASH, HASH_ENCODING, CREATION, CONFIRMATION, STATUS, CONFIRMED, REQUEST_TYPE, ADMIN_EMAIL, IN_PROGRESS, ON_HOLD, IMPLEMENTED, DROPPED} = require("../utils/constants"),
+    {UNIVERSITY_TYPE, STUDENT_KEY_IDENTIFIER, FACULTY_KEY_IDENTIFIER, STUDENT_TYPE, FACULTY_TYPE, SUCCESS_MSG, FAILURE_MSG, REQUEST_KEY_IDENTIFIER, NOT_STARTED, UNIVERSITY_KEY_IDENTIFIER, HASH, HASH_ENCODING, CREATION, CONFIRMATION, STATUS, CONFIRMED, REQUEST_TYPE, ADMIN_EMAIL, IN_PROGRESS, ON_HOLD, IMPLEMENTED, DROPPED, LOCALE, DATE_OPTIONS} = require("../utils/constants"),
     crypto = require("crypto");
 
 // global variables
@@ -321,10 +321,17 @@ class Feedback extends Contract {
                 try {
                     const request = JSON.parse(res.value.value.toString("utf8"));
                     console.log(`request: ${JSON.stringify(request, null, 2)}`);
-                    if (confirmed === "all")
+                    if (confirmed === "all"){
+                        // convert epoch in ms to IST
+                        request.created_at = new Date(request.created_at).toLocaleString(LOCALE, DATE_OPTIONS);
+                        request.updated_at = new Date(request.updated_at).toLocaleString(LOCALE, DATE_OPTIONS);
                         ret.response.push(request);
-                    else if (`${request.confirmed}` === confirmed)
+                    } else if (`${request.confirmed}` === confirmed){
+                        // convert epoch in ms to IST
+                        request.created_at = new Date(request.created_at).toLocaleString(LOCALE, DATE_OPTIONS);
+                        request.updated_at = new Date(request.updated_at).toLocaleString(LOCALE, DATE_OPTIONS);
                         ret.response.push(request);
+                    }
                 } catch (err) {
                     console.error(err);
                     console.error(res.value.value.toString("utf8"));
@@ -406,11 +413,11 @@ class Feedback extends Contract {
     async updateRequest(ctx, key, notes, status) {
         console.info("=============== START : updateRequest ===============");
         console.log(`function arguments: key: ${key}, notes: ${notes}, status: ${status}`);
-        const requestAsBytes = await ctx.stub.getState(key),
-            ret = {message: FAILURE_MSG};
-
         // reintroduce the null bytes
         key = "\u0000" + key[0] + "\u0000" + key.slice(1, 8) + "\u0000" + key.slice(8) + "\u0000";
+
+        const requestAsBytes = await ctx.stub.getState(key),
+            ret = {message: FAILURE_MSG};
 
         if (!requestAsBytes || requestAsBytes.length === 0) {
             ret.error = `Request with ID ${key} does not exist.`;
