@@ -258,11 +258,13 @@ def user_registration_requests():
                         else:
                             flash(
                                 "Registration Request Rejected but some issue in sending the email!", 'danger')
+                        return redirect(request.referrer)
                     else:
                         flash(f"{output.get('error')}", "danger")
+                        return redirect(request.referrer)
                 else:
                     flash("Something went wrong. Please try again.", "danger")
-                return redirect(url_for('user_registration_requests'))
+                return redirect(request.referrer)
 
         if request.method == 'POST' and 'student_registration_requests' in request.form:
             if filter_student_registration_requests_form.validate_on_submit():
