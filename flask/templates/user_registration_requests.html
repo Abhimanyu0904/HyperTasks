@@ -1,84 +1,53 @@
-{% extends "base.html" %} {% block content %}
+{% extends "base.html" %} 
+{% block content %}
 <section class="vh-100 mb-8">
     <div class="container h-100">
         <div class="row d-flex justify-content-center h-100">
             <div class="col">
                 <div class="text-center">
                     <br>
-                    {%if filter == 'Student' %}
+                    {% if filter == 'Student' %}
                     <h1> Student registration requests </h1>
-                    {%else%}
+                    {% else %}
                     <h1> Faculty registration requests </h1>
-                    {%endif%}
+                    {% endif %}
                 </div>
-                <br>
-                <br>
+                <br><br>
 
                 {% for reg_request in reg_requests %}
                 <div class="card mb-4">
                     <div class="card-text p-4">
                         <div class="row align-items-center">
-                            <div class="col-md-2.4 d-flex
-                            justify-content-center">
-                                <div class="text-center">
-                                    <span>Name</span>
-                                    <br><br>
-                                    <span class="fs-4 fw-bold">{{reg_request.get('name')}}</span>
-                                </div>
+                            <!-- Adjust the grid system to use whole numbers -->
+                            <div class="col-md-2 text-center">
+                                <span>Name</span><br><br>
+                                <span class="fs-4 fw-bold">{{ reg_request.get('name') }}</span>
                             </div>
-                            <div class="col-md-2.4 d-flex
-                            justify-content-center">
-                                <div class="text-center">
-                                    <span>Email</span>
-                                    <br><br>
-                                    <span class="fs-4 fw-bold">{{reg_request.get('email')}}</span>
-                                </div>
+                            <div class="col-md-4 text-center">
+                                <span>Email</span><br><br>
+                                <span class="fs-4 fw-bold">{{ reg_request.get('email') }}</span>
                             </div>
-                            <div class="col-md-2.4 d-flex
-                                justify-content-center">
-                                <div class="text-center">
-                                    <span>Ashoka ID</span>
-                                    <br><br>
-                                    <span class="fs-4 fw-bold">{{reg_request.get('ashoka_id')}}</span>
-                                </div>
+                            <div class="col-md-2 text-center">
+                                <span>Ashoka ID</span><br><br>
+                                <span class="fs-4 fw-bold">{{ reg_request.get('ashoka_id') }}</span>
                             </div>
-                            <div class="col-md-2.4 d-flex
-                                justify-content-center">
-                                <div class="text-center">
-                                    <span>Type</span>
-                                    <br><br>
-                                    <span class="fs-4 fw-bold">{{reg_request.get('type')}}</span>
-                                </div>
+                            <div class="col-md-2 text-center">
+                                <span>Type</span><br><br>
+                                <span class="fs-4 fw-bold">{{ reg_request.get('type') }}</span>
                             </div>
-                            <div class="col-md-2.4 d-flex
-                                justify-content-center">
-                                <div class="text-center">
-                                    <div class="container">
-                                        <div class="row">
-                                            <form method="post"
-                                                action="{{url_for('user_registration_requests')}}">
-                                                {{accept_user_registration_request_form.csrf_token}}
-                                                {{accept_user_registration_request_form.email_id(value
-                                                = reg_request.get('email'))}}
-                                                {{accept_user_registration_request_form.type(value=
-                                                reg_request.get('type'))}}
-                                                {{accept_user_registration_request_form.accept(class="btn
-                                                btn-success")}}
-                                            </form>
-                                        </div>
-                                    </div>
-                                    <br>
-                                    <form method="post"
-                                        action="{{url_for('user_registration_requests')}}">
-                                        {{reject_user_registration_request_form.csrf_token}}
-                                        {{reject_user_registration_request_form.email_id(value=
-                                        reg_request.get('email'))}}
-                                        {{reject_user_registration_request_form.type(value=
-                                        reg_request.get('type'))}}
-                                        {{reject_user_registration_request_form.reject(class="btn
-                                        btn-danger")}}
-                                    </form>
-                                </div>
+                            <div class="col-md-2 text-center">
+                                <form method="post" action="{{ url_for('user_registration_requests') }}" class="mb-2">
+                                    {{ accept_user_registration_request_form.csrf_token }}
+                                    {{ accept_user_registration_request_form.email_id(value=reg_request.get('email')) }}
+                                    {{ accept_user_registration_request_form.type(value=reg_request.get('type')) }}
+                                    {{ accept_user_registration_request_form.accept(class="btn btn-success") }}
+                                </form>
+                                <form method="post" action="{{ url_for('user_registration_requests') }}">
+                                    {{ reject_user_registration_request_form.csrf_token }}
+                                    {{ reject_user_registration_request_form.email_id(value=reg_request.get('email')) }}
+                                    {{ reject_user_registration_request_form.type(value=reg_request.get('type')) }}
+                                    {{ reject_user_registration_request_form.reject(class="btn btn-danger") }}
+                                </form>
                             </div>
                         </div>
                     </div>
@@ -86,5 +55,6 @@
                 {% endfor %}
             </div>
         </div>
-    </section>
-    {%endblock content%}
+    </div>
+</section>
+{% endblock content %}
