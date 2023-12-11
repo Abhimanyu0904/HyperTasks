@@ -17,6 +17,8 @@ let facultyCounter = 0,
     users = {
         faculties: {},
         students: {},
+        true_faculty_count: 0,
+        true_student_count: 0,
         university: false,
     };
 
@@ -45,7 +47,10 @@ async function resolveIterator(iterator){
                         .digest(HASH_ENCODING);
 
                     ++studentCounter;
-                    users.students[identifier] = true;
+                    if (asset.deleted === false) {
+                        ++users.true_student_count;
+                        users.students[identifier] = true;
+                    }
                     break;
 
                 case FACULTY_TYPE:
@@ -55,7 +60,10 @@ async function resolveIterator(iterator){
                         .digest(HASH_ENCODING);
 
                     ++facultyCounter;
-                    users.faculties[identifier] = true;
+                    if (asset.deleted === false) {
+                        ++users.true_faculty_count;
+                        users.faculties[identifier] = true;
+                    }
                     break;
 
                 case REQUEST_TYPE:
@@ -174,13 +182,15 @@ class Feedback extends Contract {
                 facultyCounter.toString(),
             ]);
             if (Object.hasOwn(users.faculties, identifier)) {
-                ret.error= "faculty already exists";
-                console.error(ret.error);
-                return Buffer.from(JSON.stringify(ret));
+                if (users.faculties[identifier] === true) {
+                    ret.error= "faculty already exists";
+                    console.error(ret.error);
+                    return Buffer.from(JSON.stringify(ret));
+                }
             }
 
-            // add faculty identifier to global list of faculties
-            users.faculties[identifier] = true;
+            // don't add faculty identifier to global list of faculties until verified
+            users.faculties[identifier] = false;
             break;
 
         case STUDENT_TYPE:
@@ -190,13 +200,15 @@ class Feedback extends Contract {
                 studentCounter.toString(),
             ]);
             if (Object.hasOwn(users.students, identifier)) {
-                ret.error= "student already exists";
-                console.error(ret.error);
-                return Buffer.from(JSON.stringify(ret));
+                if (users.students[identifier] === true) {
+                    ret.error= "student already exists";
+                    console.error(ret.error);
+                    return Buffer.from(JSON.stringify(ret));
+                }
             }
 
-            // add student identifier to global list of students
-            users.students[identifier] = true;
+            // don't add student identifier to global list of students until verified
+            users.students[identifier] = false;
             break;
 
         default:
@@ -208,6 +220,7 @@ class Feedback extends Contract {
         // create the user asset object
         const user = {
             ashoka_id,
+            deleted: false,
             email,
             name,
             password: crypto
@@ -250,11 +263,11 @@ class Feedback extends Contract {
 
         switch (user_type){
         case FACULTY_TYPE:
-            required_confirmations = Math.ceil(facultyCounter/2);
+            required_confirmations = Math.ceil(users.true_faculty_count/2);
             break;
 
         case STUDENT_TYPE:
-            required_confirmations = Math.ceil(studentCounter/2);
+            required_confirmations = Math.ceil(users.true_student_count/2);
             break;
 
         default:
@@ -505,7 +518,7 @@ class Feedback extends Contract {
      * @param {string} email - The user email id.
      * @returns {Promise<Buffer>} A promise that resolves with the request history.
      */
-    async validateUser(ctx, user_type, email){
+    async validateUser(ctx, user_type, email) {
         console.info("=============== START : validateUser ===============");
         console.log(`function arguments: user_type: ${user_type}, email: ${email}`);
         let iterator_flag = true,
@@ -522,6 +535,7 @@ class Feedback extends Contract {
             return Buffer.from(JSON.stringify(ret));
         }
         const objectType = user_type === FACULTY_TYPE ? FACULTY_KEY_IDENTIFIER : STUDENT_KEY_IDENTIFIER;
+
         const iterator = await ctx.stub.getStateByPartialCompositeKey(objectType, [email]);
 
         while (iterator_flag) {
@@ -551,7 +565,19 @@ class Feedback extends Contract {
         console.log(`verified user: ${JSON.stringify(user, null, 2)}`);
         console.log(`user key: ${key}`);
 
+        const identifier = crypto
+            .createHash(HASH)
+            .update(email)
+            .digest(HASH_ENCODING);
         await ctx.stub.putState(key, Buffer.from(JSON.stringify(user)));
+        if (objectType === FACULTY_KEY_IDENTIFIER) {
+            ++users.true_faculty_count;
+            users.faculties[identifier] = true;
+        } else {
+            ++users.true_student_count;
+            users.students[identifier] = true;
+        }
+
         console.info("=============== END : validateUser ===============");
         return Buffer.from(JSON.stringify(ret));
     }
@@ -590,6 +616,7 @@ class Feedback extends Contract {
                     const user = JSON.parse(res.value.value.toString("utf8"));
                     console.log(`user: ${JSON.stringify(user, null, 2)}`);
                     if (user.email === email &&
+                        user.deleted === false &&
                         user.password === crypto
                             .createHash(HASH)
                             .update(password)
@@ -631,7 +658,7 @@ class Feedback extends Contract {
      * @param {string} user_type - The type of user to query (faculty, student, or university).
      * @returns {Promise<Buffer>} The serialized JSON object containing the query result.
      */
-    async queryUnverifiedUsers(ctx, user_type){
+    async queryUnverifiedUsers(ctx, user_type) {
         console.info("=============== START : queryUnverifiedUsers ===============");
         console.log(`function arguments: user_type: ${user_type}`);
         const ret = {message: FAILURE_MSG, response: []};
@@ -655,7 +682,7 @@ class Feedback extends Contract {
                 try {
                     const user = JSON.parse(res.value.value.toString("utf8"));
                     console.log(`user: ${JSON.stringify(user, null, 2)}`);
-                    if (user.verified === false)
+                    if (user.verified === false && user.deleted === false)
                         ret.response.push(user);
                 } catch (err) {
                     console.error(err);
@@ -681,11 +708,17 @@ class Feedback extends Contract {
      * @param {string} user_email - The email of the user.
      * @returns {Promise<Buffer>} ret - The result object containing the message.
      */
-    async deleteUser(ctx, user_type, user_email){
+    async deleteUser(ctx, user_type, user_email) {
         console.info("=============== START : deleteUser ===============");
         console.log(`function arguments: user_type: ${user_type}, user_email: ${user_email}`);
         const ret = {message: FAILURE_MSG};
-        let iterator_flag = true;
+        let iterator_flag = true,
+            key = "",
+            user = {};
+        const identifier = crypto
+            .createHash(HASH)
+            .update(user_email)
+            .digest(HASH_ENCODING);
 
         if (![
             FACULTY_TYPE,
@@ -703,10 +736,20 @@ class Feedback extends Contract {
 
             if (res.value && res.value.value.toString()) {
                 try {
-                    const user = JSON.parse(res.value.value.toString("utf8"));
-                    console.log(`user: ${JSON.stringify(user, null, 2)}`);
-                    if (user.email === user_email)
-                        await ctx.stub.deleteState(res.value.key);
+                    const u = JSON.parse(res.value.value.toString("utf8"));
+                    console.log(`user: ${JSON.stringify(u, null, 2)}`);
+                    if (u.email === user_email){
+                        key = res.value.key;
+                        u.deleted = true;
+                        user = u;
+                        if (objectType === FACULTY_KEY_IDENTIFIER) {
+                            --users.true_faculty_count;
+                            users.faculties[identifier] = false;
+                        } else {
+                            --users.true_student_count;
+                            users.students[identifier] = false;
+                        }
+                    }
                 } catch (err) {
                     console.error(err);
                     console.error(res.value.value.toString("utf8"));
@@ -719,6 +762,9 @@ class Feedback extends Contract {
                 iterator_flag = false;
             }
         }
+
+        // update the user deletion state
+        await ctx.stub.putState(key, Buffer.from(JSON.stringify(user)));
 
         console.info("=============== END : deleteUser ===============");
         return Buffer.from(JSON.stringify(ret));
