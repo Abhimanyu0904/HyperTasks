@@ -5,11 +5,11 @@ Application code
 import json
 import os
 import secrets
-import subprocess
-from typing import List
 import smtplib
 import ssl
+import subprocess
 from email.message import EmailMessage
+from typing import List
 
 from flask_login import (LoginManager, UserMixin, login_required, login_user,
                          logout_user)
@@ -50,6 +50,7 @@ def chaincode(args: List[str]) -> tuple[bool, dict]:
         valid = False
 
     return valid, out
+
 
 def send_email(to: str, accepted: bool) -> bool:
     sender = "my_hyperledger_21@hotmail.com"
@@ -110,7 +111,7 @@ def base():
     filter_faculty_registration_requests_form = FilterFacultyRegistrationRequestsForm()
     filter_confirmed_requests_form = FilterConfirmedRequestsForm()
     filter_unconfirmed_requests_form = FilterUnconfirmedRequestsForm()
-    return dict(filter_student_requests_form=filter_student_requests_form, filter_faculty_requests_form=filter_faculty_requests_form, filter_student_registration_requests_form=filter_student_registration_requests_form, filter_faculty_registration_requests_form=filter_faculty_registration_requests_form, filter_confirmed_requests_form = filter_confirmed_requests_form, filter_unconfirmed_requests_form = filter_unconfirmed_requests_form)
+    return dict(filter_student_requests_form=filter_student_requests_form, filter_faculty_requests_form=filter_faculty_requests_form, filter_student_registration_requests_form=filter_student_registration_requests_form, filter_faculty_registration_requests_form=filter_faculty_registration_requests_form, filter_confirmed_requests_form=filter_confirmed_requests_form, filter_unconfirmed_requests_form=filter_unconfirmed_requests_form)
 
 
 @app.route("/")
@@ -232,9 +233,11 @@ def user_registration_requests():
                     if output.get('message') == "success":
                         valid2 = send_email(email, True)
                         if valid2:
-                            flash("Registration Request Accepted! Email Sent Successfully", "success")
+                            flash(
+                                "Registration Request Accepted! Email Sent Successfully", "success")
                         else:
-                            flash("Registration Request Accepted but some issue in sending the email!", 'danger')
+                            flash(
+                                "Registration Request Accepted but some issue in sending the email!", 'danger')
                     else:
                         flash(f"{output.get('error')}", "danger")
                 else:
@@ -250,9 +253,11 @@ def user_registration_requests():
                     if output.get('message') == "success":
                         valid2 = send_email(email, False)
                         if valid2:
-                            flash("Registration Request Rejected! Email Sent Successfully", "success")
+                            flash(
+                                "Registration Request Rejected! Email Sent Successfully", "success")
                         else:
-                            flash("Registration Request Rejected but some issue in sending the email!", 'danger')
+                            flash(
+                                "Registration Request Rejected but some issue in sending the email!", 'danger')
                     else:
                         flash(f"{output.get('error')}", "danger")
                 else:
@@ -440,7 +445,8 @@ def add_request():
             if valid:
                 if output.get('message') == 'success':
                     request_key = output.get('response')
-                    valid2, output2 = chaincode(['confirmRequest', session['email_id'], request_key])
+                    valid2, output2 = chaincode(
+                        ['confirmRequest', session['email_id'], request_key])
                     if valid2:
                         if output2.get('message') == 'success':
                             flash("Request Added Successfully", "success")

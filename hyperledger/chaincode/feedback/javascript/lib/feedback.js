@@ -386,6 +386,7 @@ class Feedback extends Contract {
             console.log(`request confirmed at ${request.confirmations}. required: ${request.required_confirmations}`);
         }
         request.updated_at = ctx.stub.getDateTimestamp().getTime();
+        console.log(`updated request: ${JSON.stringify(request, null, 2)}`);
 
         // update request in the ledger
         await ctx.stub.putState(key, Buffer.from(JSON.stringify(request)));
