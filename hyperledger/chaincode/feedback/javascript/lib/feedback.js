@@ -293,7 +293,7 @@ class Feedback extends Contract {
      * Retrieves the required requests by the given user type.
      * @param {Context} ctx - context object to interact with the world state
      * @param {string} user_type - The type of user.
-     * @param {boolean|string} confirmed - To indicate if confirmed or unconfirmed requests are to be queried.
+     * @param {string} confirmed - To indicate if confirmed or unconfirmed requests are to be queried.
      * @returns {Promise<Buffer>} - The queried feedbacks in JSON format.
      */
     async queryRequests(ctx, user_type, confirmed) {
@@ -323,7 +323,7 @@ class Feedback extends Contract {
                     console.log(`request: ${JSON.stringify(request, null, 2)}`);
                     if (confirmed === "all")
                         ret.response.push(request);
-                    else if (request.confirmed === confirmed)
+                    else if (`${request.confirmed}` === confirmed)
                         ret.response.push(request);
                 } catch (err) {
                     console.error(err);
