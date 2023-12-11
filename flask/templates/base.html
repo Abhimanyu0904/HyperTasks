@@ -55,7 +55,6 @@
                                         action="{{url_for('admin_display_requests')}}"
                                     >
                                         {{filter_student_requests_form.csrf_token}}
-                                        {{filter_student_requests_form.filter(value = 'Student')}}
                                         {{filter_student_requests_form.student_requests(class="dropdown-item")}}
                                     </form>
                                 </li>
@@ -65,7 +64,6 @@
                                         action="{{url_for('admin_display_requests')}}"
                                     >
                                         {{filter_faculty_requests_form.csrf_token}}
-                                        {{filter_faculty_requests_form.filter(value = 'Faculty')}}
                                         {{filter_faculty_requests_form.faculty_requests(class="dropdown-item")}}
                                     </form>
                                 </li>
@@ -89,8 +87,6 @@
                                         action="{{url_for('user_registration_requests')}}"
                                     >
                                         {{filter_student_registration_requests_form.csrf_token}}
-                                        {{filter_student_registration_requests_form.filter(value =
-                                        'Student')}}
                                         {{filter_student_registration_requests_form.student_registration_requests(class="dropdown-item")}}
                                     </form>
                                 </li>
@@ -100,13 +96,184 @@
                                         action="{{url_for('user_registration_requests')}}"
                                     >
                                         {{filter_faculty_registration_requests_form.csrf_token}}
-                                        {{filter_faculty_registration_requests_form.filter(value =
-                                        'Faculty')}}
                                         {{filter_faculty_registration_requests_form.faculty_registration_requests(class="dropdown-item")}}
                                     </form>
                                 </li>
                             </ul>
                         </li>
+
+
+                        <li class="nav-item dropdown">
+                          <a
+                              class="nav-link dropdown-toggle"
+                              href="#"
+                              role="button"
+                              data-bs-toggle="dropdown"
+                              aria-expanded="false"
+                          >
+                              Requests Not Started
+                          </a>
+                          <ul class="dropdown-menu">
+                              <li>
+                                  <form
+                                      method="post"
+                                      action="{{url_for('admin_display_requests')}}"
+                                  >
+                                      {{filter_not_started_student_requests_form.csrf_token}}
+                                      {{filter_not_started_student_requests_form.not_started_student_requests(class="dropdown-item")}}
+                                  </form>
+                              </li>
+                              <li>
+                                  <form
+                                      method="post"
+                                      action="{{url_for('admin_display_requests')}}"
+                                  >
+                                      {{filter_not_started_faculty_requests_form.csrf_token}}
+                                      {{filter_not_started_faculty_requests_form.not_started_faculty_requests(class="dropdown-item")}}
+                                  </form>
+                              </li>
+                          </ul>
+                      </li>
+
+
+
+                        <li class="nav-item dropdown">
+                          <a
+                              class="nav-link dropdown-toggle"
+                              href="#"
+                              role="button"
+                              data-bs-toggle="dropdown"
+                              aria-expanded="false"
+                          >
+                              Dropped Requests
+                          </a>
+                          <ul class="dropdown-menu">
+                              <li>
+                                  <form
+                                      method="post"
+                                      action="{{url_for('admin_display_requests')}}"
+                                  >
+                                      {{filter_dropped_student_requests_form.csrf_token}}
+                                      {{filter_dropped_student_requests_form.dropped_student_requests(class="dropdown-item")}}
+                                  </form>
+                              </li>
+                              <li>
+                                  <form
+                                      method="post"
+                                      action="{{url_for('admin_display_requests')}}"
+                                  >
+                                      {{filter_dropped_faculty_requests_form.csrf_token}}
+                                      {{filter_dropped_faculty_requests_form.dropped_faculty_requests(class="dropdown-item")}}
+                                  </form>
+                              </li>
+                          </ul>
+                      </li>
+
+
+                      <li class="nav-item dropdown">
+                        <a
+                            class="nav-link dropdown-toggle"
+                            href="#"
+                            role="button"
+                            data-bs-toggle="dropdown"
+                            aria-expanded="false"
+                        >
+                            Implemented Requests
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li>
+                                <form
+                                    method="post"
+                                    action="{{url_for('admin_display_requests')}}"
+                                >
+                                    {{filter_implemented_student_requests_form.csrf_token}}
+                                    {{filter_implemented_student_requests_form.implemented_student_requests(class="dropdown-item")}}
+                                </form>
+                            </li>
+                            <li>
+                                <form
+                                    method="post"
+                                    action="{{url_for('admin_display_requests')}}"
+                                >
+                                    {{filter_implemented_faculty_requests_form.csrf_token}}
+                                    {{filter_implemented_faculty_requests_form.implemented_faculty_requests(class="dropdown-item")}}
+                                </form>
+                            </li>
+                        </ul>
+                    </li>
+
+
+
+                    <li class="nav-item dropdown">
+                      <a
+                          class="nav-link dropdown-toggle"
+                          href="#"
+                          role="button"
+                          data-bs-toggle="dropdown"
+                          aria-expanded="false"
+                      >
+                          Requests In Progress
+                      </a>
+                      <ul class="dropdown-menu">
+                          <li>
+                              <form
+                                  method="post"
+                                  action="{{url_for('admin_display_requests')}}"
+                              >
+                                  {{filter_in_progress_student_requests_form.csrf_token}}
+                                  {{filter_in_progress_student_requests_form.in_progress_student_requests(class="dropdown-item")}}
+                              </form>
+                          </li>
+                          <li>
+                              <form
+                                  method="post"
+                                  action="{{url_for('admin_display_requests')}}"
+                              >
+                                  {{filter_in_progress_faculty_requests_form.csrf_token}}
+                                  {{filter_in_progress_faculty_requests_form.in_progress_faculty_requests(class="dropdown-item")}}
+                              </form>
+                          </li>
+                      </ul>
+                  </li>
+
+
+
+
+                  <li class="nav-item dropdown">
+                    <a
+                        class="nav-link dropdown-toggle"
+                        href="#"
+                        role="button"
+                        data-bs-toggle="dropdown"
+                        aria-expanded="false"
+                    >
+                        Requests On Hold
+                    </a>
+                    <ul class="dropdown-menu">
+                        <li>
+                            <form
+                                method="post"
+                                action="{{url_for('admin_display_requests')}}"
+                            >
+                                {{filter_dropped_student_requests_form.csrf_token}}
+                                {{filter_dropped_student_requests_form.dropped_student_requests(class="dropdown-item")}}
+                            </form>
+                        </li>
+                        <li>
+                            <form
+                                method="post"
+                                action="{{url_for('admin_display_requests')}}"
+                            >
+                                {{filter_faculty_requests_form.csrf_token}}
+                                {{filter_faculty_requests_form.droppedfaculty_requests(class="dropdown-item")}}
+                            </form>
+                        </li>
+                    </ul>
+                </li>
+
+
+
+
 
                         <li class="nav-item">
                             <a

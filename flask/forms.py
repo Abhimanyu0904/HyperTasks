@@ -70,33 +70,43 @@ class DropRequestForm(FlaskForm):
     drop = SubmitField('Drop')
 
 class FilterStudentRequestsForm(FlaskForm):
-    filter = HiddenField("Filter")
     student_requests = SubmitField('Student Requests')
 
 class FilterFacultyRequestsForm(FlaskForm):
-    filter = HiddenField("Filter")
     faculty_requests = SubmitField('Faculty Requests')
 
 class FilterStudentRegistrationRequestsForm(FlaskForm):
-    filter = HiddenField("Filter")
     student_registration_requests = SubmitField('Student Registration Requests')
 
 class FilterFacultyRegistrationRequestsForm(FlaskForm):
-    filter = HiddenField("Filter")
     faculty_registration_requests = SubmitField('Faculty Registration Requests')
 
 class FilterDroppedStudentRequestsForm(FlaskForm):
-    filter = HiddenField("Filter")
     dropped_student_requests = SubmitField('Dropped Student Requests')
 
 class FilterDroppedFacultyRequestsForm(FlaskForm):
-    filter = HiddenField("Filter")
     dropped_faculty_requests = SubmitField('Dropped Faculty Requests')
 
 class FilterImplementedStudentRequestsForm(FlaskForm):
-    filter = HiddenField("Filter")
     implemented_student_requests = SubmitField('Implemented Student Requests')
 
 class FilterImplementedFacultyRequestsForm(FlaskForm):
-    filter = HiddenField("Filter")
     implemented_faculty_requests = SubmitField('Implemented Faculty Requests')
+
+class FilterInProgressStudentRequestsForm(FlaskForm):
+    in_progress_student_requests = SubmitField('In Progress Student Requests')
+
+class FilterInProgressFacultyRequestsForm(FlaskForm):
+    in_progress_faculty_requests = SubmitField('In Progress Faculty Requests')
+
+class FilterOnHoldStudentRequestsForm(FlaskForm):
+    on_hold_student_requests = SubmitField('On Hold Student Requests')
+
+class FilterOnHoldFacultyRequestsForm(FlaskForm):
+    on_hold_faculty_requests = SubmitField('On Hold Faculty Requests')
+
+class FilterNotStartedStudentRequestsForm(FlaskForm):
+    not_started_student_requests = SubmitField('Not Started Student Requests')
+
+class FilterNotStartedFacultyRequestsForm(FlaskForm):
+    not_started_faculty_requests = SubmitField('Not Started Faculty Requests')

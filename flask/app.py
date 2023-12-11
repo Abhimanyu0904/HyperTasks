@@ -115,6 +115,13 @@ def base():
     filter_dropped_faculty_requests_form = FilterDroppedFacultyRequestsForm()
     filter_implemented_student_requests_form = FilterImplementedStudentRequestsForm()
     filter_implemented_faculty_requests_form = FilterImplementedFacultyRequestsForm()
+    filter_in_progress_student_requests_form = FilterInProgressStudentRequestsForm()
+    filter_in_progress_faculty_requests_form = FilterInProgressFacultyRequestsForm()
+    filter_on_hold_student_requests_form = FilterOnHoldStudentRequestsForm()
+    filter_on_hold_faculty_requests_form = FilterOnHoldFacultyRequestsForm()
+    filter_not_started_student_requests_form = FilterNotStartedStudentRequestsForm()
+    filter_not_started_faculty_requests_form = FilterNotStartedFacultyRequestsForm()
+    
     return dict(filter_student_requests_form=filter_student_requests_form,
                 filter_faculty_requests_form=filter_faculty_requests_form,
                 filter_student_registration_requests_form=filter_student_registration_requests_form,
@@ -124,14 +131,18 @@ def base():
                 filter_dropped_student_requests_form=filter_dropped_student_requests_form,
                 filter_dropped_faculty_requests_form=filter_dropped_faculty_requests_form,
                 filter_implemented_student_requests_form=filter_implemented_student_requests_form,
-                filter_implemented_faculty_requests_form=filter_implemented_faculty_requests_form)
+                filter_implemented_faculty_requests_form=filter_implemented_faculty_requests_form,
+                filter_in_progress_student_requests_form=filter_in_progress_student_requests_form,
+                filter_in_progress_faculty_requests_form=filter_in_progress_faculty_requests_form,
+                filter_on_hold_student_requests_form=filter_on_hold_student_requests_form,
+                filter_on_hold_faculty_requests_form=filter_on_hold_faculty_requests_form,
+                filter_not_started_student_requests_form=filter_not_started_student_requests_form,
+                filter_not_started_faculty_requests_form=filter_not_started_faculty_requests_form)
 
 
 @app.route("/")
 @app.route("/home")
 def home():
-    # session['admin_email'] = 'test'
-    # session.pop('admin_email')
     return render_template('home.html')
 
 
@@ -175,13 +186,11 @@ def login():
             type = login_form.type.data
             valid, output = chaincode(["loginUser", email_id, password, type])
             if valid:
-                # TODO: Parse Output after chaincode execution
                 if output.get('message') == "success":
                     session['email_id'] = email_id
                     response = output.get('response')
                     session['type'] = type
                     login_user(User(email_id))
-                    # session['type'] = response.get('type')
                     flash("Login Successful", "success")
                     return redirect(url_for('display_requests'))
                 else:
@@ -206,7 +215,6 @@ def admin_dashboard():
 @app.route("/admin_login", methods=['GET', 'POST'])
 def admin_login():
     admin_login_form = AdminLoginForm()
-    # if 'admin_email' in session:
     if request.method == 'POST':
         if admin_login_form.validate_on_submit():
             password = admin_login_form.password.data
@@ -224,9 +232,6 @@ def admin_login():
                 flash("Something went wrong. Please try again.", "danger")
             return redirect(url_for('admin_login'))
     return render_template("admin_login.html", form=admin_login_form)
-    # else:
-    #     flash("You have to be an admin to access this page. Please login first", "danger")
-    #     return redirect(url_for('admin_login'))
 
 
 @app.route("/user_registration_requests", methods=['GET', 'POST'])
@@ -282,7 +287,7 @@ def user_registration_requests():
 
         if request.method == 'POST' and 'student_registration_requests' in request.form:
             if filter_student_registration_requests_form.validate_on_submit():
-                filter = filter_student_registration_requests_form.filter.data
+                filter = "Student"
                 valid, output = chaincode(
                     ["queryUnverifiedUsers", 'admin@ashoka.edu.in', filter.lower()])
                 if valid:
@@ -299,7 +304,7 @@ def user_registration_requests():
 
         if request.method == 'POST' and 'faculty_registration_requests' in request.form:
             if filter_faculty_registration_requests_form.validate_on_submit():
-                filter = filter_faculty_registration_requests_form.filter.data
+                filter = "Faculty"
                 valid, output = chaincode(
                     ["queryUnverifiedUsers", 'admin@ashoka.edu.in', filter.lower()])
                 if valid:
@@ -337,6 +342,16 @@ def admin_display_requests():
         drop_request_form = DropRequestForm()
         filter_student_requests_form = FilterStudentRequestsForm()
         filter_faculty_requests_form = FilterFacultyRequestsForm()
+        filter_dropped_student_requests_form = FilterDroppedStudentRequestsForm()
+        filter_dropped_faculty_requests_form = FilterDroppedFacultyRequestsForm()
+        filter_implemented_student_requests_form = FilterImplementedStudentRequestsForm()
+        filter_implemented_faculty_requests_form = FilterImplementedFacultyRequestsForm()
+        filter_in_progress_student_requests_form = FilterInProgressStudentRequestsForm()
+        filter_in_progress_faculty_requests_form = FilterInProgressFacultyRequestsForm()
+        filter_on_hold_student_requests_form = FilterOnHoldStudentRequestsForm()
+        filter_on_hold_faculty_requests_form = FilterOnHoldFacultyRequestsForm()
+        filter_not_started_student_requests_form = FilterNotStartedStudentRequestsForm()
+        filter_not_started_faculty_requests_form = FilterNotStartedFacultyRequestsForm()
         if request.method == "POST" and 'initiate' in request.form:
             if initiate_request_form.validate_on_submit():
                 request_key = initiate_request_form.request_key.data
@@ -410,7 +425,7 @@ def admin_display_requests():
 
         elif request.method == 'POST' and 'student_requests' in request.form:
             if filter_student_requests_form.validate_on_submit():
-                filter = filter_student_requests_form.filter.data
+                filter = "Student"
                 valid, output = chaincode(
                     ['queryRequests', 'admin@ashoka.edu.in', 'true', filter.lower()])
                 if valid:
@@ -423,7 +438,7 @@ def admin_display_requests():
                 return redirect(url_for('admin_display_requests'))
         elif request.method == 'POST' and 'faculty_requests' in request.form:
             if filter_faculty_requests_form.validate_on_submit():
-                filter = filter_student_requests_form.filter.data
+                filter = "Faculty"
                 valid, output = chaincode(
                     ['queryRequests', 'admin@ashoka.edu.in', 'true', filter.lower()])
                 if valid:
@@ -434,7 +449,143 @@ def admin_display_requests():
                 else:
                     flash("Something went wrong. Please try again.", "danger")
                 return redirect(request.referrer)
+            
+        elif request.method == 'POST' and 'dropped_student_requests' in request.form:
+            if filter_dropped_student_requests_form.validate_on_submit():
+                filter = "Student"
+                valid, output = chaincode(
+                    ['queryRequests', 'admin@ashoka.edu.in', 'true', filter.lower()])
+                if valid:
+                    if output.get('message') == 'success':
+                        return render_template("admin_display_requests.html", requests=output.get('response'), status = "dropped", initiate_request_form=initiate_request_form, finish_request_form=finish_request_form, hold_request_form=hold_request_form, resume_request_form=resume_request_form, drop_request_form=drop_request_form, filter_student_requests_form=filter_student_requests_form, filter_faculty_requests_form=filter_faculty_requests_form, filter=filter)
+                    else:
+                        flash(f"{output.get('error')}", "danger")
+                else:
+                    flash("Something went wrong. Please try again.", "danger")
+                return redirect(url_for('admin_display_requests'))
+        elif request.method == 'POST' and 'dropped_faculty_requests' in request.form:
+            if filter_dropped_faculty_requests_form.validate_on_submit():
+                filter = "Faculty"
+                valid, output = chaincode(
+                    ['queryRequests', 'admin@ashoka.edu.in', 'true', filter.lower()])
+                if valid:
+                    if output.get('message') == 'success':
+                        return render_template("admin_display_requests.html", requests=output.get('response'), status = "dropped", initiate_request_form=initiate_request_form, finish_request_form=finish_request_form, hold_request_form=hold_request_form, resume_request_form=resume_request_form, drop_request_form=drop_request_form, filter_student_requests_form=filter_student_requests_form, filter_faculty_requests_form=filter_faculty_requests_form, filter=filter)
+                    else:
+                        flash(f"{output.get('error')}", "danger")
+                else:
+                    flash("Something went wrong. Please try again.", "danger")
+                return redirect(request.referrer)
 
+        elif request.method == 'POST' and 'implemented_student_requests' in request.form:
+            if filter_implemented_student_requests_form.validate_on_submit():
+                filter = "Student"
+                valid, output = chaincode(
+                    ['queryRequests', 'admin@ashoka.edu.in', 'true', filter.lower()])
+                if valid:
+                    if output.get('message') == 'success':
+                        return render_template("admin_display_requests.html", requests=output.get('response'), status = "implemented", initiate_request_form=initiate_request_form, finish_request_form=finish_request_form, hold_request_form=hold_request_form, resume_request_form=resume_request_form, drop_request_form=drop_request_form, filter_student_requests_form=filter_student_requests_form, filter_faculty_requests_form=filter_faculty_requests_form, filter=filter)
+                    else:
+                        flash(f"{output.get('error')}", "danger")
+                else:
+                    flash("Something went wrong. Please try again.", "danger")
+                return redirect(url_for('admin_display_requests'))
+        elif request.method == 'POST' and 'implemented_faculty_requests' in request.form:
+            if filter_implemented_faculty_requests_form.validate_on_submit():
+                filter = "Faculty"
+                valid, output = chaincode(
+                    ['queryRequests', 'admin@ashoka.edu.in', 'true', filter.lower()])
+                if valid:
+                    if output.get('message') == 'success':
+                        return render_template("admin_display_requests.html", requests=output.get('response'), status = "implemented", initiate_request_form=initiate_request_form, finish_request_form=finish_request_form, hold_request_form=hold_request_form, resume_request_form=resume_request_form, drop_request_form=drop_request_form, filter_student_requests_form=filter_student_requests_form, filter_faculty_requests_form=filter_faculty_requests_form, filter=filter)
+                    else:
+                        flash(f"{output.get('error')}", "danger")
+                else:
+                    flash("Something went wrong. Please try again.", "danger")
+                return redirect(request.referrer)      
+
+        elif request.method == 'POST' and 'on_hold_student_requests' in request.form:
+            if filter_on_hold_student_requests_form.validate_on_submit():
+                filter = "Student"
+                valid, output = chaincode(
+                    ['queryRequests', 'admin@ashoka.edu.in', 'true', filter.lower()])
+                if valid:
+                    if output.get('message') == 'success':
+                        return render_template("admin_display_requests.html", requests=output.get('response'), status = "on hold", initiate_request_form=initiate_request_form, finish_request_form=finish_request_form, hold_request_form=hold_request_form, resume_request_form=resume_request_form, drop_request_form=drop_request_form, filter_student_requests_form=filter_student_requests_form, filter_faculty_requests_form=filter_faculty_requests_form, filter=filter)
+                    else:
+                        flash(f"{output.get('error')}", "danger")
+                else:
+                    flash("Something went wrong. Please try again.", "danger")
+                return redirect(url_for('admin_display_requests'))
+        elif request.method == 'POST' and 'on_hold_faculty_requests' in request.form:
+            if filter_on_hold_faculty_requests_form.validate_on_submit():
+                filter = "Faculty"
+                valid, output = chaincode(
+                    ['queryRequests', 'admin@ashoka.edu.in', 'true', filter.lower()])
+                if valid:
+                    if output.get('message') == 'success':
+                        return render_template("admin_display_requests.html", requests=output.get('response'), status = "on hold", initiate_request_form=initiate_request_form, finish_request_form=finish_request_form, hold_request_form=hold_request_form, resume_request_form=resume_request_form, drop_request_form=drop_request_form, filter_student_requests_form=filter_student_requests_form, filter_faculty_requests_form=filter_faculty_requests_form, filter=filter)
+                    else:
+                        flash(f"{output.get('error')}", "danger")
+                else:
+                    flash("Something went wrong. Please try again.", "danger")
+                return redirect(request.referrer)     
+
+        elif request.method == 'POST' and 'in_progress_student_requests' in request.form:
+            if filter_in_progress_student_requests_form.validate_on_submit():
+                filter = "Student"
+                valid, output = chaincode(
+                    ['queryRequests', 'admin@ashoka.edu.in', 'true', filter.lower()])
+                if valid:
+                    if output.get('message') == 'success':
+                        return render_template("admin_display_requests.html", requests=output.get('response'), status = "in progress", initiate_request_form=initiate_request_form, finish_request_form=finish_request_form, hold_request_form=hold_request_form, resume_request_form=resume_request_form, drop_request_form=drop_request_form, filter_student_requests_form=filter_student_requests_form, filter_faculty_requests_form=filter_faculty_requests_form, filter=filter)
+                    else:
+                        flash(f"{output.get('error')}", "danger")
+                else:
+                    flash("Something went wrong. Please try again.", "danger")
+                return redirect(url_for('admin_display_requests'))
+        elif request.method == 'POST' and 'in_progress_faculty_requests' in request.form:
+            if filter_in_progress_faculty_requests_form.validate_on_submit():
+                filter = "Faculty"
+                valid, output = chaincode(
+                    ['queryRequests', 'admin@ashoka.edu.in', 'true', filter.lower()])
+                if valid:
+                    if output.get('message') == 'success':
+                        return render_template("admin_display_requests.html", requests=output.get('response'), status = "in progress", initiate_request_form=initiate_request_form, finish_request_form=finish_request_form, hold_request_form=hold_request_form, resume_request_form=resume_request_form, drop_request_form=drop_request_form, filter_student_requests_form=filter_student_requests_form, filter_faculty_requests_form=filter_faculty_requests_form, filter=filter)
+                    else:
+                        flash(f"{output.get('error')}", "danger")
+                else:
+                    flash("Something went wrong. Please try again.", "danger")
+                return redirect(request.referrer)   
+
+        elif request.method == 'POST' and 'not_started_student_requests' in request.form:
+            if filter_not_started_student_requests_form.validate_on_submit():
+                filter = "Student"
+                valid, output = chaincode(
+                    ['queryRequests', 'admin@ashoka.edu.in', 'true', filter.lower()])
+                if valid:
+                    if output.get('message') == 'success':
+                        return render_template("admin_display_requests.html", requests=output.get('response'), status = "not started", initiate_request_form=initiate_request_form, finish_request_form=finish_request_form, hold_request_form=hold_request_form, resume_request_form=resume_request_form, drop_request_form=drop_request_form, filter_student_requests_form=filter_student_requests_form, filter_faculty_requests_form=filter_faculty_requests_form, filter=filter)
+                    else:
+                        flash(f"{output.get('error')}", "danger")
+                else:
+                    flash("Something went wrong. Please try again.", "danger")
+                return redirect(url_for('admin_display_requests'))
+        elif request.method == 'POST' and 'not_started_faculty_requests' in request.form:
+            if filter_not_started_faculty_requests_form.validate_on_submit():
+                filter = "Faculty"
+                valid, output = chaincode(
+                    ['queryRequests', 'admin@ashoka.edu.in', 'true', filter.lower()])
+                if valid:
+                    if output.get('message') == 'success':
+                        return render_template("admin_display_requests.html", requests=output.get('response'), status = "not started", initiate_request_form=initiate_request_form, finish_request_form=finish_request_form, hold_request_form=hold_request_form, resume_request_form=resume_request_form, drop_request_form=drop_request_form, filter_student_requests_form=filter_student_requests_form, filter_faculty_requests_form=filter_faculty_requests_form, filter=filter)
+                    else:
+                        flash(f"{output.get('error')}", "danger")
+                else:
+                    flash("Something went wrong. Please try again.", "danger")
+                return redirect(request.referrer)          
+        
+            
         # by default student requests open first
         valid, output = chaincode(
             ['queryRequests', 'admin@ashoka.edu.in', 'false', 'student'])
@@ -486,7 +637,6 @@ def add_request():
 @login_required
 def display_requests():
     confirm_request_form = ConfirmRequestForm()
-    # view_history_form = ViewHistoryForm()
     filter_confirmed_requests_form = FilterConfirmedRequestsForm()
     filter_unconfirmed_requests_form = FilterUnconfirmedRequestsForm()
 
