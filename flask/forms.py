@@ -51,22 +51,27 @@ class RejectUserRegistrationRequestForm(FlaskForm):
 
 class InitiateRequestForm(FlaskForm):
     request_key = HiddenField("Request Key", validators=[DataRequired()])
+    type = HiddenField("Type", validators=[DataRequired()])
     initiate = SubmitField('Initiate')
 
 class HoldRequestForm(FlaskForm):
     request_key = HiddenField("Request Key", validators=[DataRequired()])
+    type = HiddenField("Type", validators=[DataRequired()])
     put_on_hold = SubmitField('Put On Hold')
 
 class ResumeRequestForm(FlaskForm):
     request_key = HiddenField("Request Key", validators=[DataRequired()])
+    type = HiddenField("Type", validators=[DataRequired()])
     resume = SubmitField('Resume')
 
 class FinishRequestForm(FlaskForm):
     request_key = HiddenField("Request Key", validators=[DataRequired()])
+    type = HiddenField("Type", validators=[DataRequired()])
     finish = SubmitField('Finish')
 
 class DropRequestForm(FlaskForm):
     request_key = HiddenField("Request Key", validators=[DataRequired()])
+    type = HiddenField("Type", validators=[DataRequired()])
     drop = SubmitField('Drop')
 
 class FilterStudentRequestsForm(FlaskForm):

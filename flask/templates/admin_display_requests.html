@@ -86,6 +86,8 @@
                                                     {{initiate_request_form.csrf_token}}
                                                     {{initiate_request_form.request_key(value
                                                     = request.key)}}
+                                                    {{initiate_request_form.type(value
+                                                        = request.get('user_type'))}}
                                                     {%if request.get('status')
                                                     == 'not
                                                     started'%}
@@ -93,45 +95,52 @@
                                                     btn-success")}}
                                                     {%else%}
                                                     {{initiate_request_form.initiate(class="btn
-                                                    btn-danger")}}
+                                                    btn-success disabled")}}
                                                     {%endif%}
                                                 </form>
 
                                             </div>
                                         </div>
                                         <br>
-                                        {%if request.get('status') == 'in
-                                        progress'%}
                                         <form method="post"
                                             action="{{url_for('admin_display_requests')}}">
                                             {{hold_request_form.csrf_token}}
                                             {{hold_request_form.request_key(value
                                             = request.get('key'))}}
+                                            {{hold_request_form.type(value
+                                                = request.get('user_type'))}}
+                                            {%if request.get('status') == 'in progress'%}
                                             {{hold_request_form.put_on_hold(class="btn
                                             btn-warning")}}
+                                            {%else%}
+                                            {{hold_request_form.put_on_hold(class="btn
+                                            btn-warning disabled")}}
+                                            {%endif%}
                                         </form>
-
-                                        {% elif request.get('status') == "on
-                                        hold"
-                                        %}
-
+                                        <br>
                                         <form method="post"
                                             action="{{url_for('admin_display_requests')}}">
                                             {{resume_request_form.csrf_token}}
                                             {{resume_request_form.request_key(value
                                             = request.get('key'))}}
+                                            {{resume_request_form.type(value
+                                                = request.get('user_type'))}}
+                                            {%if request.get('status') == 'on hold'%}
                                             {{resume_request_form.resume(class="btn
                                             btn-warning")}}
+                                            {%else%}
+                                            {{resume_request_form.resume(class="btn
+                                            btn-warning disabled")}}
+                                            {%endif%}
                                         </form>
-                                        {%endif%}
                                         <br>
-                                        {%if request.get('status') == "in
-                                        progress"%}
                                         <form method="post"
                                             action="{{url_for('admin_display_requests')}}">
                                             {{finish_request_form.csrf_token}}
                                             {{finish_request_form.request_key(value
                                             = request.get('key'))}}
+                                            {{finish_request_form.type(value
+                                                = request.get('user_type'))}}
                                             {%if request.get('status') == "in
                                             progress"%}
                                             {{finish_request_form.finish(class="btn
@@ -147,7 +156,7 @@
                             </div>
                         </div>
                     </div>
-                    {%endif%}
+                    
                     {%endif%}
                     {%endif%}
                     {% endfor %}
@@ -217,6 +226,8 @@
                                                         {{initiate_request_form.csrf_token}}
                                                         {{initiate_request_form.request_key(value
                                                         = request.key)}}
+                                                        {{initiate_request_form.type(value
+                                                            = request.user_type)}}
                                                         {%if
                                                         request.get('status') ==
                                                         'not
@@ -225,45 +236,43 @@
                                                         btn-success")}}
                                                         {%else%}
                                                         {{initiate_request_form.initiate(class="btn
-                                                        btn-danger")}}
+                                                        btn-success disabled")}}
                                                         {%endif%}
                                                     </form>
 
                                                 </div>
                                             </div>
                                             <br>
-                                            {%if request.get('status') == 'in
-                                            progress'%}
                                             <form method="post"
                                                 action="{{url_for('admin_display_requests')}}">
                                                 {{hold_request_form.csrf_token}}
                                                 {{hold_request_form.request_key(value
                                                 = request.get('key'))}}
+                                                {{hold_request_form.type(value
+                                                    = request.get('user_type'))}}
                                                 {{hold_request_form.put_on_hold(class="btn
                                                 btn-warning")}}
                                             </form>
-
-                                            {% elif request.get('status') == "on
-                                            hold"
-                                            %}
-
+                                            <br>
                                             <form method="post"
                                                 action="{{url_for('admin_display_requests')}}">
                                                 {{resume_request_form.csrf_token}}
                                                 {{resume_request_form.request_key(value
                                                 = request.get('key'))}}
+                                                {{resume_request_form.type(value
+                                                    = request.get('user_type'))}}
                                                 {{resume_request_form.resume(class="btn
                                                 btn-warning")}}
                                             </form>
-                                            {%endif%}
                                             <br>
-                                            {%if request.get('status') == "in
-                                            progress"%}
+
                                             <form method="post"
                                                 action="{{url_for('admin_display_requests')}}">
                                                 {{finish_request_form.csrf_token}}
                                                 {{finish_request_form.request_key(value
                                                 = request.get('key'))}}
+                                                {{finish_request_form.type(value
+                                                    = request.get('user_type'))}}
                                                 {%if request.get('status') ==
                                                 "in progress"%}
                                                 {{finish_request_form.finish(class="btn
@@ -279,7 +288,6 @@
                                 </div>
                             </div>
                         </div>
-                        {%endif%}
                         {%endif%}
                         {% endfor %}
                         {%endif%}

@@ -353,78 +353,133 @@ def admin_display_requests():
         if request.method == "POST" and 'initiate' in request.form:
             if initiate_request_form.validate_on_submit():
                 request_key = initiate_request_form.request_key.data
+                type = initiate_request_form.type.data
                 valid, output = chaincode(
                     ["updateRequest", session['admin_email'], "Initiating Request", "in progress", request_key])
                 if valid:
                     if output.get('message') == "success":
                         flash("Request Initiated!", "success")
-                        return redirect(request.referrer)
-                        # return render_template("admin_display_requests.html", requests=output.get('response'), status = status, initiate_request_form=initiate_request_form, finish_request_form=finish_request_form, hold_request_form=hold_request_form, resume_request_form=resume_request_form, drop_request_form=drop_request_form, filter_student_requests_form=filter_student_requests_form, filter_faculty_requests_form=filter_faculty_requests_form)
+                        valid2, output2 = chaincode(['queryRequests', session['admin_email'], 'true', type])
+                        if valid2:
+                            if output2.get('message') == 'success':
+                                return render_template("admin_display_requests.html", requests=output2.get('response'), status = 'in progress', initiate_request_form=initiate_request_form, finish_request_form=finish_request_form, hold_request_form=hold_request_form, resume_request_form=resume_request_form, drop_request_form=drop_request_form, filter_student_requests_form=filter_student_requests_form, filter_faculty_requests_form=filter_faculty_requests_form)
+                            else:
+                                flash(f"{output2.get('error')}", "danger")
+                        else:
+                            flash("Something went wrong. Please try again.", "danger")
+                        return(redirect(url_for('admin_display_requests')))
+
+                        # return render_template("admin_display_requests.html", requests=output.get('response'), status = 'in progress', initiate_request_form=initiate_request_form, finish_request_form=finish_request_form, hold_request_form=hold_request_form, resume_request_form=resume_request_form, drop_request_form=drop_request_form, filter_student_requests_form=filter_student_requests_form, filter_faculty_requests_form=filter_faculty_requests_form)
                     else:
                         flash(f"{output.get('error')}", "danger")
                 else:
                     flash("Something went wrong. Please try again.", "danger")
-                return redirect(request.referrer)
+                return redirect(url_for('admin_display_requests'))
+                # return redirect(request.referrer)
         elif request.method == "POST" and 'finish' in request.form:
             if finish_request_form.validate_on_submit():
                 request_key = finish_request_form.request_key.data
+                type = initiate_request_form.type.data
                 valid, output = chaincode(
                     ["updateRequest", session['admin_email'], "Request Implemented", "implemented", request_key])
                 if valid:
                     if output.get('message') == 'success':
                         flash("Request Completed!", "success")
-                        return redirect(request.referrer)
-                        # return render_template("admin_display_requests.html", requests=output.get('response'), status = status, initiate_request_form=initiate_request_form, finish_request_form=finish_request_form, hold_request_form=hold_request_form, resume_request_form=resume_request_form, drop_request_form=drop_request_form, filter_student_requests_form=filter_student_requests_form, filter_faculty_requests_form=filter_faculty_requests_form)
+                        valid2, output2 = chaincode(['queryRequests', session['admin_email'], 'true', type])
+                        if valid2:
+                            if output2.get('message') == 'success':
+                                return render_template("admin_display_requests.html", requests=output2.get('response'), status = 'implemented', initiate_request_form=initiate_request_form, finish_request_form=finish_request_form, hold_request_form=hold_request_form, resume_request_form=resume_request_form, drop_request_form=drop_request_form, filter_student_requests_form=filter_student_requests_form, filter_faculty_requests_form=filter_faculty_requests_form)
+                            else:
+                                flash(f"{output2.get('error')}", "danger")
+                        else:
+                            flash("Something went wrong. Please try again.", "danger")
+                        return(redirect(url_for('admin_display_requests')))
                     else:
                         flash(f"{output.get('error')}", "danger")
                 else:
                     flash("Something went wrong. Please try again.", "danger")
-                return redirect(request.referrer)
+                return redirect(url_for('admin_display_requests'))
+                # return redirect(request.referrer)
         elif request.method == "POST" and 'put_on_hold' in request.form:
             if hold_request_form.validate_on_submit():
                 request_key = hold_request_form.request_key.data
+                type = initiate_request_form.type.data
                 valid, output = chaincode(
                     ["updateRequest", session['admin_email'], "Request On Hold", "on hold", request_key])
                 if valid:
                     if output.get('message') == 'success':
                         flash("Request On Hold!", "success")
-                        return redirect(request.referrer)
-                        # return render_template("admin_display_requests.html", requests=output.get('response'), status = status, initiate_request_form=initiate_request_form, finish_request_form=finish_request_form, hold_request_form=hold_request_form, resume_request_form=resume_request_form, drop_request_form=drop_request_form, filter_student_requests_form=filter_student_requests_form, filter_faculty_requests_form=filter_faculty_requests_form)
+                        valid2, output2 = chaincode(['queryRequests', session['admin_email'], 'true', type])
+                        if valid2:
+                            if output2.get('message') == 'success':
+                                return render_template("admin_display_requests.html", requests=output2.get('response'), status = 'on hold', initiate_request_form=initiate_request_form, finish_request_form=finish_request_form, hold_request_form=hold_request_form, resume_request_form=resume_request_form, drop_request_form=drop_request_form, filter_student_requests_form=filter_student_requests_form, filter_faculty_requests_form=filter_faculty_requests_form)
+                            else:
+                                flash(f"{output2.get('error')}", "danger")
+                        else:
+                            flash("Something went wrong. Please try again.", "danger")
+                        return(redirect(url_for('admin_display_requests')))                    
+                        # return redirect(request.referrer)
                     else:
                         flash(f"{output.get('error')}", "danger")
                 else:
                     flash("Something went wrong. Please try again.", "danger")
-                return redirect(request.referrer)
+                # return redirect(request.referrer)
         elif request.method == "POST" and 'resume' in request.form:
             if resume_request_form.validate_on_submit():
                 request_key = resume_request_form.request_key.data
+                type = initiate_request_form.type.data
                 valid, output = chaincode(
                     ["updateRequest", session['admin_email'], "Request Resumed", "in progress", request_key])
                 if valid:
                     if output.get('message') == 'success':
                         flash("Request Resumed!", "success")
+                        valid2, output2 = chaincode(['queryRequests', session['admin_email'], 'true', type])
+                        if valid2:
+                            if output2.get('message') == 'success':
+                                return render_template("admin_display_requests.html", requests=output2.get('response'), status = 'in progress', initiate_request_form=initiate_request_form, finish_request_form=finish_request_form, hold_request_form=hold_request_form, resume_request_form=resume_request_form, drop_request_form=drop_request_form, filter_student_requests_form=filter_student_requests_form, filter_faculty_requests_form=filter_faculty_requests_form)
+                            else:
+                                flash(f"{output2.get('error')}", "danger")
+                        else:
+                            flash("Something went wrong. Please try again.", "danger")
+                        return(redirect(url_for('admin_display_requests')))
                         return redirect(request.referrer)
+                        # return redirect(request.referrer)
                         # return render_template("admin_display_requests.html", requests=output.get('response'), initiate_request_form=initiate_request_form, finish_request_form=finish_request_form, hold_request_form=hold_request_form, resume_request_form=resume_request_form, drop_request_form=drop_request_form, filter_student_requests_form=filter_student_requests_form, filter_faculty_requests_form=filter_faculty_requests_form)
                     else:
                         flash(f"{output.get('error')}", "danger")
                 else:
                     flash("Something went wrong. Please try again.", "danger")
-                return redirect(request.referrer)
+                # return redirect(request.referrer)
+                return redirect(url_for('admin_display_requests'))
+
         elif request.method == "POST" and 'drop' in request.form:
             if drop_request_form.validate_on_submit():
                 request_key = drop_request_form.request_key.data
+                type = initiate_request_form.type.data
                 valid, output = chaincode(
                     ["updateRequest", session['admin_email'], "Request Dropped", "dropped", request_key])
                 if valid:
                     if output.get('message') == 'success':
                         flash("Request Dropped!", "success")
+                        valid2, output2 = chaincode(['queryRequests', session['admin_email'], 'true', type])
+                        if valid2:
+                            if output2.get('message') == 'success':
+                                return render_template("admin_display_requests.html", requests=output2.get('response'), status = 'dropped', initiate_request_form=initiate_request_form, finish_request_form=finish_request_form, hold_request_form=hold_request_form, resume_request_form=resume_request_form, drop_request_form=drop_request_form, filter_student_requests_form=filter_student_requests_form, filter_faculty_requests_form=filter_faculty_requests_form)
+                            else:
+                                flash(f"{output2.get('error')}", "danger")
+                        else:
+                            flash("Something went wrong. Please try again.", "danger")
+                        return(redirect(url_for('admin_display_requests')))
                         return redirect(request.referrer)
+                        # return redirect(request.referrer)
                         # return render_template("admin_display_requests.html", requests=output.get('response'), initiate_request_form=initiate_request_form, finish_request_form=finish_request_form, hold_request_form=hold_request_form, resume_request_form=resume_request_form, drop_request_form=drop_request_form, filter_student_requests_form=filter_student_requests_form, filter_faculty_requests_form=filter_faculty_requests_form)
                     else:
                         flash(f"{output.get('error')}", "danger")
                 else:
                     flash("Something went wrong. Please try again.", "danger")
+                # return redirect(request.referrer)
                 return redirect(request.referrer)
+
 
         elif request.method == 'POST' and 'student_requests' in request.form:
             if filter_student_requests_form.validate_on_submit():
@@ -588,7 +643,6 @@ def admin_display_requests():
                     flash("Something went wrong. Please try again.", "danger")
                 return redirect(request.referrer)          
         
-            
         # by default student requests open first
         valid, output = chaincode(
             ['queryRequests', 'admin@ashoka.edu.in', 'false', 'student'])
@@ -600,7 +654,7 @@ def admin_display_requests():
             flash(f"{output.get('error')}", "danger")
             return redirect(url_for('admin_display_requests'))
 
-        return render_template("admin_display_requests.html", requests=output.get('response'), initiate_request_form=initiate_request_form, finish_request_form=finish_request_form, hold_request_form=hold_request_form, resume_request_form=resume_request_form, drop_request_form=drop_request_form, filter='Student')
+        return render_template("admin_display_requests.html", requests=output.get('response'), status = 'All',initiate_request_form=initiate_request_form, finish_request_form=finish_request_form, hold_request_form=hold_request_form, resume_request_form=resume_request_form, drop_request_form=drop_request_form, filter='Student')
     else:
         flash("You have to be an admin to access this page. Please login first", "danger")
         return redirect(url_for('admin_login'))
