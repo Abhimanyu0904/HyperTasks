@@ -535,7 +535,7 @@ def confirm_request():
             return redirect(url_for('display_requests'))
 
 
-@app.route('/view_history', methods=['POST'])
+@app.route('/view_history', methods=['POST', 'GET'])
 def view_history():
     view_history_form = ViewHistoryForm()
     if request.method == 'POST':
@@ -551,6 +551,7 @@ def view_history():
             else:
                 flash("Something went wrong. Please try again.", "danger")
             return redirect(url_for('display_requests'))
+    return render_template("display_requests.html")
 
 
 @app.route("/admin_logout")
