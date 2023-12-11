@@ -245,10 +245,10 @@ def user_registration_requests():
                 return redirect(url_for('user_registration_requests'))
         if request.method == 'POST' and 'reject' in request.form:
             if reject_user_registration_request_form.validate_on_submit():
-                email = reject_user_registration_request_form.email.data
+                email = reject_user_registration_request_form.email_id.data
                 type = reject_user_registration_request_form.type.data
                 valid, output = chaincode(
-                    ["deleteUser", 'admin@ashoka.edu.in', email, type])
+                    ["deleteUser", 'admin@ashoka.edu.in', type, email])
                 if valid:
                     if output.get('message') == "success":
                         valid2 = send_email(email, False)
