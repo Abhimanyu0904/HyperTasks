@@ -474,7 +474,7 @@ def display_requests():
     if request.method == 'POST' and 'confirmed_requests' in request.form:
         if filter_confirmed_requests_form.validate_on_submit():
             valid, output = chaincode(
-                ["queryRequests", session['email_id'], True, session['type']])
+                ["queryRequests", session['email_id'], "true", session['type']])
             if valid:
                 if output.get('message') == 'success':
                     print('___________________________________________________________')
@@ -489,7 +489,7 @@ def display_requests():
     if request.method == 'POST' and 'unconfirmed_requests' in request.form:
         if filter_unconfirmed_requests_form.validate_on_submit():
             valid, output = chaincode(
-                ["queryRequests", session['email_id'], False, session['type']])
+                ["queryRequests", session['email_id'], "false", session['type']])
 
             if valid:
                 if output.get('message') == 'success':
@@ -509,7 +509,7 @@ def display_requests():
         if output.get('message') == 'success':
             print('___________________________________________________________')
             print(output)
-            return render_template("display_requests.html", requests=output.get('response'), filter_confirmed_requests_form=filter_confirmed_requests_form, filter_unconfirmed_requests_form=filter_unconfirmed_requests_form, view_history_form=view_history_form, confirm_request_form=confirm_request_form, filter = 'All')
+            return render_template("display_requests.html", requests=output.get('response'), filter_confirmed_requests_form=filter_confirmed_requests_form, filter_unconfirmed_requests_form=filter_unconfirmed_requests_form, view_history_form=view_history_form, confirm_request_form=confirm_request_form, filter='All')
         else:
             flash(f"{output.get('error')}", "danger")
     else:
