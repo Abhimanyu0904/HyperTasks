@@ -154,7 +154,7 @@
                                             = request.get('key'))}}
                                             {{drop_request_form.type(value
                                                 = request.get('user_type'))}}
-                                            {%if request.get('status') == "dropped"%}
+                                            {%if request.get('status') == "dropped" or request.get('status') == "implemented"%}
                                             {{drop_request_form.drop(class="btn
                                             btn-danger disabled")}}
                                             {%else%}
@@ -310,7 +310,7 @@
                                                 = request.get('key'))}}
                                                 {{drop_request_form.type(value
                                                     = request.get('user_type'))}}
-                                                {%if request.get('status') == "dropped"%}
+                                                {%if request.get('status') == "dropped" or request.get('status') == "implemented"%}
                                                 {{drop_request_form.drop(class="btn
                                                 btn-danger disabled")}}
                                                 {%else%}
