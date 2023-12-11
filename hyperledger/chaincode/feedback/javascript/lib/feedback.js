@@ -755,10 +755,12 @@ class Feedback extends Contract {
                         u.deleted = true;
                         user = u;
                         if (objectType === FACULTY_KEY_IDENTIFIER) {
-                            --users.true_faculty_count;
+                            if (u.verified)
+                                --users.true_faculty_count;
                             users.faculties[identifier] = false;
                         } else {
-                            --users.true_student_count;
+                            if (u.verified)
+                                --users.true_student_count;
                             users.students[identifier] = false;
                         }
                     }
