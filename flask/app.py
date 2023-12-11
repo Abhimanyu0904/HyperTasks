@@ -638,17 +638,18 @@ def admin_display_requests():
                 return redirect(url_for('admin_display_requests', type='faculty'))
         
         type = request.args.get('type', 'student')
+        print(type)
 
         # by default student requests open first
         valid, output = chaincode(
             ['queryRequests', 'admin@ashoka.edu.in', 'false', type])
         if not valid:
             flash("Something went wrong. Please try again.", "danger")
-            return redirect(url_for('admin_display_requests'))
+            return redirect(url_for('admin_display_requests', type = type))
 
         if output.get('message') != 'success':
             flash(f"{output.get('error')}", "danger")
-            return redirect(url_for('admin_display_requests'))
+            return redirect(url_for('admin_display_requests', type = type))
 
         return render_template("admin_display_requests.html", requests=output.get('response'), status = 'All',initiate_request_form=initiate_request_form, finish_request_form=finish_request_form, hold_request_form=hold_request_form, resume_request_form=resume_request_form, drop_request_form=drop_request_form, filter=type.title())
     else:

@@ -88,9 +88,7 @@
                                                     = request.key)}}
                                                     {{initiate_request_form.type(value
                                                         = request.get('type'))}}
-                                                    {%if request.get('status')
-                                                    == 'not
-                                                    started'%}
+                                                    {%if request.get('status')== 'not started'%}
                                                     {{initiate_request_form.initiate(class="btn
                                                     btn-success")}}
                                                     {%else%}
@@ -245,10 +243,7 @@
                                                         = request.key)}}
                                                         {{initiate_request_form.type(value
                                                             = request.type)}}
-                                                        {%if
-                                                        request.get('status') ==
-                                                        'not
-                                                        started'%}
+                                                        {%if request.get('status') =='not started'%}
                                                         {{initiate_request_form.initiate(class="btn
                                                         btn-success")}}
                                                         {%else%}
@@ -267,8 +262,13 @@
                                                 = request.get('key'))}}
                                                 {{hold_request_form.type(value
                                                     = request.get('type'))}}
+                                                {%if request.get('status') == 'in progress'%}
                                                 {{hold_request_form.put_on_hold(class="btn
                                                 btn-warning")}}
+                                                {%else%}
+                                                {{hold_request_form.put_on_hold(class="btn
+                                                btn-warning disabled")}}
+                                                {%endif%}
                                             </form>
                                             <br>
                                             <form method="post"
@@ -278,8 +278,14 @@
                                                 = request.get('key'))}}
                                                 {{resume_request_form.type(value
                                                     = request.get('type'))}}
+                                                {%if request.get('status') == 'on hold'%}
                                                 {{resume_request_form.resume(class="btn
                                                 btn-warning")}}
+                                                {%else%}
+                                                {{resume_request_form.resume(class="btn
+                                                btn-warning disabled")}}
+                                                {%endif%}
+
                                             </form>
                                             <br>
 

@@ -10,19 +10,20 @@
 
     <!-- First Button (wrapped in an anchor tag) -->
     <a href="{{ url_for('user_registration_requests') }}" style="text-decoration: none;">
-        <button type="button" class="btn btn-success btn-lg" style="padding: 20px 40px; font-size: 24px;">User Registration Requests</button>
+        <button type="button" class="btn btn-success btn-lg">User Registration Requests</button>
     </a>
 
     <!-- Second Button (inside a form) -->
-    <form method="post" action="{{ url_for('admin_display_requests') }}" style="margin: 0;">
+    <form method="post" action="{{ url_for('admin_display_requests', type = 'student') }}" style="margin: 0;">
         {{ filter_student_requests_form.csrf_token }}
-        <button type="submit" class="btn btn-warning btn-lg" style="padding: 20px 40px; font-size: 24px;">{{ filter_student_requests_form.student_requests.label }}</button>
+        {{filter_student_requests_form.student_requests(class = "btn btn-warning btn-lg")}}
     </form>
 
     <!-- Third Button (inside another form) -->
-    <form method="post" action="{{ url_for('admin_display_requests') }}" style="margin: 0;">
+    <form method="post" action="{{ url_for('admin_display_requests', type = 'faculty') }}" style="margin: 0;">
         {{ filter_faculty_requests_form.csrf_token }}
-        <button type="submit" class="btn btn-danger btn-lg" style="padding: 20px 40px; font-size: 24px;">{{ filter_faculty_requests_form.faculty_requests.label }}</button>
+        {{filter_faculty_requests_form.faculty_requests(class = "btn btn-danger btn-lg")}}
+        
     </form>
 
 </div>
