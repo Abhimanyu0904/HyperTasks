@@ -23,6 +23,8 @@ module.exports.ADMIN_EMAIL = "admin@ashoka.edu.in";
 module.exports.LOCALE = "en-IN",
 module.exports.DATE_OPTIONS = {
     day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
     month: "2-digit",
     timeZone: "Asia/Kolkata",
     year: "numeric",

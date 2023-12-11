@@ -265,7 +265,6 @@ class Feedback extends Contract {
 
         const now = ctx.stub
                 .getDateTimestamp()
-                .getTime()
                 .toLocaleString(LOCALE, DATE_OPTIONS),
             // create a new request asset
             request = {
@@ -390,7 +389,6 @@ class Feedback extends Contract {
         }
         request.updated_at = ctx.stub
             .getDateTimestamp()
-            .getTime()
             .toLocaleString(LOCALE, DATE_OPTIONS);
         console.log(`updated request: ${JSON.stringify(request, null, 2)}`);
 
@@ -450,7 +448,6 @@ class Feedback extends Contract {
         request.update_type = STATUS;
         request.updated_at = ctx.stub
             .getDateTimestamp()
-            .getTime()
             .toLocaleString(LOCALE, DATE_OPTIONS);
         console.log(`updated request: ${JSON.stringify(request, null, 2)}`);
 
