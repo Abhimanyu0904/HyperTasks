@@ -84,17 +84,19 @@
                                         </div>
                                     </div>
                                     <br>
-                                    <form method="post"
-                                        action="{{url_for('view_history')}}">
-                                        {{view_history_form.csrf_token}}
-                                        {% if request.get('confirmed') == True %}
-                                        {{view_history_form.view_history(class="btn
-                                        btn-danger")}}
+                                        {%if request.get('confirmed') == True%}
+                                        <a
+                                          class="btn btn-danger"
+                                          href="{{ url_for( 'view_history', key = request.get('key') ) }}">
+                                          View History
+                                        </a>
                                         {%else%}
-                                        {{view_history_form.view_history(class="btn
-                                        btn-danger disabled")}}
-                                        {%endif%}
-                                    </form>
+                                        <a
+                                        class="btn btn-danger disabled"
+                                        href="{{ url_for( 'view_history', key = request.get('key') ) }}">
+                                        View History
+                                      </a>
+                                      {%endif%}
                                 </div>
                             </div>
                         </div>

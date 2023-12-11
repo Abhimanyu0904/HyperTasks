@@ -467,7 +467,7 @@ def add_request():
 @login_required
 def display_requests():
     confirm_request_form = ConfirmRequestForm()
-    view_history_form = ViewHistoryForm()
+    # view_history_form = ViewHistoryForm()
     filter_confirmed_requests_form = FilterConfirmedRequestsForm()
     filter_unconfirmed_requests_form = FilterUnconfirmedRequestsForm()
 
@@ -479,7 +479,7 @@ def display_requests():
                 if output.get('message') == 'success':
                     print('___________________________________________________________')
                     print(output)
-                    return render_template("display_requests.html", requests=output.get('response'), filter_confirmed_requests_form=filter_confirmed_requests_form, filter_unconfirmed_requests_form=filter_unconfirmed_requests_form, view_history_form=view_history_form, confirm_request_form=confirm_request_form)
+                    return render_template("display_requests.html", requests=output.get('response'), filter_confirmed_requests_form=filter_confirmed_requests_form, filter_unconfirmed_requests_form=filter_unconfirmed_requests_form, confirm_request_form=confirm_request_form)
                 else:
                     flash(f"{output.get('error')}", "danger")
             else:
@@ -495,7 +495,7 @@ def display_requests():
                 if output.get('message') == 'success':
                     print('___________________________________________________________')
                     print(output)
-                    return render_template("display_requests.html", requests=output.get('response'), filter_confirmed_requests_form=filter_confirmed_requests_form, filter_unconfirmed_requests_form=filter_unconfirmed_requests_form, view_history_form=view_history_form, confirm_request_form=confirm_request_form)
+                    return render_template("display_requests.html", requests=output.get('response'), filter_confirmed_requests_form=filter_confirmed_requests_form, filter_unconfirmed_requests_form=filter_unconfirmed_requests_form, confirm_request_form=confirm_request_form)
                 else:
                     flash(f"{output.get('error')}", "danger")
             else:
@@ -509,7 +509,7 @@ def display_requests():
         if output.get('message') == 'success':
             print('___________________________________________________________')
             print(output)
-            return render_template("display_requests.html", requests=output.get('response'), filter_confirmed_requests_form=filter_confirmed_requests_form, filter_unconfirmed_requests_form=filter_unconfirmed_requests_form, view_history_form=view_history_form, confirm_request_form=confirm_request_form, filter='All')
+            return render_template("display_requests.html", requests=output.get('response'), filter_confirmed_requests_form=filter_confirmed_requests_form, filter_unconfirmed_requests_form=filter_unconfirmed_requests_form, confirm_request_form=confirm_request_form, filter='All')
         else:
             flash(f"{output.get('error')}", "danger")
     else:
@@ -535,23 +535,33 @@ def confirm_request():
             return redirect(url_for('display_requests'))
 
 
-@app.route('/view_history', methods=['POST', 'GET'])
-def view_history():
-    view_history_form = ViewHistoryForm()
-    if request.method == 'POST':
-        if view_history_form.validate_on_submit():
-            request_key = view_history_form.request_key.data
-            valid, output = chaincode(
-                ['queryRequestHistory', session['email_id'], request_key])
-            if valid:
-                if output.get('message') == 'success':
-                    return render_template("view_history.html", history=output.get('response'))
-                else:
-                    flash(f"{output.get('error')}", "danger")
-            else:
-                flash("Something went wrong. Please try again.", "danger")
-            return redirect(url_for('display_requests'))
-    return render_template("display_requests.html")
+@app.route('/view_history/<string:key>')
+@login_required
+def view_history(key):
+    valid, output = chaincode(['queryRequestHistory', session['email_id'], key])
+    if valid:
+        if output.get('message') == 'success':
+            return render_template("view_history.html", history=output.get('response'), key = key)
+        else:
+            flash(f"{output.get('error')}", "danger")
+    else:
+        flash("Something went wrong. Please try again.", "danger")
+    return redirect(request.referrer)
+
+    # view_history_form = ViewHistoryForm()
+    # if request.method == 'POST':
+    #     if view_history_form.validate_on_submit():
+    #         request_key = view_history_form.request_key.data
+    #         valid, output = chaincode(
+    #             ['queryRequestHistory', session['email_id'], request_key])
+    #         if valid:
+    #             if output.get('message') == 'success':
+    #                 return render_template("view_history.html", history=output.get('response'))
+    #             else:
+    #                 flash(f"{output.get('error')}", "danger")
+    #         else:
+    #             flash("Something went wrong. Please try again.", "danger")
+    #         return redirect(url_for('display_requests'))
 
 
 @app.route("/admin_logout")
