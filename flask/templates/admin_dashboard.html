@@ -8,12 +8,22 @@
         <a href="{{ url_for('user_registration_requests') }}">
             <button type="button" class="btn btn-success btn-lg" style="padding: 20px 40px; font-size: 24px;">User Registration Requests</button>
         </a>
-        <a href="{{ url_for('admin_display_requests') }}">
-            <button type="button" class="btn btn-warning btn-lg" style="padding: 20px 40px; font-size: 24px;">Student Requests</button>
-        </a>
-        <a href="{{ url_for('admin_display_requests') }}">
-            <button type="button" class="btn btn-danger btn-lg" style="padding: 20px 40px; font-size: 24px;">Faculty Requests</button>
-        </a>
+        <form
+        method="post"
+        action="{{url_for('admin_display_requests')}}"
+    >
+        {{filter_student_requests_form.csrf_token}}
+        {{filter_student_requests_form.filter(value = 'Student')}}
+        {{filter_student_requests_form.student_requests(class="btn btn-warning btn-lg")}}
+    </form>
+        <form
+        method="post"
+        action="{{url_for('admin_display_requests')}}"
+    >
+        {{filter_faculty_requests_form.csrf_token}}
+        {{filter_faculty_requests_form.filter(value = 'Faculty')}}
+        {{filter_faculty_requests_form.faculty_requests(class="btn btn-danger btn-lg")}}
+    </form>
     </div>
 </div>
 {% endblock content %}
