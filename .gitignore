@@ -2,7 +2,7 @@
 hyperledger/feedback/javascript/wallet
 
 # test-network
-hyperledger/test-network
+# hyperledger/test-network
 
 ### Flask ###
 instance/*
